@@ -19,7 +19,7 @@ export const FACILITIES = [
   { id: 'kamado', name: '言霊の竈', kind: 'power', q: 9, base: 14000, growth: 1.08, max: 400, desc: '言霊の熱を蓄える(パワー9)' },
   { id: 'still', name: '想いの蒸留器', kind: 'power', q: 27, base: 170000, growth: 1.08, max: 400, desc: '想いを灯火に変える(パワー27)' },
   { id: 'shelf', name: '棚', kind: 'util', base: 25, growth: 2.5, max: 6, desc: '留守の蓄えが長くもつ(時間×2.5)' },
-  { id: 'dorm', name: '寮', kind: 'util', base: 80, growth: 2.0, max: 10, desc: '言霊の住める数 +6' },
+  { id: 'dorm', name: '修行場', kind: 'util', base: 80, growth: 2.0, max: 10, desc: '修行で一度に起こせる数 +4' },
   { id: 'ring', name: '呼び込みの鈴', kind: 'util', base: 150, growth: 5, max: 8, desc: '灯し場のタップ価値 ×2' },
   { id: 'bell', name: '鐘楼', kind: 'util', base: 120, growth: 1, max: 1, desc: '朝・昼・夜の鐘の時刻が見える' },
   { id: 'voice', name: '声の燈', kind: 'util', base: 150, growth: 1, max: 1, desc: 'ことばが声を持つ(聴き取りの想起)' },

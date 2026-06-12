@@ -3,7 +3,9 @@
 // 数値はインフレ研究+v3統合仕様準拠。誤タップ没収なし(コンボ切れ+0.4秒ロックのみ)。
 import { rarityIndex } from './srs.js';
 import { isDrowsy } from './schedule.js';
-import { critChance, weaponMultTotal, equippedTrait } from './battle.js';
+import { critChance } from './battle.js';
+import { armoryMult, equippedEffects } from './armory.js';
+import { jobMod } from './jobs.js';
 
 export const CURVE = {
   tapBase: 1,
@@ -82,7 +84,7 @@ export class Pool {
 
   globalMult() {
     const p = this.app.profile;
-    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0) * weaponMultTotal(p);
+    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0) * armoryMult(p);
   }
 
   wordValue(entry) {
@@ -96,7 +98,8 @@ export class Pool {
   }
 
   comboMult() {
-    return 1 + Math.min(this.combo, CURVE.comboCap) * CURVE.comboStep;
+    const cap = jobMod(this.app.profile, 'comboCap', CURVE.comboCap);
+    return 1 + Math.min(this.combo, cap) * CURVE.comboStep;
   }
 
   rushActive(now = Date.now()) { return this.mode === 'rush' && now < this.rushEndsAt; }
@@ -147,8 +150,8 @@ export class Pool {
   ignite(now = Date.now()) {
     if (this.mode !== 'ready') return false;
     this.chain = now < this.chainWindowUntil ? Math.min(this.chain + 1, CURVE.fever.chainCap) : 0;
-    const trait = equippedTrait(this.app.profile);
-    const cap = CURVE.fever.capMs + (trait === 'rushExt' ? 3000 : 0);
+    const fx = equippedEffects(this.app.profile);
+    const cap = CURVE.fever.capMs + Math.min(8000, (fx.rushExt || 0) * 1000);
     this.mode = 'rush';
     this.rushEndsAt = now + CURVE.fever.baseMs;
     this.rushCapAt = now + cap;
@@ -162,7 +165,7 @@ export class Pool {
     if (this.mode === 'rush' && now >= this.rushEndsAt) {
       this.mode = 'idle';
       this.g = CURVE.fever.emberG;
-      this.chainWindowUntil = now + CURVE.fever.chainWindowMs;
+      this.chainWindowUntil = now + jobMod(this.app.profile, 'chainWindowMs', CURVE.fever.chainWindowMs);
       this.afterglowUntil = now + CURVE.fever.afterglowMs;
       out.rushEnded = true;
       return out;
@@ -189,10 +192,14 @@ export class Pool {
 
     if (!correct) {
       let guarded = false;
-      const trait = equippedTrait(p);
-      if (!auto && trait === 'comboGuard' && now - this.guardUsedAt > 60000) {
+      const fx = equippedEffects(p);
+      const hasGuard = (fx.comboGuardBase || 0) > 0 || (fx.comboGuard || 0) > 0;
+      const guardCd = Math.max(30, (fx.comboGuardBase || 90) - (fx.comboGuard || 0)) * 1000;
+      if (!auto && hasGuard && now - this.guardUsedAt > guardCd) {
         this.guardUsedAt = now;
-        guarded = true; // 旅装の短剣: コンボを守った
+        guarded = true; // 武器がコンボを守った
+      } else if (!auto && jobMod(p, 'missHalvesCombo', false)) {
+        this.combo = Math.floor(this.combo / 2); // 剣士: 半減止まり
       } else {
         this.combo = 0;
       }
@@ -212,22 +219,27 @@ export class Pool {
     } else {
       this.combo++;
       this.lastTapAt = now;
-      const trait = equippedTrait(p);
-      const fastMs = CURVE.freshFast.ms + (trait === 'freshExt' ? 1000 : 0);
+      const fx = equippedEffects(p);
+      const fastMs = CURVE.freshFast.ms + (fx.freshExt || 0) * 1000;
       const dt = now - this.cueAt;
-      fresh = dt <= fastMs ? CURVE.freshFast.mult : dt <= CURVE.freshOk.ms ? CURVE.freshOk.mult : 1;
+      const fMult = jobMod(p, 'freshFastMult', CURVE.freshFast.mult);
+      const oMult = jobMod(p, 'freshOkMult', CURVE.freshOk.mult);
+      fresh = dt <= fastMs ? fMult : dt <= CURVE.freshOk.ms ? oMult : 1;
       const rush = this.rushActive(now) ? this.rushMult() : 1;
-      const critP = critChance(this.app.battleLevel || 1, trait === 'crit4' ? 0.04 : 0);
+      const critP = critChance(this.app.battleLevel || 1, fx.critRate || 0);
       crit = Math.random() < critP;
-      gain = Math.max(1, Math.round(base * this.comboMult() * fresh * rush * (crit ? 2 : 1)));
+      const critM = crit ? Math.min(3, 2 + (fx.critDmg || 0)) : 1;
+      const post = 1 + (fx.manaGain || 0) + (fx.field[this.cue.f] || 0); // 有界後置部(vref非追跡)
+      gain = Math.max(1, Math.round(base * this.comboMult() * fresh * rush * critM * post));
 
       // ラッシュ延長 or ゲージ充填
       if (this.rushActive(now)) {
         this.rushEndsAt = Math.min(this.rushEndsAt + CURVE.fever.extendMs, this.rushCapAt);
       } else {
         this.g += this.afterglow(now) ? 2 : 1;
-        if (this.g >= CURVE.fever.gaugeMax && this.mode === 'idle') {
-          this.g = CURVE.fever.gaugeMax;
+        const gMax = jobMod(p, 'gaugeMax', CURVE.fever.gaugeMax);
+        if (this.g >= gMax && this.mode === 'idle') {
+          this.g = gMax;
           this.mode = 'ready';
           this.readyAt = now;
           gaugeReady = true;

@@ -63,52 +63,6 @@ export function bossAtk(bossNumber) {
   return Math.round(hpModel / BATTLE.hitsToDie);
 }
 
-// ---- 武器(=経済仕様の「銘」スロット。ゴールド建て) ----
-export const WEAPONS = [
-  { id: 0, name: '樫の杖', icon: '🪄', mult: 1, trait: null, traitDesc: 'はじまりの杖' },
-  { id: 1, name: '旅装の短剣', icon: '🗡️', mult: 2, trait: 'comboGuard', traitDesc: '誤タップ1回までコンボを守る(60秒に1回)' },
-  { id: 2, name: '蒼火の魔杖', icon: '🔱', mult: 2, trait: 'crit4', traitDesc: '会心+4%' },
-  { id: 3, name: '風詠みの弓', icon: '🏹', mult: 2, trait: 'rushExt', traitDesc: '詠唱ラッシュ上限+3秒' },
-  { id: 4, name: '月鋼の剣', icon: '⚔️', mult: 2, trait: 'freshExt', traitDesc: '鮮度の速窓2秒→3秒' },
-  { id: 5, name: '竜骨の大杖', icon: '🦴', mult: 2, trait: 'guard25', traitDesc: 'ボス戦の被ダメ−25%' },
-];
-
-export function weaponAt(i) {
-  if (i < WEAPONS.length) return WEAPONS[i];
-  const names = ['星鉄の刃', '雷鳴の槍', '緋色の魔斧', '霧氷の刺剣', '黄金の戦鎚'];
-  const traits = ['comboGuard', 'crit4', 'rushExt', 'freshExt', 'guard25'];
-  const j = (i - WEAPONS.length) % names.length;
-  const grade = Math.floor((i - WEAPONS.length) / names.length) + 2;
-  return {
-    id: i, name: `${names[j]}+${grade}`, icon: '✨', mult: 1.5,
-    trait: traits[j], traitDesc: WEAPONS[j + 1].traitDesc + '(強化版)',
-  };
-}
-
-export function weaponMultTotal(profile) {
-  let m = 1;
-  for (const i of profile.weapons || []) m *= weaponAt(i).mult;
-  return m;
-}
-
-export function equippedTrait(profile) {
-  const eq = profile.equip ?? 0;
-  if (!(profile.weapons || []).includes(eq) && eq !== 0) return null;
-  return weaponAt(eq).trait;
-}
-
-// 直近の中ボスHP = 武器価格
-export function weaponPrice(kills) {
-  const lastMid = Math.max(5, Math.floor(kills / BATTLE.bossEvery) * BATTLE.bossEvery);
-  return enemyHp(lastMid - 1);
-}
-
-export function weaponsAvailable(profile) {
-  const owned = (profile.weapons || []).length;
-  const rights = Math.floor((profile.battle?.kills || 0) / BATTLE.weaponEvery);
-  return Math.max(0, rights - Math.max(0, owned - 1)); // 初期装備0番は権利消費なし
-}
-
 // ---- バトル状態機械 ----
 export class Battle {
   constructor(app) {
@@ -117,7 +71,6 @@ export class Battle {
     if (!p.battle) p.battle = { kills: 0, dmg: 0 };
     if (p.gold == null) p.gold = 0;
     if (p.exp == null) p.exp = 0;
-    if (!p.weapons) { p.weapons = [0]; p.equip = 0; }
     if (!p.boss) p.boss = { engaged: false, bodyHp: null, scars: 0, hp: null, nextAtk: 0 };
     this.events = [];
   }
@@ -136,7 +89,7 @@ export class Battle {
   addExp(kind) {
     const p = this.app.profile;
     const before = levelOf(p.exp).level;
-    p.exp += BATTLE.exp[kind] || 0;
+    p.exp += (BATTLE.exp[kind] || 0) * (p.dev?.mult || 1);
     const after = levelOf(p.exp).level;
     if (after > before) {
       // レベルアップ: HP全回復(討伐チャンス中なら逆転の高揚)
@@ -177,7 +130,7 @@ export class Battle {
   finishKill(wasBoss) {
     const p = this.app.profile;
     const k = p.battle.kills;
-    const gold = Math.round(this.hp(k) * BATTLE.goldRate);
+    const gold = Math.round(this.hp(k) * BATTLE.goldRate * (p.dev?.mult || 1));
     p.gold += gold;
     const lv = this.addExp(wasBoss || isMidBoss(k) || isChapterBoss(k) ? 'boss' : 'kill');
     p.battle.kills++;
@@ -187,15 +140,16 @@ export class Battle {
     return { kill: true, gold, killedIndex: k, levelUp: lv, chapterBoss: isChapterBoss(k), midBoss: isMidBoss(k) };
   }
 
-  // 討伐チャンス(プレイヤー起点)
-  engageBoss(now = Date.now()) {
+  // 討伐チャンス(プレイヤー起点)。opts: {dmgReduce(装備), hpBonus(ノノの手紙)}
+  engageBoss(opts = {}, now = Date.now()) {
     const p = this.app.profile;
     if (!this.isBossNow() || p.boss.engaged) return false;
     if (p.battle.dmg < this.barrierMax()) return false;
     const L = this.level().level;
     p.boss.engaged = true;
     p.boss.bodyHp = this.bodyMax();
-    p.boss.hp = hpMax(L);
+    p.boss.hp = Math.round(hpMax(L) * (1 + (opts.hpBonus || 0)));
+    p.boss.dmgReduce = Math.min(0.5, opts.dmgReduce || 0);
     p.boss.nextAtk = now + this.atkPeriod();
     return true;
   }
@@ -213,7 +167,7 @@ export class Battle {
     if (now < p.boss.nextAtk) return null;
     p.boss.nextAtk = now + this.atkPeriod();
     let dmg = bossAtk(this.bossNumber());
-    if (equippedTrait(p) === 'guard25') dmg = Math.round(dmg * 0.75);
+    dmg = Math.round(dmg * (1 - (p.boss.dmgReduce || 0)));
     p.boss.hp -= dmg;
     if (p.boss.hp <= 0) {
       this.retreat();
@@ -232,17 +186,4 @@ export class Battle {
     this.app.save();
   }
 
-  // 武器購入
-  buyWeapon() {
-    const p = this.app.profile;
-    if (weaponsAvailable(p) <= 0) return null;
-    const price = weaponPrice(p.battle.kills);
-    if (p.gold < price) return null;
-    p.gold -= price;
-    const next = (p.weapons || []).length; // 次の番号
-    p.weapons.push(next);
-    p.equip = next;
-    this.app.save();
-    return weaponAt(next);
-  }
 }

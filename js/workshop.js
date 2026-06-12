@@ -8,7 +8,7 @@ import { todayKey, dayDiff, dayStat } from './storage.js';
 import { ttsAvailable } from './audio.js';
 
 const INTRO_WORDS = ['water', 'apple', 'sun']; // 敗北不能の最初の3語(L1最易)
-const WAKE_WINDOW_MAX = 12; // 1窓あたりの提示上限(セッションを3分以内に切る)
+const WAKE_WINDOW_BASE = 12; // 1窓あたりの提示上限(寮で拡張。復習の山は分割して返す)
 
 export class Workshop {
   constructor(app) {
@@ -78,6 +78,10 @@ export class Workshop {
     return INTRO_WORDS.filter((w) => !p.cards[w] && !p.steps[w] && this.app.index.byKey.has(w));
   }
 
+  wakeWindowMax() {
+    return WAKE_WINDOW_BASE + (this.app.profile.facilities.dorm || 0) * 4;
+  }
+
   wakeQueue(now = Date.now()) {
     const p = this.app.profile;
     const q = [];
@@ -90,7 +94,7 @@ export class Workshop {
     }
     drowsy.sort((a, b) => a.R - b.R);
     q.sort((a, b) => a.due - b.due);
-    return [...q, ...drowsy].slice(0, WAKE_WINDOW_MAX);
+    return [...q, ...drowsy].slice(0, this.wakeWindowMax());
   }
 
   // ---- 想起カード ----
@@ -203,16 +207,17 @@ export class Workshop {
 
   // ---- 招く(新しい言霊) ----
 
+  // 1日の上限は設けない(やりたい人は1日で多くの語彙を学べる)。
+  // 学びすぎの帳尻は忘却曲線が取る: 日が経つほど復習(うとうと)が増え、修行が厚くなる。
   inviteCapToday(now = Date.now()) {
     const p = this.app.profile;
+    if (p.settings.newPerDay >= 999) return 999;
     const used = dayStat(p, now).new || 0;
     return Math.max(0, p.settings.newPerDay - used);
   }
 
   roomLeft() {
-    const p = this.app.profile;
-    const living = Object.keys(p.cards).length + Object.keys(p.steps).length;
-    return dormCap(p) - living;
+    return 999; // 住まいの制限は廃止(寮は修行枠の拡張に転用)
   }
 
   inviteCandidates(n = 3) {

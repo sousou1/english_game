@@ -6,7 +6,11 @@ import { rarityIndex, retrievability, RARITY } from './srs.js';
 import { POS_JA } from './quiz.js';
 import { Workshop } from './workshop.js';
 import { Pool, CURVE } from './pool.js';
-import { Battle, BATTLE, enemyHp, isMidBoss, isChapterBoss, hpMax, weaponAt, weaponPrice, weaponsAvailable, levelOf } from './battle.js';
+import { Battle, BATTLE, enemyHp, isMidBoss, isChapterBoss, hpMax, levelOf, bossAtk } from './battle.js';
+import { ARMORY } from '../data/weapons.js';
+import { dropRoll, pushBox, openDrop, enhance, enhanceCost, salvage, equipped, equippedEffects, weaponDef, weaponMult } from './armory.js';
+import { JOBS, currentJob, jobUnlocked } from './jobs.js';
+import { letterAvailable, readLetter, consumeLetterBuff, COMPANIONS } from './party.js';
 import { TIER_NAMES, FACILITIES, facilityPrice } from './economy.js';
 import { SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
 import { sfx, speak, initAudio, ttsAvailable, comboTone } from './audio.js';
@@ -74,6 +78,7 @@ export function initUI(appRef) {
   $('#screen').innerHTML = `
     <div id="stat" class="stat">
       <span id="stLv">Lv1</span>
+      <span id="stHp">❤100</span>
       <span id="stAtk">⚔0</span>
       <span id="stMana">✨0<small id="stRate"></small></span>
       <span id="stGold">💰0</span>
@@ -139,7 +144,10 @@ export function initUI(appRef) {
     }
   };
   $('#engageBtn').onclick = () => {
-    if (battle.engageBoss()) {
+    const fx = equippedEffects(app.profile);
+    const hpBonus = consumeLetterBuff(app.profile);
+    if (hpBonus > 0) ticker('💌 ノノの手紙が、胸の中であたたかい。(HP+15%)', 'gold');
+    if (battle.engageBoss({ dmgReduce: fx.bossGuard, hpBonus })) {
       sfx('zawa');
       ticker('魔物の眼が、こちらを向いた。');
       renderStage();
@@ -164,6 +172,7 @@ function boot() {
   const ret = ws.settleReturn();
   if (ret.away > 90 * 1000 && ret.gained > 0) ticker(lineVar('settle_return', { n: fmtBig(ret.gained) }));
   if (ws.canOpenChest()) ticker(line('chest_wait'), 'gold');
+  if (letterAvailable(p)) ticker('💌 ノノから手紙が届いている。(物語シートで読める)', 'gold');
   pool.refill();
   renderAll();
   const sc = p.scenario;
@@ -271,7 +280,11 @@ function renderStat() {
   const lv = levelOf(p.exp);
   battle.app.battleLevel = lv.level;
   pool.app.battleLevel = lv.level;
-  $('#stLv').textContent = `Lv${lv.level}`;
+  $('#stLv').textContent = `${currentJob(p).icon}Lv${lv.level}`;
+  const maxHp = hpMax(lv.level);
+  const curHp = p.boss.engaged ? Math.max(0, p.boss.hp) : maxHp;
+  $('#stHp').textContent = `❤${curHp}/${maxHp}`;
+  $('#stHp').classList.toggle('danger', curHp / maxHp < 0.35);
   $('#stAtk').textContent = `⚔${fmtBig(Math.max(1, p.vref))}`;
   $('#stGold').textContent = `💰${fmtBig(p.gold)}`;
 }
@@ -323,7 +336,9 @@ function renderStage() {
   if (p.boss.engaged) {
     const max = hpMax(levelOf(p.exp).level);
     $('#phpFill').style.width = `${Math.max(0, (p.boss.hp / max) * 100)}%`;
-    $('#phpNum').textContent = `${Math.max(0, p.boss.hp)}/${max}`;
+    const atk = Math.round(bossAtk(battle.bossNumber()) * (1 - (p.boss.dmgReduce || 0)));
+    const hits = Math.max(0, Math.ceil(p.boss.hp / Math.max(1, atk)));
+    $('#phpNum').textContent = `${Math.max(0, p.boss.hp)}/${max} あと${hits}発`;
   }
 }
 
@@ -370,8 +385,9 @@ function renderMenuBadges() {
   bt.classList.toggle('hidden', n === 0);
   bt.textContent = n;
   const bw = $('#bWeap');
-  const canBuy = weaponsAvailable(app.profile) > 0 && app.profile.gold >= weaponPrice(app.profile.battle.kills);
-  bw.classList.toggle('hidden', !canBuy);
+  const boxN = app.profile.armory.box.length;
+  bw.classList.toggle('hidden', boxN === 0);
+  bw.textContent = boxN;
 }
 
 // ---------- 詠唱(タップ) ----------
@@ -388,16 +404,17 @@ function poolTap(w, tileEl) {
     renderBand();
     return;
   }
-  // 収入(攻撃=収入)
-  p.lights += res.gain;
-  p.totalLights += res.gain;
-  if (pool.rushActive()) rushEarned += res.gain;
+  // 収入(攻撃=収入)。開発者モードは進行倍率(vrefは正直なまま)
+  const devGain = res.gain * (p.dev?.mult || 1);
+  p.lights += devGain;
+  p.totalLights += devGain;
+  if (pool.rushActive()) rushEarned += devGain;
 
   comboTone(pool.combo);
   if (navigator.vibrate) navigator.vibrate(res.crit ? 25 : 5);
   const r = tileEl.getBoundingClientRect();
   spark(r.x + r.width / 2, r.y + 10, res.crit);
-  dmgPop(`-${fmtBig(res.gain)}`, res.crit);
+  dmgPop(`-${fmtBig(devGain)}`, res.crit);
   if (res.crit) { cutin(pool.tiles.find(() => true) ? w : w, ''); sfx('crit'); }
   const en = $('#enemy');
   en.classList.remove('hitfx');
@@ -408,7 +425,7 @@ function poolTap(w, tileEl) {
   if (res.milestone) ticker(line('milestone_word', { word: w }));
 
   // バトル適用
-  const br = battle.applyDamage(res.gain);
+  const br = battle.applyDamage(devGain);
   if (br.levelUp) {
     sfx('fanfare');
     ticker(`レベルアップ! Lv${br.levelUp} — 体が軽い。`, 'gold');
@@ -433,12 +450,30 @@ function onKill(br) {
   const p = app.profile;
   sfx('open');
   sfx('payout');
-  goldRain(br.gold);
+  // 装備のゴールドボーナス
+  const fx = equippedEffects(p);
+  const bonus = Math.round(br.gold * (fx.goldGain || 0));
+  if (bonus > 0) p.gold += bonus;
+  goldRain(br.gold + bonus);
   if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
   const name = br.chapterBoss ? '強大な魔物' : br.midBoss ? '森の主クラスの魔物' : '魔物';
-  ticker(`${name}を討伐! 💰${fmtBig(br.gold)} を手に入れた。`, 'gold');
-  if ((p.battle.kills) % BATTLE.weaponEvery === 0) {
-    ticker('武器屋に新しい得物が入ったようだ。', 'gold');
+  ticker(`${name}を討伐! 💰${fmtBig(br.gold + bonus)} を手に入れた。`, 'gold');
+  // 武器ドロップ(ハクスラ): 雑魚30% / 中ボス確定 / 章ボス2個
+  const kind = br.chapterBoss ? 'chapter' : br.midBoss ? 'mid' : 'mob';
+  const rolls = kind === 'chapter' ? [dropRoll(p, 'chapter', 0), dropRoll(p, 'chapter', 1)] : [dropRoll(p, kind)];
+  for (const roll of rolls) {
+    if (!roll) continue;
+    pushBox(p, roll);
+    const rc = ARMORY.rarities[roll.rar];
+    sfx(roll.rar === 'SSR' ? 'kyuin' : roll.rar === 'SR' ? 'reach' : 'flip');
+    if (rc.pillar) {
+      const en = $('#enemyWrap');
+      const pillar = document.createElement('div');
+      pillar.className = `pillar ${rc.pillar}`;
+      en.appendChild(pillar);
+      setTimeout(() => pillar.remove(), 1600);
+    }
+    ticker(`✦ 武器がドロップ! ${roll.rar === 'SSR' ? '【金色の光柱…!】' : roll.rar === 'SR' ? '【紫の光柱】' : ''} 武器庫の回収箱へ`, roll.rar === 'N' ? '' : 'gold');
   }
   if (br.chapterBoss) {
     const ch = chapterOf(p.battle.kills);
@@ -498,12 +533,19 @@ function renderStorySheet() {
     const hint = scene && scene.gate && scene.gate.settled
       ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
       : '続きはこれから書かれる——。';
+    const letter = letterAvailable(p);
     body.innerHTML = `<h3>📜 物語</h3>
       <p class="story-done">${esc(SCENARIO.title)}</p>
+      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノからの手紙</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
       <p class="story-hint">${esc(hint)}</p>
       <div class="story-read">${SCENARIO.scenes.filter((s) => sc.read[s.id]).map((s) => `<button class="read-row" data-reread="${s.id}">${esc(s.title)}</button>`).join('')}</div>`;
     body.onclick = (e) => {
       if (!fresh('sheet')) return;
+      if (e.target.closest('[data-act="letter"]')) {
+        const txt = readLetter(p);
+        if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderStorySheet(); }
+        return;
+      }
       const r = e.target.closest('[data-reread]');
       if (r) renderScene(sceneById(r.dataset.reread), true);
     };
@@ -576,48 +618,124 @@ function closeSheet() {
   renderAll();
 }
 
+let weaponsTab = 'arms';
 function renderWeaponsSheet() {
   const p = app.profile;
   const body = $('#sheetBody');
-  const avail = weaponsAvailable(p);
-  const price = weaponPrice(p.battle.kills);
-  const nextIdx = (p.weapons || []).length;
-  const next = weaponAt(nextIdx);
-  body.innerHTML = `
-    <h3>⚔ 武器屋 <small>💰${fmtBig(p.gold)}</small></h3>
-    ${avail > 0 ? `
-      <div class="buy-row">
-        <div><b>${next.icon} ${esc(next.name)}</b><small>攻撃×${next.mult} ・ ${esc(next.traitDesc)}</small></div>
-        <button class="primary-btn small" data-act="buy-weapon" ${p.gold >= price ? '' : 'disabled'}>${p.gold >= price ? `💰${fmtBig(price)}` : `あと${fmtBig(price - p.gold)}`}</button>
-      </div>` : `<p class="story-hint">次の入荷まで: 討伐あと${BATTLE.weaponEvery - (p.battle.kills % BATTLE.weaponEvery)}体</p>`}
-    <h4>持ちもの(倍率は全部かさなる・特性は装備中だけ)</h4>
-    ${(p.weapons || []).map((i) => {
-      const wp = weaponAt(i);
-      return `<button class="weapon-row ${p.equip === i ? 'on' : ''}" data-equip="${i}">
-        <span>${wp.icon} ${esc(wp.name)}</span><small>×${wp.mult} ・ ${esc(wp.traitDesc)}</small>
-        ${p.equip === i ? '<b>装備中</b>' : ''}
-      </button>`;
-    }).join('')}
-  `;
-  body.onclick = (e) => {
-    if (!fresh('sheet')) return;
-    if (e.target.closest('[data-act="buy-weapon"]')) {
-      const wpn = battle.buyWeapon();
-      if (wpn) {
-        sfx('fanfare');
-        ticker(`${wpn.icon}『${wpn.name}』を手に入れた! 攻撃×${wpn.mult}`, 'gold');
-        renderStat();
+  const tabs = `<div class="chips" style="margin-bottom:10px">
+    <button class="chip ${weaponsTab === 'arms' ? 'on' : ''}" data-tab="arms">⚔ 武器庫</button>
+    <button class="chip ${weaponsTab === 'jobs' ? 'on' : ''}" data-tab="jobs">🎭 ジョブ</button>
+  </div>`;
+
+  if (weaponsTab === 'jobs') {
+    const settled = settledCount();
+    body.innerHTML = `<h3>🎭 詠唱の型 <small>${currentJob(p).icon}${currentJob(p).name}</small></h3>${tabs}
+      ${JOBS.map((j) => {
+        const ok = jobUnlocked(p, j, settled);
+        const need = j.unlock.type === 'kills' ? `討伐${j.unlock.n}体で解禁(いま${p.battle.kills})` : j.unlock.type === 'words' ? `定着語${j.unlock.n}で解禁(いま${settled})` : '';
+        return `<button class="weapon-row ${p.job === j.id ? 'on' : ''} ${ok ? '' : 'poor'}" data-job="${j.id}" ${ok ? '' : 'disabled'}>
+          <span>${j.icon} ${esc(j.name)}</span><small>${esc(j.desc)}</small>
+          ${p.job === j.id ? '<b>この型で詠唱中</b>' : ok ? '' : `<small>${esc(need)}</small>`}
+        </button>`;
+      }).join('')}
+      <p class="story-hint">型はいつでも無料で変えられる(ボス戦中はだめ)。火力の主役はあくまで語彙——型は「手癖」を変える。</p>`;
+    body.onclick = (e) => {
+      if (!fresh('sheet')) return;
+      const t = e.target.closest('[data-tab]');
+      if (t) { weaponsTab = t.dataset.tab; renderWeaponsSheet(); renderedAt.sheet = performance.now(); return; }
+      const j = e.target.closest('[data-job]');
+      if (j && !p.boss.engaged) {
+        p.job = j.dataset.job;
+        sfx('promote');
+        ticker(`${currentJob(p).icon} ${currentJob(p).name}の型に切りかえた。`, 'gold');
+        app.save();
         renderWeaponsSheet();
         renderedAt.sheet = performance.now();
+        renderStat();
+      }
+    };
+    return;
+  }
+
+  // 武器庫タブ
+  const eq = equipped(p);
+  const boxHtml = p.armory.box.map((b) => {
+    const rc = ARMORY.rarities[b.rar];
+    return `<button class="buy-row" data-open="${b.uid}" style="border-color:${rc.color}">
+      <div><b style="color:${rc.color}">? ? ?</b><small>ふれると正体がわかる(${b.rar})</small></div>
+      <span style="color:${rc.color}">✦</span>
+    </button>`;
+  }).join('');
+  const invHtml = [...p.armory.inv].sort((a, b) => (b.uid === p.armory.equip) - (a.uid === p.armory.equip)).map((w) => {
+    const def = weaponDef(w.wid);
+    const rc = ARMORY.rarities[w.rar];
+    const isEq = w.uid === p.armory.equip;
+    const subs = (w.subs || []).map((sb) => {
+      const m = ARMORY.substats.find((x) => x.id === sb.id);
+      const v = sb.rolls.reduce((a2, r) => a2 + m.max * r, 0);
+      const txt = m.fmt.includes('%') ? `${m.fmt.startsWith('-') ? '−' : '+'}${(v * 100).toFixed(1)}%` : `${m.fmt.startsWith('-') ? '−' : '+'}${v.toFixed(1)}秒`;
+      return `${m.name}${txt}`;
+    }).join(' / ');
+    const cost = enhanceCost(p, w);
+    return `<div class="weapon-row ${isEq ? 'on' : ''}" style="border-left:3px solid ${rc.color}">
+      <span>${def.icon} <b style="color:${rc.color}">${esc(def.name)}</b> <small>${w.rar} G${w.grade} Lv${w.lv}</small> ${isEq ? '<b>装備中</b>' : ''}</span>
+      <small>攻撃×${weaponMult(w).toFixed(2)}${def.traitDesc ? ` ・ ${esc(def.traitDesc)}` : ''}</small>
+      ${subs ? `<small class="subs">${esc(subs)}</small>` : ''}
+      <span class="row-acts">
+        ${isEq ? '' : `<button class="mini-act warm" data-equip="${w.uid}">装備</button>`}
+        ${w.lv < ARMORY.enhance.maxLv ? `<button class="mini-act" data-enh="${w.uid}" ${p.gold >= cost ? '' : 'disabled'}>強化 💰${fmtBig(cost)}</button>` : '<small>Lv MAX</small>'}
+        ${isEq ? '' : `<button class="mini-act" data-salv="${w.uid}">分解</button>`}
+      </span>
+    </div>`;
+  }).join('');
+  body.innerHTML = `<h3>⚔ 武器庫 <small>💰${fmtBig(p.gold)} ・ 砥石${p.armory.whet || 0} ・ 図鑑${p.armory.codex.length}</small></h3>${tabs}
+    ${p.armory.box.length ? `<h4>回収箱(タップで開封)</h4>${boxHtml}` : ''}
+    <h4>持ちもの(${p.armory.inv.length}/${ARMORY.inventory.cap})— 4Lvごとにランダム強化がつく</h4>
+    ${invHtml}
+    <p class="story-hint">天井: SSRが出ないままドロップ${ARMORY.dropTable.pity}回で次は確定SSR(いま${p.armory.pity || 0}回)。分解しても図鑑ボーナス+1%は残る。</p>`;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    const t = e.target.closest('[data-tab]');
+    if (t) { weaponsTab = t.dataset.tab; renderWeaponsSheet(); renderedAt.sheet = performance.now(); return; }
+    const op = e.target.closest('[data-open]');
+    if (op) {
+      const r = openDrop(p, op.dataset.open);
+      if (r) {
+        const rc = ARMORY.rarities[r.item.rar];
+        const def = weaponDef(r.item.wid);
+        sfx(r.item.rar === 'SSR' ? 'kyuin' : 'open');
+        if (navigator.vibrate) navigator.vibrate(r.item.rar === 'SSR' ? [30, 40, 80] : 15);
+        ticker(`${def.icon}『${def.name}』(${r.item.rar})を手に入れた!${r.isNew ? ' 図鑑+1%(永続)' : ''}`, 'gold');
+        app.save();
+        renderWeaponsSheet();
+        renderedAt.sheet = performance.now();
+        renderMenuBadges();
       }
       return;
     }
-    const eq = e.target.closest('[data-equip]');
-    if (eq) {
-      p.equip = Number(eq.dataset.equip);
-      app.save();
-      renderWeaponsSheet();
-      renderedAt.sheet = performance.now();
+    const eqb = e.target.closest('[data-equip]');
+    if (eqb) { p.armory.equip = eqb.dataset.equip; sfx('flip'); app.save(); renderWeaponsSheet(); renderedAt.sheet = performance.now(); renderStat(); return; }
+    const en = e.target.closest('[data-enh]');
+    if (en) {
+      const r = enhance(p, en.dataset.enh);
+      if (r) {
+        sfx(r.sub ? 'crit' : 'ok');
+        if (r.sub) {
+          const m = ARMORY.substats.find((x) => x.id === r.sub.id);
+          ticker(`✨ 強化Lv${r.lv}! ランダム強化【${m.name}】が${r.sub.rolls.length > 1 ? '伸びた' : 'ついた'}!`, 'gold');
+        }
+        app.save();
+        renderWeaponsSheet();
+        renderedAt.sheet = performance.now();
+        renderStat();
+      }
+      return;
+    }
+    const sv = e.target.closest('[data-salv]');
+    if (sv) {
+      const r = salvage(p, sv.dataset.salv);
+      if (r) { sfx('flip'); ticker(`分解した。砥石+${r.whet}${r.refund ? ` 💰${fmtBig(r.refund)}返却` : ''}(図鑑は残る)`); app.save(); renderWeaponsSheet(); renderedAt.sheet = performance.now(); }
+      return;
     }
   };
 }
@@ -747,8 +865,8 @@ function renderSettingsSheet() {
     <div class="chips">${[1, 2, 3, 4, 5].map((l) => `<button class="chip ${s.levels.includes(l) ? 'on' : ''}" data-lv="${l}">${LEVEL_NAMES[l]}</button>`).join('')}</div>
     <h4>分野</h4>
     <div class="chips">${ALL_FIELDS.map((f) => `<button class="chip ${s.fields.includes(f) ? 'on' : ''}" data-fd="${f}">${FIELD_NAMES[f]}</button>`).join('')}</div>
-    <h4>1日に編める呪文</h4>
-    <div class="chips">${[5, 10, 15, 20].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n}語</button>`).join('')}</div>
+    <h4>1日に編める呪文(無制限でも、忘却曲線が翌日からの復習で支えます)</h4>
+    <div class="chips">${[10, 20, 50, 999].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n >= 999 ? '∞ 無制限' : n + '語'}</button>`).join('')}</div>
     <h4>音</h4>
     <div class="chips">
       <button class="chip ${s.listen ? 'on' : ''}" data-tg="listen">聴き取り${ttsAvailable() ? '' : '(非対応)'}</button>
@@ -760,6 +878,13 @@ function renderSettingsSheet() {
       <button class="chip" data-act="export">書き出す</button>
       <button class="chip" data-act="import">読み込む</button>
       <button class="chip danger" data-act="reset">すべて忘れる</button>
+    </div>
+    <h4>開発者モード(進行倍率と時間送り)</h4>
+    <div class="chips">
+      ${[1, 10, 100].map((m) => `<button class="chip ${(app.profile.dev?.mult || 1) === m ? 'on' : ''}" data-dev="${m}">×${m}</button>`).join('')}
+      <button class="chip" data-skip="3600000">+1時間</button>
+      <button class="chip" data-skip="86400000">+1日</button>
+      <button class="chip" data-skip="604800000">+1週間</button>
     </div>
     <p class="story-hint">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ 討伐 ${app.profile.battle.kills}体</p>
   `;
@@ -774,6 +899,23 @@ function renderSettingsSheet() {
     if (np) { s.newPerDay = Number(np.dataset.np); app.save(); reopen(); return; }
     const tg = ev.target.closest('[data-tg]');
     if (tg) { s[tg.dataset.tg] = !s[tg.dataset.tg]; app.save(); reopen(); return; }
+    const dv = ev.target.closest('[data-dev]');
+    if (dv) { app.profile.dev = { mult: Number(dv.dataset.dev) }; app.save(); reopen(); ticker(`開発者モード ×${dv.dataset.dev}`); return; }
+    const sk = ev.target.closest('[data-skip]');
+    if (sk) {
+      const ms = Number(sk.dataset.skip);
+      const pr = app.profile;
+      for (const c of Object.values(pr.cards)) { c.last -= ms; c.due -= ms; }
+      for (const st of Object.values(pr.steps)) { st.due -= ms; }
+      pr.settledAt -= ms;
+      if (pr.chest) { const d = new Date(); d.setTime(d.getTime() - ms); }
+      pr.party.letterDay = '';
+      app.save();
+      ticker(`⏩ 時間を${ms >= 86400000 ? Math.round(ms / 86400000) + '日' : '1時間'}送った(復習期日・鐘・手紙が進む)`);
+      pool.refill();
+      renderAll();
+      return;
+    }
     const act = ev.target.closest('[data-act]');
     if (!act) return;
     if (act.dataset.act === 'export') {
