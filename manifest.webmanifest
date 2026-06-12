@@ -1,13 +1,13 @@
 {
-  "name": "コトダマ・リフォージ 〜錆と忘却の塔〜",
-  "short_name": "コトダマ",
-  "description": "忘れかけた単語ほど、よく燃える。英単語×ハクスラ",
+  "name": "コトダマ工房 〜まっくらな工房と言霊の灯〜",
+  "short_name": "コトダマ工房",
+  "description": "ことばが消えた世界で、英単語を思い出して火を灯す。テキスト放置×忘却曲線",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0d0a14",
-  "theme_color": "#0d0a14",
+  "background_color": "#0b0a10",
+  "theme_color": "#0b0a10",
   "icons": [
     { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" }

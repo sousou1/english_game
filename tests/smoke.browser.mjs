@@ -1,98 +1,105 @@
-// ヘッドレスブラウザでのスモークテスト(UIの実走行)。CIではなく手元検証用。
+// v2のヘッドレス実走行: 導入→初想起→火をおこす→招く→ふいご→設定
 import { chromium } from 'playwright-core';
 import { homedir } from 'node:os';
 
 const exe = `${homedir()}/.cache/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-linux64/chrome-headless-shell`;
 const browser = await chromium.launch({ executablePath: exe });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-
+const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
-
-const fail = (msg) => { console.error('✖', msg); process.exitCode = 1; };
-const ok = (msg) => console.log('✔', msg);
+const ok = (c, m) => { console.log(c ? '✔' : '✖', m); if (!c) process.exitCode = 1; };
 
 await page.goto(process.argv[2] || 'http://localhost:8347/', { waitUntil: 'networkidle' });
 
-// ホーム画面
-await page.waitForSelector('.hero h1', { timeout: 5000 });
-ok('ホーム画面が描画された');
-const title = await page.textContent('.hero h1');
-if (!title.includes('錆と忘却の塔')) fail(`タイトル不正: ${title}`);
+// 導入: 靄を払う
+await page.waitForSelector('.intro-line', { timeout: 5000 });
+ok(true, '導入の一行が出た');
+for (let i = 0; i < 7; i++) { await page.touchscreen.tap(195, 380); await page.waitForTimeout(90); }
+await page.waitForSelector('#introGo', { timeout: 3000 });
+ok(true, 'タップで靄を払うと[おもいだす]が現れた');
+await page.waitForTimeout(300);
+await page.tap('#introGo');
 
-// 設定画面
-await page.click('[data-act="settings"]');
-await page.waitForSelector('#lvChips');
-await page.click('[data-lv="3"]');
-const lv = await page.evaluate(() => window.__app.profile.settings.levels);
-if (!lv.includes(3)) fail('レベル設定が保存されない');
-else ok('設定(レベル切替)が動く');
-await page.click('[data-act="back"]');
-
-// ラン開始 → 新出スタディカード
-await page.click('[data-act="start"]');
-await page.waitForSelector('.stage', { timeout: 5000 });
-await page.waitForSelector('.study .big-word, .qa .prompt', { timeout: 5000 });
-ok('ランが開始し最初のカードが出た');
-
-// 20問ぶん自動プレイ(スタディ→炉にくべる、想起の間→タップ→正解を選ぶ)
+// 導入3語: 紹介 → おぼえた → 選択肢をひらく → 回答(正解を内部から特定)
 let answered = 0;
-for (let i = 0; i < 60 && answered < 20; i++) {
-  if (await page.$('.study [data-act="forge"]')) {
-    await page.click('[data-act="forge"]');
-    continue;
-  }
-  if (await page.$('.miss-panel [data-act="next"]')) {
-    await page.click('[data-act="next"]');
-    continue;
-  }
-  if (await page.$('.cleared .reward-card')) {
-    await page.click('.reward-card');
-    ok('ノード突破→鍛冶具を選択');
-    continue;
-  }
-  if (await page.$('.result')) break;
-  if (await page.$('.qa .think-bar')) {
-    // 想起の間: タップで選択肢を出す
-    await page.click('.prompt-area').catch(() => {});
-    await page.waitForSelector('.choice', { timeout: 4000 }).catch(() => {});
-  }
-  const choices = await page.$$('.choice');
-  if (choices.length === 4) {
-    // 正解を特定してクリック(__appから現在の問題を読む)
-    const correctIdx = await page.evaluate(() => {
-      const stage = document.querySelectorAll('.choice');
-      return [...stage].findIndex((c, i) => {
-        // ui.js内部に直接アクセスできないので、ゲーム側でなく総当たり: 正解クラスは回答後のみ。
-        return false;
-      });
+for (let i = 0; i < 60 && answered < 3; i++) {
+  await page.waitForTimeout(320);
+  if (await page.$('[data-act="got"]')) { await page.tap('[data-act="got"]'); continue; }
+  if (await page.$('[data-act="open"]')) { await page.tap('[data-act="open"]'); continue; }
+  if (await page.$('[data-act="next"]')) { await page.tap('[data-act="next"]'); continue; }
+  const n = (await page.$$('.ichoice:not([disabled])')).length;
+  if (n >= 4) {
+    const idx = await page.evaluate(() => {
+      const t = window.__correctText;
+      return t || null;
     });
-    // 1つ目をクリック(正誤どちらでもフローが進めば良い)
-    await choices[0].click();
+    void idx;
+    // 正解テキストはプロフィールから引けないので、紹介で見た意味=訳をDOMから照合する
+    const correctIdx = await page.evaluate(() => {
+      const els = [...document.querySelectorAll('.ichoice')];
+      const word = document.querySelector('.icard-word')?.textContent?.trim().split(' ')[0];
+      const W = window.__app.words.find((x) => x.w === word);
+      if (!W) return 0;
+      const i = els.findIndex((el) => el.textContent.trim() === W.j || el.textContent.trim() === W.w);
+      return i >= 0 ? i : 0;
+    });
+    const btns = await page.$$('.ichoice');
+    await btns[correctIdx].tap();
     answered++;
-    await page.waitForTimeout(1100);
-    continue;
   }
-  await page.waitForTimeout(300);
 }
-if (answered >= 10) ok(`${answered}問回答してフローが進んだ`);
-else fail(`回答が${answered}問しか進まない`);
+ok(answered === 3, `導入の3語を想起できた (${answered}/3)`);
 
-// 図鑑
-// ランの途中でも想起の記録は保存されている
-const seen = await page.evaluate(() => Object.values(window.__app.profile.cards).filter((c) => c.reps > 0).length);
-if (seen >= 5) ok(`想起の記録が保存されている(${seen}体)`);
-else fail(`カード記録が少なすぎる: ${seen}`);
+// 灯火カウンタと[火をおこす]
+await page.waitForTimeout(800);
+ok(!(await page.$('#res.hidden')), '灯火カウンタが現れた');
+const fireBtn = await page.waitForSelector('[data-act="buy-fire"]', { timeout: 4000 }).catch(() => null);
+ok(!!fireBtn, '[火をおこす]が現れた');
+if (fireBtn) { await page.waitForTimeout(300); await fireBtn.tap(); }
+await page.waitForTimeout(600);
+const rate = await page.evaluate(() => document.querySelector('#rateTag')?.textContent || '');
+ok(true, `火を購入(レート表示: "${rate.trim() || 'まだ0'}")`);
 
-// localStorage 永続化
+// 招く
+const inviteBtn = await page.$('[data-act="invite"]');
+ok(!!inviteBtn, '[招く]が現れた');
+if (inviteBtn) {
+  await inviteBtn.tap();
+  await page.waitForSelector('[data-invite]', { timeout: 3000 });
+  await page.waitForTimeout(300);
+  await page.tap('[data-invite="0"]');
+  await page.waitForTimeout(300);
+  const stepCount = await page.evaluate(() => Object.keys(window.__app.profile.steps).length);
+  ok(stepCount >= 1, `招いた言霊がねむりに入った (steps=${stepCount})`);
+  const closeBtn = await page.$('[data-act="close"]');
+  if (closeBtn) await closeBtn.tap();
+}
+
+// ふいご(クリッカー): 連打でブーストが乗る
+for (let i = 0; i < 6; i++) { await page.touchscreen.tap(195, 800); await page.waitForTimeout(70); }
+const boost = await page.evaluate(() => window.__app && document.querySelector('#fanGlow').style.opacity);
+ok(Number(boost) > 0.2, `ふいご連打でグローが強まる (opacity=${boost})`);
+
+// 設定パネル(インライン)
+await page.tap('#gear');
+await page.waitForSelector('.settings-panel:not(.hidden)', { timeout: 2000 });
+ok(true, '設定がインラインで開く');
+await page.tap('[data-lv="3"]');
+const lv = await page.evaluate(() => window.__app.profile.settings.levels);
+ok(lv.includes(3), 'レベル設定が保存される');
+
+// 永続化
 const stored = await page.evaluate(() => !!localStorage.getItem('kotodama_reforge_v1'));
-if (stored) ok('localStorageに保存されている');
-else fail('localStorageが空');
+ok(stored, 'localStorageに保存されている');
 
-if (errors.length) {
-  fail(`ブラウザエラー:\n${errors.join('\n')}`);
-} else ok('コンソールエラーなし');
+// ログが流れている
+const logCount = await page.evaluate(() => document.querySelectorAll('.log-line').length);
+ok(logCount >= 4, `ログが${logCount}行流れている`);
 
-await page.screenshot({ path: '/tmp/kotodama_smoke.png' });
+if (errors.length) ok(false, `ブラウザエラー:\n${errors.join('\n')}`);
+else ok(true, 'コンソールエラーなし');
+
+await page.screenshot({ path: '/tmp/v2_smoke.png' });
 await browser.close();

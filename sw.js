@@ -1,4 +1,4 @@
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = `kotodama-${VERSION}`;
 const CORE = [
   './',
@@ -7,10 +7,13 @@ const CORE = [
   './manifest.webmanifest',
   './js/main.js',
   './js/ui.js',
-  './js/game.js',
+  './js/workshop.js',
+  './js/economy.js',
+  './js/schedule.js',
+  './js/story.js',
+  './js/story-lines.js',
   './js/quiz.js',
   './js/srs.js',
-  './js/tools.js',
   './js/audio.js',
   './js/storage.js',
   './data/words.js',

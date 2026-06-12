@@ -89,9 +89,9 @@ export const POS_JA = {
   preposition: '前置詞', conjunction: '接続詞', pronoun: '代名詞', phrase: '熟語',
 };
 
-export function makeQuestion(entry, card, index, settings, forceType) {
+export function makeQuestion(entry, card, index, settings, forceType, nDistractors = 3) {
   const type = forceType || pickType(entry, card, settings);
-  const ds = pickDistractors(entry, index, 3);
+  const ds = pickDistractors(entry, index, nDistractors);
   let prompt, sub, choices;
   if (type === 'j2e' || type === 'cloze') {
     choices = shuffle([
