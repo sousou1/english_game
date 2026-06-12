@@ -44,18 +44,26 @@ export class EventRun {
     for (const b of ev.beats || []) {
       if (b.lines && b.lines.length) this.steps.push({ t: 'lines', lines: b.lines });
       if (b.teach) {
-        const entry = app.index.byKey.get(b.teach);
-        if (!entry) continue;
-        if (!b.recall) this.steps.push({ t: 'teach', entry });
+        // 複数語ビート対応: teach: 'water' | ['apple','eat'](りんごを食べる=2語で1場面)
+        const words = Array.isArray(b.teach) ? b.teach : [b.teach];
+        const entries = words.map((w) => app.index.byKey.get(w)).filter(Boolean);
+        if (!entries.length) continue;
+        if (!b.recall) for (const e of entries) this.steps.push({ t: 'teach', entry: e });
+        const answers = (b.cast.answers || [b.cast.answer])
+          .map((w) => app.index.byKey.get(w)).filter(Boolean);
+        const aSet = new Set(answers.map((e) => e.w));
+        const dn = Math.max(2, nChoices - answers.length); // 合計をtier基準(4/6)に保つ
+        const dis = pickDistractors(answers[0], app.index, dn + answers.length)
+          .filter((d) => !aSet.has(d.w)).slice(0, dn);
         this.steps.push({
-          t: 'cast', entry, jp: b.cast.jp, recall: !!b.recall,
-          choices: shuffle([entry, ...pickDistractors(entry, app.index, nChoices - 1)]),
+          t: 'cast', entries: answers, ptr: 0, jp: b.cast.jp, recall: !!b.recall,
+          choices: shuffle([...answers, ...dis]),
         });
       } else if (b.review) {
         const entry = this.pickReview();
         if (!entry) continue; // 既習語が無ければ反芻は飛ばす(序盤救済)
         this.steps.push({
-          t: 'cast', entry, jp: `${b.castLine}(お題: ${entry.j})`, review: true,
+          t: 'cast', entries: [entry], ptr: 0, jp: `${b.castLine}(お題: ${entry.j})`, review: true,
           choices: shuffle([entry, ...pickDistractors(entry, app.index, nChoices - 1)]),
         });
       }
@@ -67,7 +75,7 @@ export class EventRun {
   // 反芻語の抽選: うとうと(期日超過)優先→既習からランダム。同イベント内重複なし
   pickReview() {
     const p = this.app.profile;
-    const used = new Set(this.steps.filter((s) => s.t === 'cast').map((s) => s.entry.w));
+    const used = new Set(this.steps.filter((s) => s.t === 'cast').flatMap((s) => s.entries.map((e) => e.w)));
     const learned = Object.keys(p.cards)
       .filter((w) => p.cards[w].reps > 0 && !used.has(w))
       .map((w) => this.app.index.byKey.get(w)).filter(Boolean);
@@ -87,11 +95,14 @@ export class EventRun {
 
   next() { if (this.idx < this.steps.length - 1) this.idx++; return this.cur(); }
 
-  // 詠唱の回答。正解で前進、誤答はその場でやり直し(E3)
+  // 詠唱の回答。空欄は左から順に埋める。正解で前進、誤答はその場でやり直し(E3)
   answer(w) {
     const s = this.cur();
     if (!s || s.t !== 'cast') return null;
-    if (w !== s.entry.w) { this.misses++; return { correct: false }; }
+    const expect = s.entries[s.ptr];
+    if (w !== expect.w) { this.misses++; return { correct: false }; }
+    s.ptr++;
+    if (s.ptr < s.entries.length) return { correct: true, partial: true, filled: s.ptr };
     this.idx++;
     return { correct: true, cleared: this.cur()?.t === 'clear' };
   }
@@ -105,11 +116,13 @@ export class EventRun {
     const words = [];
     for (const b of this.ev.beats || []) {
       if (!b.teach) continue;
-      if (p.cards[b.teach] || p.steps[b.teach]) continue; // 既習は再追加しない
-      const entry = this.app.index.byKey.get(b.teach);
-      if (!entry) continue;
-      p.steps[b.teach] = startSteps(now);
-      words.push(entry);
+      for (const w of Array.isArray(b.teach) ? b.teach : [b.teach]) {
+        if (p.cards[w] || p.steps[w]) continue; // 既習は再追加しない
+        const entry = this.app.index.byKey.get(w);
+        if (!entry) continue;
+        p.steps[w] = startSteps(now);
+        words.push(entry);
+      }
     }
     p.events.cleared[this.ev.id] = now;
     this.app.save();
