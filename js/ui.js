@@ -603,6 +603,7 @@ function renderScene(scene, reread) {
   const body = $('#sheetBody');
   const canAfford = p.gold >= cost;
   const letter = !reread && letterAvailable(p);
+  const evDoneS = reread ? [] : clearedEvents(p);
   body.innerHTML = `
     <h3>📜 ${esc(scene.title)}</h3>
     ${SCENE_ART[scene.id] ? `<img class="ev-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
@@ -616,6 +617,7 @@ function renderScene(scene, reread) {
       <button class="primary-btn" data-act="story-next" ${!reread && !canAfford ? 'disabled' : ''}>
         ${reread ? 'とじる' : cost > 0 ? (canAfford ? `つづける(💰${fmtBig(cost)})` : `💰${fmtBig(cost)} 必要 — 魔物を倒そう`) : 'つづける'}
       </button>`}
+    ${!reread && evDoneS.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDoneS.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
   `;
   body.onclick = (e) => {
     if (!fresh('sheet')) return;
@@ -634,6 +636,8 @@ function renderScene(scene, reread) {
       renderStorySheet();
       return;
     }
+    const evr2 = e.target.closest('[data-ev-replay]');
+    if (evr2) { openEvent(eventById(evr2.dataset.evReplay), true); return; }
     const a = e.target.closest('[data-act="story-next"]');
     if (a) {
       if (reread) { renderStorySheet(); return; }

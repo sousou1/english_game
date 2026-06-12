@@ -461,7 +461,7 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 }
 @keyframes enemyIdle { from { background-position-x: 0; } to { background-position-x: -512px; } }
 
-.intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
 /* 戦利品の光柱(ドロップ演出) */
 .pillar {

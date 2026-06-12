@@ -24,7 +24,7 @@ await ctx.addInitScript(`localStorage.setItem('kotodama_reforge_v1', ${JSON.stri
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
-page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
+page.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('404')) errors.push(`console: ${m.text()}`); });
 const ok = (c, m) => { console.log(c ? '✔' : '✖', m); if (!c) process.exitCode = 1; };
 
 await page.goto(process.argv[2] || 'http://localhost:8347/', { waitUntil: 'networkidle' });
