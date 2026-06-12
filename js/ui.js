@@ -561,8 +561,10 @@ function renderScene(scene, reread) {
   const cost = reread ? 0 : (sc.read[scene.id] ? 0 : sceneCost(scene));
   const body = $('#sheetBody');
   const canAfford = p.gold >= cost;
+  const letter = !reread && letterAvailable(p);
   body.innerHTML = `
     <h3>📜 ${esc(scene.title)}</h3>
+    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノからの手紙</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
     <div class="scene">${scene.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
     ${scene.choice && !reread ? `
       <div class="choices">
@@ -575,6 +577,11 @@ function renderScene(scene, reread) {
   `;
   body.onclick = (e) => {
     if (!fresh('sheet')) return;
+    if (e.target.closest('[data-act="letter"]')) {
+      const txt = readLetter(p);
+      if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderScene(scene, reread); }
+      return;
+    }
     const c = e.target.closest('[data-choice]');
     if (c && scene.choice) {
       const opt = scene.choice.options[Number(c.dataset.choice)];
