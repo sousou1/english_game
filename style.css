@@ -240,11 +240,16 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
 .pool {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   max-width: 520px; margin: 0 auto;
-  background: linear-gradient(to top, #141019 88%, transparent);
+  background: #141019;
   border-top: 1px solid var(--panel2);
   padding: 6px 12px calc(8px + var(--safe-bottom));
   display: flex; flex-direction: column; gap: 6px;
   transition: box-shadow .3s;
+}
+.pool::before {
+  content: ''; position: absolute; left: 0; right: 0; top: -16px; height: 16px;
+  background: linear-gradient(to top, rgba(20, 16, 25, .9), transparent);
+  pointer-events: none;
 }
 .pool.fever { box-shadow: 0 -4px 30px rgba(255, 138, 42, .45); border-top-color: var(--fire1); }
 .pool-head { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--dim); }
