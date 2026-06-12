@@ -11,7 +11,7 @@ export const LEVEL_NAMES = ['', '入門', '基礎', '標準', '応用', '上級'
 
 export function defaultProfile() {
   return {
-    v: 4,
+    v: 5,
     settings: {
       levels: [1, 2],
       fields: [...ALL_FIELDS],
@@ -37,6 +37,7 @@ export function defaultProfile() {
     },
     job: 'swordsman',
     party: { letterDay: '', letterBuff: false },
+    events: { cleared: {} }, // イベントモード: id -> クリア時刻
     dev: { mult: 1 }, // 開発者モード(×10/×100)
     boss: { engaged: false, bodyHp: null, scars: 0, hp: null, nextAtk: 0, dmgReduce: 0 },
     scenario: { scene: null, flags: {}, chapter: 1, read: {} },
@@ -56,7 +57,7 @@ export function loadProfile() {
     if (!raw) return defaultProfile();
     const p = JSON.parse(raw);
     // 開発中につきセーブ互換なし: バージョン不一致は新規データ
-    if (p.v !== 4) return defaultProfile();
+    if (p.v !== 5) return defaultProfile();
     const d = defaultProfile();
     p.settings = { ...d.settings, ...(p.settings || {}) };
     for (const k of Object.keys(d)) if (!(k in p)) p[k] = d[k];

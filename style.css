@@ -279,10 +279,13 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
   max-width: 520px; margin: 0 auto;
   background:
     radial-gradient(70% 50% at 50% 88%, rgba(255, 138, 42, .14), transparent 70%),
+    linear-gradient(rgba(10, 8, 16, .82), rgba(10, 8, 16, .92)),
+    url(assets/img/scene_takibi.webp) center/cover,
     #0a0810;
   display: flex; align-items: center; justify-content: center;
   padding: calc(16px + var(--safe-top)) 18px calc(20px + var(--safe-bottom));
 }
+.event-ov { background: linear-gradient(rgba(10, 8, 16, .9), rgba(10, 8, 16, .96)), #0a0810; }
 #takibiBody { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; text-align: center; }
 .takibi-head { font-size: 44px; text-align: center; animation: breathe 2.2s infinite; }
 .takibi-line { color: var(--text); font-size: 15px; line-height: 1.8; margin: 0; }
@@ -396,6 +399,69 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
   80% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* ---------- イベントモード ---------- */
+.event-banner {
+  display: flex; align-items: center; gap: 10px; margin: 0 10px 6px; padding: 10px 12px;
+  border-radius: var(--radius); text-align: left; position: relative; overflow: hidden;
+  background: linear-gradient(110deg, rgba(255, 170, 40, .22), rgba(255, 90, 40, .16), rgba(255, 170, 40, .22));
+  border: 1.5px solid var(--fire2);
+  box-shadow: 0 0 18px rgba(255, 180, 60, .35);
+  animation: evpulse 1.8s ease-in-out infinite;
+}
+.event-banner.hidden { display: none; }
+@keyframes evpulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 180, 60, .25); }
+  50% { box-shadow: 0 0 26px rgba(255, 180, 60, .6); }
+}
+.evb-spark { font-size: 22px; animation: breathe 1.2s infinite; }
+.evb-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.evb-txt b { font-size: 15px; color: var(--fire2); }
+.evb-txt small { font-size: 11px; color: var(--dim); }
+.evb-go { font-size: 18px; color: var(--fire2); }
+
+.event-ov #eventBody { display: flex; flex-direction: column; gap: 14px; padding: 18px 16px; max-width: 480px; margin: 0 auto; height: 100%; overflow-y: auto; }
+.ev-head { display: flex; align-items: center; gap: 10px; color: var(--fire2); font-weight: 800; }
+.ev-head .ev-prog { flex: 1; text-align: right; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+.ev-art { width: 100%; max-height: 38vh; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--panel2); }
+.ev-lines { background: var(--panel); border-radius: var(--radius); padding: 14px; }
+.ev-card { background: var(--panel); border: 1.5px solid var(--fire2); border-radius: var(--radius); padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.ev-card small { color: var(--dim); }
+.ev-word { font-size: 34px; font-weight: 900; letter-spacing: .03em; }
+.ev-mean { font-size: 16px; }
+.ev-ex { font-size: 13px; color: var(--dim); line-height: 1.6; margin: 4px 0 0; }
+.ev-card.clear b { font-size: 22px; color: var(--fire2); }
+.ev-reward { margin: 2px 0; font-size: 14px; }
+.ev-reward.dim { color: var(--dim); }
+.ev-words { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.ev-words span { background: var(--bg2); border-radius: 9px; padding: 5px 9px; font-size: 13px; font-weight: 700; }
+.ev-words span small { display: block; font-weight: 400; color: var(--dim); font-size: 10px; }
+.ev-cast { background: var(--panel); border-radius: var(--radius); padding: 14px; text-align: center; }
+.ev-tag { color: var(--dim); font-size: 11px; }
+.ev-tag.warm { color: var(--fire2); }
+.ev-jp { font-size: 16px; line-height: 1.7; margin: 6px 0; }
+.ev-blank b { color: var(--fire2); letter-spacing: .2em; }
+.ev-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.ev-choice { background: var(--bg2); border: 1px solid var(--panel2); border-radius: 11px; padding: 14px 8px; font-size: 17px; font-weight: 700; }
+.ev-choice.ng { border-color: var(--bad); color: var(--bad); animation: shake .3s; }
+@keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.ev-album { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+.ev-thumb { background: var(--panel); border: 1px solid var(--panel2); border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.ev-thumb img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 7px; }
+.ev-thumb span { font-size: 11px; color: var(--dim); }
+.ev-row { border-color: var(--fire2); box-shadow: 0 0 12px rgba(255, 180, 60, .25); }
+
+/* 敵の画像スキン(ドット絵はピクセル維持) */
+.enemy.sprite, .enemy.sprite-anim { font-size: 0; background-repeat: no-repeat; }
+.enemy.sprite { width: 140px; height: 140px; background-size: contain; background-position: center; }
+.enemy.sprite-anim {
+  width: 128px; height: 144px; background-size: 512px 144px;
+  image-rendering: pixelated;
+  animation: enemyIdle 0.9s steps(4) infinite;
+}
+@keyframes enemyIdle { from { background-position-x: 0; } to { background-position-x: -512px; } }
+
+.intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
 /* 戦利品の光柱(ドロップ演出) */
 .pillar {

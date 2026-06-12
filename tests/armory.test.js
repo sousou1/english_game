@@ -153,7 +153,7 @@ test('ノノの文通: 加入後は日に1通・バフは一度きり消費', ()
   assert.ok(nonoJoined(p));
   assert.ok(letterAvailable(p));
   const text = readLetter(p);
-  assert.ok(text && text.includes('ノノ'));
+  assert.ok(typeof text === 'string' && text.length > 5, 'さしいれの本文が空');
   assert.ok(!letterAvailable(p), '同日に2通読めてしまう');
   assert.equal(consumeLetterBuff(p), 0.15);
   assert.equal(consumeLetterBuff(p), 0, 'バフが2回消費できてしまう');

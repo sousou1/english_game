@@ -16,6 +16,7 @@ import { SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.
 import { sfx, speak, initAudio, ttsAvailable, comboTone } from './audio.js';
 import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FIELDS, dayStat } from './storage.js';
 import { SCENARIO, sceneById } from './scenario.js';
+import { eventAvailable, clearedEvents, eventById, EventRun } from './events.js';
 
 let app = null;
 let ws = null;
@@ -25,7 +26,7 @@ let saveTimer = 0;
 let rushEarned = 0;
 let sheetKind = null;
 let takibiState = null; // {queue, card:{mode,r}} 焚き火(修行)の状態
-let renderedAt = { pool: 0, takibi: 0, sheet: 0 };
+let renderedAt = { pool: 0, takibi: 0, sheet: 0, event: 0 };
 let tickerTimer = 0;
 
 const $ = (s) => document.querySelector(s);
@@ -96,6 +97,7 @@ export function initUI(appRef) {
       <button id="engageBtn" class="engage hidden">⚔ とどめの間合いに踏み込む</button>
       <div id="ticker" class="ticker" ></div>
     </div>
+    <button id="eventBanner" class="event-banner hidden"></button>
     <div id="band" class="band">
       <span id="combo" class="combo"></span>
       <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
@@ -108,7 +110,7 @@ export function initUI(appRef) {
     </div>
     <div id="poolGrid" class="pool-grid"></div>
     <div id="menu" class="menu">
-      <button data-sheet="story">📜<small>物語</small></button>
+      <button data-sheet="story">📜<small>物語</small><b id="bStory" class="badge hidden">⚡</b></button>
       <button data-sheet="weapons">⚔<small>武器屋</small><b id="bWeap" class="badge hidden">!</b></button>
       <button data-sheet="base">🏘<small>拠点</small></button>
       <button data-sheet="spellbook">📖<small>呪文書</small></button>
@@ -118,6 +120,7 @@ export function initUI(appRef) {
     <div id="sheetScrim" class="scrim hidden"></div>
     <div id="sheet" class="sheet hidden"><div class="grabber"></div><div id="sheetBody" class="sheet-body"></div></div>
     <div id="takibi" class="takibi hidden"><div id="takibiBody"></div></div>
+    <div id="eventOv" class="takibi event-ov hidden"><div id="eventBody"></div></div>
     <div id="fx" class="fx"></div>
     <div id="intro" class="intro hidden"></div>
   `;
@@ -128,6 +131,7 @@ export function initUI(appRef) {
     if (b.dataset.sheet === 'takibi') openTakibi();
     else openSheet(b.dataset.sheet);
   };
+  $('#eventBanner').onclick = () => { const ev = eventAvailable(app.profile); if (ev) openEvent(ev); };
   $('#sheetScrim').onclick = closeSheet;
   $('#sheet').onclick = (e) => { if (e.target.closest('.grabber')) closeSheet(); };
   $('#poolGrid').onclick = (e) => {
@@ -146,7 +150,7 @@ export function initUI(appRef) {
   $('#engageBtn').onclick = () => {
     const fx = equippedEffects(app.profile);
     const hpBonus = consumeLetterBuff(app.profile);
-    if (hpBonus > 0) ticker('💌 ノノの手紙が、胸の中であたたかい。(HP+15%)', 'gold');
+    if (hpBonus > 0) ticker('💌 ノノのさしいれが、腹と心にしみる。(HP+15%)', 'gold');
     if (battle.engageBoss({ dmgReduce: fx.bossGuard, hpBonus })) {
       sfx('zawa');
       ticker('魔物の眼が、こちらを向いた。');
@@ -172,7 +176,8 @@ function boot() {
   const ret = ws.settleReturn();
   if (ret.away > 90 * 1000 && ret.gained > 0) ticker(lineVar('settle_return', { n: fmtBig(ret.gained) }));
   if (ws.canOpenChest()) ticker(line('chest_wait'), 'gold');
-  if (letterAvailable(p)) ticker('💌 ノノから手紙が届いている。(物語シートで読める)', 'gold');
+  if (letterAvailable(p)) ticker('💌 ノノからさしいれが届いている。(物語シートで読める)', 'gold');
+  if (eventAvailable(p)) ticker('⚡ イベントが解放されている! 金色の帯にふれろ。', 'gold');
   pool.refill();
   renderAll();
   const sc = p.scenario;
@@ -187,6 +192,7 @@ function startIntro() {
   const render = () => {
     const k = p.story.intro;
     intro.innerHTML = `
+      <img class="intro-bg" src="assets/img/title_art.webp" onerror="this.remove()" style="opacity:${Math.max(0.12, 0.5 - k * 0.05)}">
       <div class="mist" style="opacity:${Math.max(0.15, 1 - k * 0.11)}"></div>
       ${k === 0 ? `<p class="intro-line">${esc(SCENARIO.introLines[0])}</p>` : ''}
       ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(SCENARIO.introLines[1])}</p>` : ''}
@@ -266,6 +272,7 @@ function renderAll() {
   renderStage();
   renderBand();
   renderPool();
+  renderEventBanner();
   renderMenuBadges();
 }
 
@@ -299,6 +306,15 @@ const ENEMIES = [
 const MIDBOSS = ['🦌', '🐊', '🦁', '🦑', '🐲'];
 const CHBOSS = ['🐉', '🗿', '🧊', '😈'];
 
+// 画像スキン: {img, anim} を返す(画像が無ければ onerror でemojiに戻る)
+function enemySkin(k) {
+  const ch = chapterOf(k);
+  if (isChapterBoss(k)) return ch === 1 ? { img: 'enemy_silentletter' } : null;
+  if (isMidBoss(k)) return ch === 1 ? { img: 'enemy_mokuro' } : null;
+  if (ch === 1 && k % 4 === 3) return { img: 'enemy_goblin', anim: true };
+  return null;
+}
+
 function enemyEmoji(k) {
   const ch = chapterOf(k) - 1;
   if (isChapterBoss(k)) return CHBOSS[Math.min(ch, CHBOSS.length - 1)];
@@ -314,7 +330,16 @@ function renderStage() {
   const ch = chapterOf(k);
   $('#placeLbl').textContent = `${SCENARIO.places[Math.min(ch - 1, SCENARIO.places.length - 1)]}・${k + 1}体目${boss ? (isChapterBoss(k) ? '【章ボス】' : '【ボス】') : ''}`;
   const en = $('#enemy');
-  en.textContent = enemyEmoji(k);
+  const skin = enemySkin(k);
+  en.classList.remove('sprite', 'sprite-anim');
+  en.style.backgroundImage = '';
+  if (skin) {
+    en.textContent = '';
+    en.classList.add(skin.anim ? 'sprite-anim' : 'sprite');
+    en.style.backgroundImage = `url(assets/img/${skin.img}.webp)`;
+  } else {
+    en.textContent = enemyEmoji(k);
+  }
   en.classList.toggle('boss', boss);
 
   // 敵HP
@@ -384,6 +409,8 @@ function renderMenuBadges() {
   const bt = $('#bTrain');
   bt.classList.toggle('hidden', n === 0);
   bt.textContent = n;
+  const bs = $('#bStory');
+  bs.classList.toggle('hidden', !eventAvailable(app.profile));
   const bw = $('#bWeap');
   const boxN = app.profile.armory.box.length;
   bw.classList.toggle('hidden', boxN === 0);
@@ -534,9 +561,13 @@ function renderStorySheet() {
       ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
       : '続きはこれから書かれる——。';
     const letter = letterAvailable(p);
+    const evNow = eventAvailable(p);
+    const evDone = clearedEvents(p);
     body.innerHTML = `<h3>📜 物語</h3>
       <p class="story-done">${esc(SCENARIO.title)}</p>
-      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノからの手紙</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+      ${evNow ? `<button class="buy-row ev-row" data-ev-start="${evNow.id}"><div><b>⚡ イベント『${esc(evNow.title)}』</b><small>詠唱で物語の山場を切りぬけろ</small></div><span>▶</span></button>` : ''}
+      ${evDone.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDone.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
       <p class="story-hint">${esc(hint)}</p>
       <div class="story-read">${SCENARIO.scenes.filter((s) => sc.read[s.id]).map((s) => `<button class="read-row" data-reread="${s.id}">${esc(s.title)}</button>`).join('')}</div>`;
     body.onclick = (e) => {
@@ -546,6 +577,10 @@ function renderStorySheet() {
         if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderStorySheet(); }
         return;
       }
+      const evs = e.target.closest('[data-ev-start]');
+      if (evs) { openEvent(eventById(evs.dataset.evStart)); return; }
+      const evr = e.target.closest('[data-ev-replay]');
+      if (evr) { openEvent(eventById(evr.dataset.evReplay), true); return; }
       const r = e.target.closest('[data-reread]');
       if (r) renderScene(sceneById(r.dataset.reread), true);
     };
@@ -554,6 +589,12 @@ function renderStorySheet() {
   }
   renderScene(scene, false);
 }
+
+// シーン挿絵(assets/img/ に存在するものだけ表示される)
+const SCENE_ART = {
+  c01_010: 'scene_rooftop', c01_020: 'scene_festival', c01_040: 'scene_firstspell',
+  c01_100: 'scene_capital', c02_000: 'scene_chapter',
+};
 
 function renderScene(scene, reread) {
   const p = app.profile;
@@ -564,7 +605,8 @@ function renderScene(scene, reread) {
   const letter = !reread && letterAvailable(p);
   body.innerHTML = `
     <h3>📜 ${esc(scene.title)}</h3>
-    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノからの手紙</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+    ${SCENE_ART[scene.id] ? `<img class="ev-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
+    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
     <div class="scene">${scene.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
     ${scene.choice && !reread ? `
       <div class="choices">
@@ -940,6 +982,116 @@ function renderSettingsSheet() {
     }
   };
   $('#rateSlider').oninput = (ev) => { s.rate = Number(ev.target.value); lazySave(); };
+}
+
+// ---------- イベント(物語×穴埋め詠唱。タイマーなし・誤答ペナルティなし) ----------
+let evRun = null;
+
+function renderEventBanner() {
+  const b = $('#eventBanner');
+  const ev = eventAvailable(app.profile);
+  if (!ev) { b.classList.add('hidden'); return; }
+  b.classList.remove('hidden');
+  b.innerHTML = `<span class="evb-spark">⚡</span><span class="evb-txt"><b>イベント『${esc(ev.title)}』</b><small>物語の山場——詠唱で切りぬけ、新しい言葉を手に入れろ</small></span><span class="evb-go">▶</span>`;
+}
+
+function openEvent(ev, replay = false) {
+  evRun = new EventRun(app, ev, { replay });
+  $('#eventOv').classList.remove('hidden');
+  document.body.classList.add('in-takibi');
+  if (sheetKind) closeSheet();
+  renderEventStep();
+}
+
+function closeEvent() {
+  evRun = null;
+  $('#eventOv').classList.add('hidden');
+  document.body.classList.remove('in-takibi');
+  pool.refill();
+  renderAll();
+}
+
+function renderEventStep() {
+  if (!evRun) return;
+  const body = $('#eventBody');
+  const s = evRun.cur();
+  const ev = evRun.ev;
+  const pr = evRun.progress();
+  const head = `<div class="ev-head"><span>⚡ ${esc(ev.title)}</span><span class="ev-prog">${pr.done}/${pr.total}</span><button class="text-btn" data-act="quit">やめる</button></div>`;
+
+  if (!s) { closeEvent(); return; }
+
+  if (s.t === 'lines') {
+    body.innerHTML = `${head}
+      ${s.art && ev.art ? `<img class="ev-art" src="assets/img/${ev.art}.webp" onerror="this.remove()">` : ''}
+      <div class="ev-lines">${s.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
+      <button class="primary-btn" data-act="next">▶ つづける</button>`;
+  } else if (s.t === 'teach') {
+    body.innerHTML = `${head}
+      <div class="ev-card">
+        <small>あたらしい言葉が、ほどけて見えた</small>
+        <b class="ev-word">${esc(s.entry.w)}</b>
+        <span class="ev-mean">${esc(s.entry.j)} <small>${esc(POS_JA[s.entry.p] || '')}</small></span>
+        ${s.entry.ex ? `<p class="ev-ex">${esc(s.entry.ex)}<br><small>${esc(s.entry.jx || '')}</small></p>` : ''}
+      </div>
+      <button class="primary-btn" data-act="next">この言葉で、唱える</button>`;
+    if (app.profile.settings.autoSpeak) speak(s.entry.w, app.profile.settings.rate);
+  } else if (s.t === 'cast') {
+    body.innerHTML = `${head}
+      <div class="ev-cast">
+        ${s.review ? '<small class="ev-tag">反芻——おぼえた言葉で</small>' : s.recall ? '<small class="ev-tag warm">思い出せ——さっきの言葉だ</small>' : ''}
+        <p class="ev-jp">${esc(s.jp)}</p>
+        <p class="ev-blank">「<b>___</b>」</p>
+      </div>
+      <div class="ev-choices">${s.choices.map((c) => `<button class="ev-choice" data-cast="${esc(c.w)}">${esc(c.w)}</button>`).join('')}</div>`;
+  } else if (s.t === 'clear') {
+    const r = evRun.finish();
+    let drops = '';
+    if (!r.already) {
+      const roll = dropRoll(app.profile, 'mid');
+      if (roll) { pushBox(app.profile, roll); drops = `<p class="ev-reward">🎁 武器が回収箱に届いた(${roll.rar})</p>`; app.save(); }
+      sfx('kyuin');
+      if (navigator.vibrate) navigator.vibrate([30, 40, 80]);
+    }
+    body.innerHTML = `${head}
+      <div class="ev-card clear">
+        <b>イベントクリア!</b>
+        ${r.already ? '<p class="ev-reward dim">(再演——報酬はない。でも言葉は心に残る)</p>' : `
+          <p class="ev-reward">💰 +${fmtBig(r.gold)}</p>
+          ${drops}
+          ${r.words.length ? `<p class="ev-reward">📖 あたらしい言葉×${r.words.length} が修行に加わった</p>
+          <div class="ev-words">${r.words.map((w) => `<span>${esc(w.w)}<small>${esc(w.j)}</small></span>`).join('')}</div>` : ''}
+        `}
+      </div>
+      <button class="primary-btn" data-act="close">目を上げる</button>`;
+    renderMenuBadges();
+  }
+  renderedAt.event = performance.now();
+
+  body.onclick = (e) => {
+    if (!fresh('event')) return;
+    const a = e.target.closest('[data-act]');
+    if (a) {
+      if (a.dataset.act === 'quit') { ticker('イベントはいつでも金の帯からやり直せる。'); closeEvent(); return; }
+      if (a.dataset.act === 'close') { closeEvent(); return; }
+      if (a.dataset.act === 'next') { evRun.next(); renderEventStep(); return; }
+    }
+    const c = e.target.closest('[data-cast]');
+    if (c) {
+      const res = evRun.answer(c.dataset.cast);
+      if (!res) return;
+      if (res.correct) {
+        sfx('crit');
+        const rc2 = c.getBoundingClientRect();
+        for (let i = 0; i < 8; i++) spark(rc2.left + Math.random() * rc2.width, rc2.top + rc2.height / 2, i < 2);
+        renderEventStep();
+      } else {
+        sfx('bad');
+        c.classList.add('ng');
+        setTimeout(() => c.classList.remove('ng'), 350);
+      }
+    }
+  };
 }
 
 // ---------- 焚き火(修行=SRS。敵もタイマーもない場所) ----------
