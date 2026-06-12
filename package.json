@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/srs.test.js tests/quiz.test.js tests/schedule.test.js tests/economy.test.js tests/workshop.test.js tests/pool.test.js",
+    "test": "node --test tests/srs.test.js tests/quiz.test.js tests/schedule.test.js tests/economy.test.js tests/workshop.test.js tests/pool.test.js tests/battle.test.js",
     "serve": "python3 -m http.server 8347"
   }
 }

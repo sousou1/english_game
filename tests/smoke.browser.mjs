@@ -1,4 +1,4 @@
-// v2のヘッドレス実走行: 導入→初想起→火をおこす→招く→ふいご→設定
+// v3スペルライトのヘッドレス実走行: 導入→焚き火(修行)→詠唱バトル→物語→シート
 import { chromium } from 'playwright-core';
 import { homedir } from 'node:os';
 
@@ -13,78 +13,71 @@ const ok = (c, m) => { console.log(c ? '✔' : '✖', m); if (!c) process.exitCo
 
 await page.goto(process.argv[2] || 'http://localhost:8347/', { waitUntil: 'networkidle' });
 
-// 導入: 靄を払う
+// 導入
 await page.waitForSelector('.intro-line', { timeout: 5000 });
-ok(true, '導入の一行が出た');
-for (let i = 0; i < 7; i++) { await page.touchscreen.tap(195, 380); await page.waitForTimeout(90); }
+for (let i = 0; i < 7; i++) { await page.touchscreen.tap(195, 380); await page.waitForTimeout(80); }
 await page.waitForSelector('#introGo', { timeout: 3000 });
-ok(true, 'タップで靄を払うと[おもいだす]が現れた');
+ok(true, '導入: 靄を払うと[ことばを、おもいだす]');
 await page.waitForTimeout(300);
 await page.tap('#introGo');
 
-// 導入3語: 紹介 → おぼえた → 選択肢をひらく → 回答(正解を内部から特定)
+// 焚き火: 導入3語(紹介→おぼえた→選択肢→正解)
+await page.waitForSelector('#takibi:not(.hidden)', { timeout: 3000 });
+ok(true, '焚き火(修行)が開いた — 敵もタイマーもいない空間');
 let answered = 0;
 for (let i = 0; i < 60 && answered < 3; i++) {
-  await page.waitForTimeout(320);
-  if (await page.$('[data-act="got"]')) { await page.tap('[data-act="got"]'); continue; }
-  if (await page.$('[data-act="open"]')) { await page.tap('[data-act="open"]'); continue; }
-  if (await page.$('[data-act="next"]')) { await page.tap('[data-act="next"]'); continue; }
-  const n = (await page.$$('.ichoice:not([disabled])')).length;
-  if (n >= 4) {
-    const idx = await page.evaluate(() => {
-      const t = window.__correctText;
-      return t || null;
-    });
-    void idx;
-    // 正解テキストはプロフィールから引けないので、紹介で見た意味=訳をDOMから照合する
+  await page.waitForTimeout(330);
+  if (await page.$('#takibi [data-act="got"]')) { await page.tap('#takibi [data-act="got"]'); continue; }
+  if (await page.$('#takibi [data-act="open"]')) { await page.tap('#takibi [data-act="open"]'); continue; }
+  if (await page.$('#takibi [data-act="next"]')) { await page.tap('#takibi [data-act="next"]'); continue; }
+  const choices = await page.$$('#takibi .ichoice:not([disabled])');
+  if (choices.length >= 4) {
     const correctIdx = await page.evaluate(() => {
-      const els = [...document.querySelectorAll('.ichoice')];
-      const word = document.querySelector('.icard-word')?.textContent?.trim().split(' ')[0];
+      const els = [...document.querySelectorAll('#takibi .ichoice')];
+      const word = document.querySelector('#takibi .icard-word')?.textContent?.trim().split(' ')[0];
       const W = window.__app.words.find((x) => x.w === word);
       if (!W) return 0;
-      const i = els.findIndex((el) => el.textContent.trim() === W.j || el.textContent.trim() === W.w);
-      return i >= 0 ? i : 0;
+      const i2 = els.findIndex((el) => el.textContent.trim() === W.j || el.textContent.trim() === W.w);
+      return i2 >= 0 ? i2 : 0;
     });
-    const btns = await page.$$('.ichoice');
-    await btns[correctIdx].tap();
+    await choices[correctIdx].tap();
     answered++;
   }
 }
 ok(answered === 3, `導入の3語を想起できた (${answered}/3)`);
 
-// 灯火カウンタと[火をおこす]
-await page.waitForTimeout(800);
-ok(!(await page.$('#res.hidden')), '灯火カウンタが現れた');
-const fireBtn = await page.waitForSelector('[data-act="buy-fire"]', { timeout: 4000 }).catch(() => null);
-ok(!!fireBtn, '[火をおこす]が現れた');
-if (fireBtn) { await page.waitForTimeout(300); await fireBtn.tap(); }
-await page.waitForTimeout(600);
-const rate = await page.evaluate(() => document.querySelector('#rateTag')?.textContent || '');
-ok(true, `火を購入(レート表示: "${rate.trim() || 'まだ0'}")`);
-
-// 招く
-const inviteBtn = await page.$('[data-act="invite"]');
-ok(!!inviteBtn, '[招く]が現れた');
-if (inviteBtn) {
-  await inviteBtn.tap();
-  await page.waitForSelector('[data-invite]', { timeout: 3000 });
-  await page.waitForTimeout(300);
-  await page.tap('[data-invite="0"]');
-  await page.waitForTimeout(300);
-  const stepCount = await page.evaluate(() => Object.keys(window.__app.profile.steps).length);
-  ok(stepCount >= 1, `招いた言霊がねむりに入った (steps=${stepCount})`);
-  const closeBtn = await page.$('[data-act="close"]');
-  if (closeBtn) await closeBtn.tap();
+// 焚き火を出る(描画直後の入力ガードがあるためリトライ)
+let closed = false;
+for (let i = 0; i < 6 && !closed; i++) {
+  await page.waitForTimeout(450);
+  const btn = await page.$('#takibi:not(.hidden) [data-act="close"]');
+  if (btn) await btn.tap().catch(() => {});
+  closed = !!(await page.$('#takibi.hidden'));
 }
+ok(closed, '焚き火から出た');
 
-// 灯し場(マッチングプール): お題に合うタイルをタップして灯火が増える
-await page.waitForSelector('#pool:not(.hidden)', { timeout: 4000 });
-ok(true, '灯し場が現れた');
-const before = await page.evaluate(() => window.__app.profile.lights);
-let poolTaps = 0;
-for (let i = 0; i < 8 && poolTaps < 5; i++) {
+// 立ち上がると物語シート(第1章冒頭)が開いている → 1シーン読んで閉じる
+await page.waitForTimeout(400);
+const storyOpen = await page.evaluate(() => !document.querySelector('#sheet').classList.contains('hidden'));
+ok(storyOpen, '物語シートが自動で開く(第1章冒頭)');
+if (storyOpen) { await page.touchscreen.tap(195, 60); await page.waitForTimeout(350); }
+
+// メイン画面: 敵・ステータス・プール
+const enemyVisible = await page.evaluate(() => document.querySelector('#enemy')?.textContent?.length > 0);
+ok(enemyVisible, '敵がステージにいる');
+const noScroll = await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight + 2);
+ok(noScroll, `メイン画面はスクロールなし (${await page.evaluate(() => document.documentElement.scrollHeight)}px)`);
+
+// 詠唱: お題に合うタイルをタップ→敵HPが減り魔素が増える
+await page.waitForSelector('.tile', { timeout: 3000 });
+const before = await page.evaluate(() => ({
+  lights: window.__app.profile.lights,
+  dmg: window.__app.profile.battle.dmg,
+}));
+let casts = 0;
+for (let i = 0; i < 10 && casts < 6; i++) {
   const cueW = await page.evaluate(() => {
-    const cue = document.querySelector('#poolCue b')?.textContent;
+    const cue = document.querySelector('#cue b')?.textContent;
     const W = window.__app.words.find((x) => x.j === cue);
     return W ? W.w : null;
   });
@@ -92,32 +85,54 @@ for (let i = 0; i < 8 && poolTaps < 5; i++) {
   const tile = await page.$(`[data-tap="${cueW}"]`);
   if (!tile) break;
   await tile.tap();
-  poolTaps++;
-  await page.waitForTimeout(120);
+  casts++;
+  await page.waitForTimeout(130);
 }
-const after = await page.evaluate(() => window.__app.profile.lights);
-ok(poolTaps >= 5 && after > before, `灯し場で${poolTaps}回マッチして灯火が増えた (+${Math.round(after - before)})`);
-const orderGot = await page.evaluate(() => window.__app.profile.order.got + window.__app.profile.order.n * 1000);
-ok(orderGot > 0, '注文ゲージが進んだ');
+const after = await page.evaluate(() => ({
+  lights: window.__app.profile.lights,
+  dmg: window.__app.profile.battle.dmg,
+  kills: window.__app.profile.battle.kills,
+}));
+ok(casts >= 6 && after.lights > before.lights, `詠唱${casts}回で魔素+${Math.round(after.lights - before.lights)}`);
+ok(after.dmg > before.dmg || after.kills > 0, `敵にダメージが通っている (dmg=${Math.round(after.dmg)}, kills=${after.kills})`);
 
-// 設定パネル(インライン)
-await page.tap('#gear');
-await page.waitForSelector('.settings-panel:not(.hidden)', { timeout: 2000 });
-ok(true, '設定がインラインで開く');
+// 物語シート: 第1章のシーンと選択肢
+await page.tap('[data-sheet="story"]');
+await page.waitForSelector('#sheet:not(.hidden)', { timeout: 2000 });
+const sceneText = await page.evaluate(() => document.querySelector('#sheetBody')?.textContent || '');
+ok(sceneText.includes('屋根の上') || sceneText.includes('夜祭'), `物語が開く: ${sceneText.slice(4, 24)}…`);
+await page.waitForTimeout(400);
+const choiceBtn = await page.$('.choice-btn');
+if (choiceBtn) {
+  await choiceBtn.tap();
+  await page.waitForTimeout(300);
+  const t2 = await page.evaluate(() => document.querySelector('#sheetBody h3')?.textContent || '');
+  ok(!t2.includes('屋根の上'), `選択肢で次のシーンへ (${t2.trim()})`);
+}
+await page.touchscreen.tap(195, 60);
+await page.waitForTimeout(300);
+
+// 武器屋シート
+await page.tap('[data-sheet="weapons"]');
+await page.waitForTimeout(400);
+const wText = await page.evaluate(() => document.querySelector('#sheetBody')?.textContent || '');
+ok(wText.includes('樫の杖'), '武器屋: 初期装備が見える');
+await page.touchscreen.tap(195, 60);
+await page.waitForTimeout(250);
+
+// 設定シート
+await page.tap('[data-sheet="settings"]');
+await page.waitForTimeout(400);
 await page.tap('[data-lv="3"]');
 const lv = await page.evaluate(() => window.__app.profile.settings.levels);
 ok(lv.includes(3), 'レベル設定が保存される');
+await page.touchscreen.tap(195, 60);
 
-// 永続化
 const stored = await page.evaluate(() => !!localStorage.getItem('kotodama_reforge_v1'));
 ok(stored, 'localStorageに保存されている');
 
-// ログが流れている
-const logCount = await page.evaluate(() => document.querySelectorAll('.log-line').length);
-ok(logCount >= 4, `ログが${logCount}行流れている`);
-
-if (errors.length) ok(false, `ブラウザエラー:\n${errors.join('\n')}`);
+if (errors.length) ok(false, `ブラウザエラー:\n${errors.slice(0, 5).join('\n')}`);
 else ok(true, 'コンソールエラーなし');
 
-await page.screenshot({ path: '/tmp/v2_smoke.png' });
+await page.screenshot({ path: '/tmp/v3_smoke.png' });
 await browser.close();

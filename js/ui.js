@@ -1,62 +1,66 @@
-// 単一永続画面のUI。モーダル・全画面遷移・タイマーは存在しない。
-// すべてはこの1枚の中のインライン展開とログ行で起きる。
+// v3 UI: ノースクロールの単一画面RPG。
+// 構成(縦): ステータス44 / ステージ(可変) / コンボ・ラッシュ帯44 / お題64 / 詠唱プール / メニュー56
+// 規則: 偽タイマー禁止・16ms応答・描画後300msガード・全画面割込み禁止(プレイヤー起点のシートは可)
+// SRS想起は「焚き火」(100%オーバーレイ)に物理隔離 — 同じ画面に敵がいない。
 import { rarityIndex, retrievability, RARITY } from './srs.js';
 import { POS_JA } from './quiz.js';
 import { Workshop } from './workshop.js';
-import { Pool } from './pool.js';
-import { TIER_NAMES } from './economy.js';
-import { REVEAL, SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
-import { sfx, speak, initAudio, ttsAvailable } from './audio.js';
+import { Pool, CURVE } from './pool.js';
+import { Battle, BATTLE, enemyHp, isMidBoss, isChapterBoss, hpMax, weaponAt, weaponPrice, weaponsAvailable, levelOf } from './battle.js';
+import { TIER_NAMES, FACILITIES, facilityPrice } from './economy.js';
+import { SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
+import { sfx, speak, initAudio, ttsAvailable, comboTone } from './audio.js';
 import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FIELDS, dayStat } from './storage.js';
+import { SCENARIO, sceneById } from './scenario.js';
 
 let app = null;
 let ws = null;
 let pool = null;
-let cardState = null;   // null | {mode:'study'|'recall'|'answer'|'invite'|'chest', ...}
-let queue = [];         // 想起キュー(w の配列)
-let poolCollapsed = false;
-let helperAcc = 0;      // からくりの手の蓄積タイマー
+let battle = null;
 let saveTimer = 0;
-let dayEndShown = false;
-let cardRenderedAt = 0; // 描画直後の入力事故(ダブルタップ貫通)防止
-let lastVerbsHtml = '';
+let rushEarned = 0;
+let sheetKind = null;
+let takibiState = null; // {queue, card:{mode,r}} 焚き火(修行)の状態
+let renderedAt = { pool: 0, takibi: 0, sheet: 0 };
+let tickerTimer = 0;
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const fresh = (k) => performance.now() - renderedAt[k] > 300;
 
-function fmt(n) { return Math.floor(n).toLocaleString('ja-JP'); }
-function hhmm(ts) { const d = new Date(ts); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; }
-
-function lazySave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => app.save(), 400);
+function fmtBig(n) {
+  if (n < 10000) return Math.floor(n).toLocaleString('ja-JP');
+  if (n < 1e8) return `${(n / 1e4).toFixed(n < 1e6 ? 1 : 0)}万`;
+  if (n < 1e12) return `${(n / 1e8).toFixed(n < 1e10 ? 1 : 0)}億`;
+  if (n < 1e16) return `${(n / 1e12).toFixed(1)}兆`;
+  return `${(n / 1e16).toFixed(1)}京`;
 }
+function hhmm(ts) { const d = new Date(ts); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; }
+function lazySave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => app.save(), 400); }
 
-// ---------- ログ ----------
-function addLog(text, cls = '') {
+// ---------- ティッカー(ログ1行+履歴) ----------
+function ticker(text, cls = '') {
   if (!text) return;
   const p = app.profile;
   p.story.log = p.story.log || [];
   p.story.log.push({ t: Date.now(), x: text });
-  if (p.story.log.length > 50) p.story.log.splice(0, p.story.log.length - 50);
-  const el = $('#log');
+  if (p.story.log.length > 60) p.story.log.splice(0, p.story.log.length - 60);
+  const el = $('#ticker');
   if (el) {
-    const div = document.createElement('div');
-    div.className = `log-line ${cls}`;
-    div.innerHTML = `<span class="log-mark">▸</span>${esc(text)}`;
-    el.appendChild(div);
-    while (el.children.length > 30) el.removeChild(el.firstChild);
-    el.scrollTop = el.scrollHeight;
+    el.innerHTML = `<span class="${cls}">${esc(text)}</span>`;
+    el.classList.remove('tick-in');
+    void el.offsetWidth;
+    el.classList.add('tick-in');
   }
   lazySave();
 }
 
 function checkMilestones(vars = {}) {
   if (!vars.word) {
-    const grads = Object.entries(app.profile.cards).filter(([, c]) => c.reps > 0).map(([w]) => w);
+    const grads = Object.keys(app.profile.cards);
     if (grads.length) vars.word = grads[Math.floor(Math.random() * grads.length)];
   }
-  for (const t of fireMilestones(app.profile, ws, vars)) addLog(t, 'story');
+  for (const t of fireMilestones(app.profile, ws, vars)) ticker(t, 'gold');
 }
 
 // ---------- 起動 ----------
@@ -64,82 +68,109 @@ export function initUI(appRef) {
   app = appRef;
   ws = new Workshop(app);
   pool = new Pool(app);
+  battle = new Battle(app);
   document.body.addEventListener('pointerdown', () => initAudio());
 
   $('#screen').innerHTML = `
-    <header id="place" class="place hidden">
-      <span id="placeName">まっくらな工房</span>
-      <span class="place-right"><span id="bellTime" class="hidden"></span><button id="gear" class="gear">⚙</button></span>
-    </header>
-    <div id="res" class="res hidden">
-      <span class="res-lights">灯火 <b id="lights">0</b><span id="rateTag" class="rate"></span></span>
-      <span class="res-cap">棚 <span id="capNow">0</span>/<span id="capMax">0</span><span id="ttf" class="ttf"></span></span>
+    <div id="stat" class="stat">
+      <span id="stLv">Lv1</span>
+      <span id="stAtk">⚔0</span>
+      <span id="stMana">✨0<small id="stRate"></small></span>
+      <span id="stGold">💰0</span>
     </div>
-    <div id="log" class="log hidden"></div>
-    <div id="verbs" class="verbs hidden"></div>
-    <div id="card" class="card-area"></div>
-    <div id="shop" class="shop hidden"></div>
-    <div id="roster" class="roster hidden"></div>
-    <div id="settings" class="settings-panel hidden"></div>
+    <div id="stage" class="stage">
+      <div class="stage-top"><span id="placeLbl"></span><span id="bossTimerWrap" class="hidden">⏳<b id="bossTimer"></b></span></div>
+      <div id="enemyWrap" class="enemy-wrap">
+        <div id="enemy" class="enemy">🐀</div>
+      </div>
+      <div class="ehp-wrap"><div class="ehp"><div id="ehpFill" class="ehp-fill"></div></div><span id="ehpPct">100%</span></div>
+      <div id="bossPanel" class="boss-panel hidden">
+        <span class="php-label">❤</span><div class="php"><div id="phpFill" class="php-fill"></div></div><span id="phpNum"></span>
+        <button id="retreatBtn" class="mini-act">🏳 退く</button>
+      </div>
+      <button id="engageBtn" class="engage hidden">⚔ とどめの間合いに踏み込む</button>
+      <div id="ticker" class="ticker" ></div>
+    </div>
+    <div id="band" class="band">
+      <span id="combo" class="combo"></span>
+      <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
+      <span id="gaugeNum" class="gauge-num">0/25</span>
+      <button id="igniteBtn" class="ignite hidden">⚡解放</button>
+    </div>
+    <div id="cueBar" class="cue-bar">
+      <div id="cue" class="cue"></div>
+      <div id="freshBar" class="fresh-bar"><div id="freshFill"></div></div>
+    </div>
+    <div id="poolGrid" class="pool-grid"></div>
+    <div id="menu" class="menu">
+      <button data-sheet="story">📜<small>物語</small></button>
+      <button data-sheet="weapons">⚔<small>武器屋</small><b id="bWeap" class="badge hidden">!</b></button>
+      <button data-sheet="base">🏘<small>拠点</small></button>
+      <button data-sheet="spellbook">📖<small>呪文書</small></button>
+      <button data-sheet="takibi">🔔<small>修行</small><b id="bTrain" class="badge hidden"></b></button>
+      <button data-sheet="settings">⚙<small>設定</small></button>
+    </div>
+    <div id="sheetScrim" class="scrim hidden"></div>
+    <div id="sheet" class="sheet hidden"><div class="grabber"></div><div id="sheetBody" class="sheet-body"></div></div>
+    <div id="takibi" class="takibi hidden"><div id="takibiBody"></div></div>
+    <div id="fx" class="fx"></div>
     <div id="intro" class="intro hidden"></div>
-    <div id="pool" class="pool hidden">
-      <div class="pool-head">
-        <span class="pool-order" id="poolOrder"></span>
-        <span class="pool-combo" id="poolCombo"></span>
-        <button class="pool-toggle" id="poolToggle">▾</button>
-      </div>
-      <div class="pool-body" id="poolBody">
-        <div class="pool-cue" id="poolCue"></div>
-        <div class="pool-grid" id="poolGrid"></div>
-      </div>
-    </div>
   `;
 
-  $('#gear').onclick = () => toggleSettings();
-  $('#poolToggle').onclick = () => {
-    poolCollapsed = !poolCollapsed;
-    $('#poolBody').classList.toggle('hidden', poolCollapsed);
-    $('#poolToggle').textContent = poolCollapsed ? '▴' : '▾';
-    updateScreenPad();
+  $('#menu').onclick = (e) => {
+    const b = e.target.closest('[data-sheet]');
+    if (!b) return;
+    if (b.dataset.sheet === 'takibi') openTakibi();
+    else openSheet(b.dataset.sheet);
   };
+  $('#sheetScrim').onclick = closeSheet;
+  $('#sheet').onclick = (e) => { if (e.target.closest('.grabber')) closeSheet(); };
   $('#poolGrid').onclick = (e) => {
     const t = e.target.closest('[data-tap]');
-    if (t) poolTap(t.dataset.tap, t);
+    if (t && fresh('pool')) poolTap(t.dataset.tap, t);
+  };
+  $('#igniteBtn').onclick = () => {
+    if (pool.ignite()) {
+      sfx('kyuin');
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+      rushEarned = 0;
+      document.body.classList.add('rush');
+      renderBand();
+    }
+  };
+  $('#engageBtn').onclick = () => {
+    if (battle.engageBoss()) {
+      sfx('zawa');
+      ticker('魔物の眼が、こちらを向いた。');
+      renderStage();
+    }
+  };
+  $('#retreatBtn').onclick = () => {
+    battle.retreat();
+    sfx('land');
+    ticker('無理は禁物だ。体勢を立て直そう。(魔素もゴールドもそのまま)');
+    renderStage();
   };
 
   const p = app.profile;
-  // 復元: 過去ログ
-  for (const l of (p.story.log || []).slice(-8)) {
-    const div = document.createElement('div');
-    div.className = 'log-line old';
-    div.innerHTML = `<span class="log-mark">▸</span>${esc(l.x)}`;
-    $('#log').appendChild(div);
-  }
-
-  if (p.story.intro < 99) {
-    startIntro();
-  } else {
-    const ret = ws.settleReturn();
-    if (ret.away > 90 * 1000 && ret.gained > 0) {
-      addLog(lineVar('settle_return', { n: fmt(ret.gained) }));
-      if (ret.cappedAt) addLog(lineVar('settle_capped', { time: agoText(Date.now() - ret.cappedAt) }));
-    }
-    if (p.story.seen.migrated === 1) { addLog(line('migrated'), 'story'); p.story.seen.migrated = 2; }
-    if (ret.drowsy > 0) addLog(lineVar('drowsy_call', { n: ret.drowsy }));
-    if (ws.canOpenChest()) addLog(line('chest_wait'), 'story');
-  }
-
-  renderAll();
+  if (p.story.intro < 99) startIntro();
+  else boot();
   startLoops();
 }
 
-function agoText(ms) {
-  const m = Math.round(ms / 60000);
-  if (m < 60) return `${m}分`;
-  return `${Math.round(m / 60)}時間`;
+function boot() {
+  const p = app.profile;
+  if (!p.facilities.fire) { p.facilities.fire = 1; } // v3: 火は物語の冒頭で灯る
+  const ret = ws.settleReturn();
+  if (ret.away > 90 * 1000 && ret.gained > 0) ticker(lineVar('settle_return', { n: fmtBig(ret.gained) }));
+  if (ws.canOpenChest()) ticker(line('chest_wait'), 'gold');
+  pool.refill();
+  renderAll();
+  const sc = p.scenario;
+  if (!sc.scene && !sc.read['c01_010']) { sc.scene = SCENARIO.start; openSheet('story'); }
 }
 
-// ---------- 導入(靄を払う) ----------
+// ---------- 導入 ----------
 function startIntro() {
   const p = app.profile;
   const intro = $('#intro');
@@ -148,10 +179,10 @@ function startIntro() {
     const k = p.story.intro;
     intro.innerHTML = `
       <div class="mist" style="opacity:${Math.max(0.15, 1 - k * 0.11)}"></div>
-      ${k === 0 ? `<p class="intro-line">${esc(line('intro_1'))}</p>` : ''}
-      ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(line('intro_2'))}</p>` : ''}
-      ${k >= 6 ? `<div class="ember" id="ember"></div><p class="intro-line">${esc(line('intro_3'))}</p><button class="primary-btn" id="introGo">おもいだす</button>` : ''}
-      ${k < 6 ? '<p class="intro-hint">タップで靄を払う</p>' : ''}
+      ${k === 0 ? `<p class="intro-line">${esc(SCENARIO.introLines[0])}</p>` : ''}
+      ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(SCENARIO.introLines[1])}</p>` : ''}
+      ${k >= 6 ? `<div class="ember"></div><p class="intro-line">${esc(SCENARIO.introLines[2])}</p><button class="primary-btn" id="introGo">ことばを、おもいだす</button>` : ''}
+      ${k < 6 ? '<p class="intro-hint">タップで靄(もや)を払う</p>' : ''}
     `;
   };
   render();
@@ -168,10 +199,9 @@ function startIntro() {
     if (e.target.closest('#introGo')) {
       p.story.intro = 99;
       intro.classList.add('hidden');
-      intro.onpointerdown = null;
       app.save();
-      renderAll();
-      startRecallSession();
+      boot();
+      openTakibi(); // 最初の3語をおもいだす
     }
   };
 }
@@ -182,165 +212,457 @@ function spark(x, y, big = false) {
   s.className = `spark ${big ? 'big' : ''}`;
   s.style.left = `${x}px`;
   s.style.top = `${y}px`;
-  document.body.appendChild(s);
+  $('#fx').appendChild(s);
   setTimeout(() => s.remove(), 700);
 }
 
-function floatText(text, cls = '') {
-  const f = document.createElement('div');
-  f.className = `float-fx ${cls}`;
-  f.textContent = text;
-  $('#card').appendChild(f);
-  setTimeout(() => f.remove(), 900);
+function dmgPop(text, crit = false) {
+  const d = document.createElement('div');
+  d.className = `dmg-pop ${crit ? 'crit' : ''}`;
+  d.textContent = text;
+  const e = $('#enemyWrap').getBoundingClientRect();
+  d.style.left = `${e.x + e.width / 2 + (Math.random() * 60 - 30)}px`;
+  d.style.top = `${e.y + 20}px`;
+  $('#fx').appendChild(d);
+  setTimeout(() => d.remove(), 800);
+}
+
+function goldRain(amount) {
+  const n = Math.min(24, Math.max(4, Math.round(Math.log2(amount + 1) * 2)));
+  const target = $('#stGold').getBoundingClientRect();
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'coin';
+    c.style.left = `${100 + Math.random() * 190}px`;
+    c.style.top = `${140 + Math.random() * 120}px`;
+    c.style.setProperty('--tx', `${target.x + 20 - (100 + Math.random() * 190)}px`);
+    c.style.setProperty('--ty', `${target.y - (140 + Math.random() * 120)}px`);
+    c.style.animationDelay = `${i * 28}ms`;
+    $('#fx').appendChild(c);
+    setTimeout(() => c.remove(), 900 + i * 28);
+  }
+}
+
+function cutin(word, ja) {
+  const d = document.createElement('div');
+  d.className = 'cutin';
+  d.innerHTML = `<b>${esc(word)}</b><span>${esc(ja)}</span>`;
+  $('#fx').appendChild(d);
+  setTimeout(() => d.remove(), 700);
 }
 
 // ---------- 全体描画 ----------
 function renderAll() {
+  renderStat();
+  renderStage();
+  renderBand();
+  renderPool();
+  renderMenuBadges();
+}
+
+function chapterOf(kills) {
+  let c = 1;
+  for (const b of BATTLE.chapterBosses) if (kills >= b) c++;
+  return c;
+}
+
+function renderStat() {
   const p = app.profile;
-  $('#place').classList.toggle('hidden', !REVEAL.verbs(p));
-  $('#res').classList.toggle('hidden', !REVEAL.counter(p));
-  $('#log').classList.toggle('hidden', !REVEAL.log(p));
-  $('#verbs').classList.toggle('hidden', !REVEAL.verbs(p) && !REVEAL.fireBuy(p) && !canRecallNow());
-  $('#shop').classList.toggle('hidden', !REVEAL.shop(p, ws));
-  $('#roster').classList.toggle('hidden', !REVEAL.roster(p, ws));
-  const poolVisible = REVEAL.pool(p, ws);
-  $('#pool').classList.toggle('hidden', !poolVisible);
-  if (poolVisible && !pool.cue) { pool.refill(); renderPool(); }
-  updateScreenPad();
-  $('#bellTime').classList.toggle('hidden', !REVEAL.bellTime(p));
-  $('#placeName').textContent = placeName();
-  renderVerbs();
-  renderShop();
-  renderRoster();
-  renderHud();
+  const lv = levelOf(p.exp);
+  battle.app.battleLevel = lv.level;
+  pool.app.battleLevel = lv.level;
+  $('#stLv').textContent = `Lv${lv.level}`;
+  $('#stAtk').textContent = `⚔${fmtBig(Math.max(1, p.vref))}`;
+  $('#stGold').textContent = `💰${fmtBig(p.gold)}`;
 }
 
-function updateScreenPad() {
-  const poolVisible = !$('#pool').classList.contains('hidden');
-  const h = poolVisible ? (poolCollapsed ? 56 : 270) : 16;
-  $('#screen').style.paddingBottom = `calc(${h}px + var(--safe-bottom))`;
+const ENEMIES = [
+  ['🐀', '🦇', '🕷', '👺'],          // 章1: 村周辺
+  ['🐍', '🃏', '🗡', '👤'],          // 章2: 都の路地
+  ['🐺', '🦂', '👻', '🧟'],          // 章3
+  ['🦅', '🧛', '💀', '🌑'],          // 章4
+  ['🐉', '😈', '🌪', '🔥'],          // 章5+
+];
+const MIDBOSS = ['🦌', '🐊', '🦁', '🦑', '🐲'];
+const CHBOSS = ['🐉', '🗿', '🧊', '😈'];
+
+function enemyEmoji(k) {
+  const ch = chapterOf(k) - 1;
+  if (isChapterBoss(k)) return CHBOSS[Math.min(ch, CHBOSS.length - 1)];
+  if (isMidBoss(k)) return MIDBOSS[Math.min(ch, MIDBOSS.length - 1)];
+  const set = ENEMIES[Math.min(ch, ENEMIES.length - 1)];
+  return set[k % set.length];
 }
 
-function placeName() {
-  const g = ws.graduates();
-  if (!app.profile.facilities.fire) return 'まっくらな工房';
-  if (g < 10) return '火のともる工房';
-  if (g < 30) return 'ことばの工房';
-  if (g < 80) return '灯りの集まる工房';
-  if (g < 200) return '言霊の村';
-  return 'ことばの町';
-}
-
-function canRecallNow() {
-  return ws.introQueue().length > 0 || ws.drowsyCount() > 0;
-}
-
-// ---------- HUD(毎フレーム軽量更新) ----------
-function renderHud() {
+function renderStage() {
   const p = app.profile;
+  const k = p.battle.kills;
+  const boss = battle.isBossNow();
+  const ch = chapterOf(k);
+  $('#placeLbl').textContent = `${SCENARIO.places[Math.min(ch - 1, SCENARIO.places.length - 1)]}・${k + 1}体目${boss ? (isChapterBoss(k) ? '【章ボス】' : '【ボス】') : ''}`;
+  const en = $('#enemy');
+  en.textContent = enemyEmoji(k);
+  en.classList.toggle('boss', boss);
+
+  // 敵HP
+  const total = enemyHp(k);
+  let remain;
+  if (boss && p.boss.engaged) remain = Math.max(0, p.boss.bodyHp);
+  else if (boss) remain = Math.max(0, Math.round(total * BATTLE.barrierShare) - p.battle.dmg) + Math.round(total * (1 - BATTLE.barrierShare));
+  else remain = Math.max(0, total - p.battle.dmg);
+  const pct = Math.max(0, Math.min(100, (remain / total) * 100));
+  $('#ehpFill').style.width = `${pct}%`;
+  $('#ehpPct').textContent = `${Math.ceil(pct)}%`;
+  $('#ehpFill').classList.toggle('low', pct < 25);
+
+  // 討伐チャンス
+  const barrierDown = boss && !p.boss.engaged && p.battle.dmg >= battle.barrierMax();
+  $('#engageBtn').classList.toggle('hidden', !barrierDown);
+  $('#bossPanel').classList.toggle('hidden', !p.boss.engaged);
+  $('#bossTimerWrap').classList.toggle('hidden', !p.boss.engaged);
+  if (p.boss.engaged) {
+    const max = hpMax(levelOf(p.exp).level);
+    $('#phpFill').style.width = `${Math.max(0, (p.boss.hp / max) * 100)}%`;
+    $('#phpNum').textContent = `${Math.max(0, p.boss.hp)}/${max}`;
+  }
+}
+
+function renderBand() {
   const now = Date.now();
-  const snap = ws.snapshot(now);
-  // 補間表示: 放置分は棚の空きまで、灯し場の実入りは棚を超えてよい
-  const idleRoom = Math.max(0, snap.cap - p.lights);
-  const interp = p.lights + Math.min((snap.rate * (now - p.settledAt)) / 60000, idleRoom);
-  $('#lights').textContent = fmtBig(interp);
-  $('#rateTag').textContent = snap.rate > 0 ? ` (+${snap.rate.toFixed(1)}/分)` : '';
-  $('#capNow').textContent = fmtBig(Math.min(interp, snap.cap));
-  $('#capMax').textContent = fmtBig(snap.cap);
-  $('#ttf').textContent = REVEAL.ttf(p) && snap.ttf != null && snap.rate > 0
-    ? (snap.ttf <= 0 ? ' 棚いっぱい' : ` 満タンまで${Math.ceil(snap.ttf / 60000)}分`) : '';
-  if (REVEAL.bellTime(p)) $('#bellTime').textContent = `◉ ${hhmm(snap.nextBell.ts)}`;
+  $('#combo').textContent = pool.combo >= 2 ? `🔥×${pool.comboMult().toFixed(2)}` : '';
+  const g = $('#gaugeFill');
+  if (pool.rushActive(now)) {
+    $('#gaugeNum').textContent = `×${pool.rushMult().toFixed(2)}`;
+    $('#igniteBtn').classList.add('hidden');
+  } else {
+    g.style.width = `${(pool.g / CURVE.fever.gaugeMax) * 100}%`;
+    $('#gaugeNum').textContent = pool.afterglow(now) ? `余韻 ${pool.g}/25` : `${pool.g}/25`;
+    $('#igniteBtn').classList.toggle('hidden', pool.mode !== 'ready');
+  }
+  // 段階発光(先読み予告: 実コンボ数に正直対応)
+  const band = $('#band');
+  band.className = 'band' + (pool.combo >= 20 ? ' t3' : pool.combo >= 15 ? ' t2' : pool.combo >= 10 ? ' t1' : '');
 }
 
-// ---------- 動詞 ----------
-function renderVerbs() {
+function renderPool() {
   const p = app.profile;
-  const v = $('#verbs');
-  const drowsy = ws.drowsyCount();
-  const intro = ws.introQueue().length;
-  const n = drowsy + (intro ? intro : 0);
-  const parts = [];
-  if (n > 0 || !p.facilities.fire) {
-    parts.push(`<button class="verb primary" data-act="wake">${p.facilities.fire ? '起こす' : 'おもいだす'}${n ? ` (${n})` : ''}</button>`);
+  renderedAt.pool = performance.now();
+  if (!pool.cue) pool.refill();
+  const cueEl = $('#cue');
+  const grid = $('#poolGrid');
+  if (!pool.cue) {
+    cueEl.innerHTML = '<small>ことばを覚えると、ここで詠唱できる</small>';
+    grid.innerHTML = '';
+    return;
   }
-  if (REVEAL.fireBuy(p)) {
-    const price = 10;
-    parts.push(`<button class="verb fire ${p.lights >= price ? '' : 'poor'}" data-act="buy-fire">火をおこす <small>${price}灯</small></button>`);
+  cueEl.innerHTML = `<small>唱えよ —</small><b>${esc(pool.cue.j)}</b>`;
+  grid.innerHTML = pool.tiles.map((e) => {
+    const taps = p.taps[e.w] || 0;
+    let stars = 0;
+    for (const m of CURVE.milestones) if (taps >= m) stars++;
+    return `<button class="tile" data-tap="${esc(e.w)}">${esc(e.w)}<small>${'★'.repeat(Math.min(4, stars))}</small></button>`;
+  }).join('');
+}
+
+function renderMenuBadges() {
+  const n = ws.drowsyCount() + ws.introQueue().length;
+  const bt = $('#bTrain');
+  bt.classList.toggle('hidden', n === 0);
+  bt.textContent = n;
+  const bw = $('#bWeap');
+  const canBuy = weaponsAvailable(app.profile) > 0 && app.profile.gold >= weaponPrice(app.profile.battle.kills);
+  bw.classList.toggle('hidden', !canBuy);
+}
+
+// ---------- 詠唱(タップ) ----------
+function poolTap(w, tileEl) {
+  const p = app.profile;
+  const res = pool.tap(w);
+  if (!res) return;
+  if (!res.correct) {
+    sfx('bad');
+    if (res.guarded) ticker('短剣が手元の乱れを受け流した。(コンボ維持)');
+    tileEl.classList.add('shake');
+    tileEl.disabled = true;
+    setTimeout(() => { tileEl.classList.remove('shake'); tileEl.disabled = false; }, 400);
+    renderBand();
+    return;
   }
-  if (REVEAL.invite(p)) {
-    const left = Math.min(ws.inviteCapToday(), Math.max(0, ws.roomLeft()));
-    parts.push(`<button class="verb ${left ? '' : 'dim'}" data-act="invite">招く${left ? ` (${left})` : ''}</button>`);
+  // 収入(攻撃=収入)
+  p.lights += res.gain;
+  p.totalLights += res.gain;
+  if (pool.rushActive()) rushEarned += res.gain;
+
+  comboTone(pool.combo);
+  if (navigator.vibrate) navigator.vibrate(res.crit ? 25 : 5);
+  const r = tileEl.getBoundingClientRect();
+  spark(r.x + r.width / 2, r.y + 10, res.crit);
+  dmgPop(`-${fmtBig(res.gain)}`, res.crit);
+  if (res.crit) { cutin(pool.tiles.find(() => true) ? w : w, ''); sfx('crit'); }
+  const en = $('#enemy');
+  en.classList.remove('hitfx');
+  void en.offsetWidth;
+  en.classList.add('hitfx');
+
+  if (res.gaugeReady) { sfx('reach'); ticker('力が満ちた——⚡解放できる!', 'gold'); }
+  if (res.milestone) ticker(line('milestone_word', { word: w }));
+
+  // バトル適用
+  const br = battle.applyDamage(res.gain);
+  if (br.levelUp) {
+    sfx('fanfare');
+    ticker(`レベルアップ! Lv${br.levelUp} — 体が軽い。`, 'gold');
   }
-  if (ws.canOpenChest()) parts.push('<button class="verb chest" data-act="chest-open">宝箱をひらく</button>');
-  else if (ws.canMakeChest()) parts.push('<button class="verb" data-act="chest-make">宝箱をつくる</button>');
-  const html = parts.join('');
-  if (html === lastVerbsHtml) return; // 変化がなければ再描画しない(タップ中の差し替え事故防止)
-  lastVerbsHtml = html;
-  v.innerHTML = html;
-  v.onclick = (e) => {
-    const b = e.target.closest('[data-act]');
-    if (!b) return;
-    const act = b.dataset.act;
-    if (act === 'wake') startRecallSession();
-    if (act === 'buy-fire') buyFacility('fire');
-    if (act === 'invite') openInvite();
-    if (act === 'chest-make') makeChest();
-    if (act === 'chest-open') openChest();
+  if (br.barrierBroken) {
+    sfx('reach');
+    if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+    document.body.classList.add('reach-dark');
+    setTimeout(() => document.body.classList.remove('reach-dark'), 1500);
+    ticker('結界が砕けた——奴の素顔が見える。', 'gold');
+  }
+  if (br.kill) onKill(br);
+
+  renderStat();
+  renderStage();
+  renderBand();
+  renderPool();
+  lazySave();
+}
+
+function onKill(br) {
+  const p = app.profile;
+  sfx('open');
+  sfx('payout');
+  goldRain(br.gold);
+  if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+  const name = br.chapterBoss ? '強大な魔物' : br.midBoss ? '森の主クラスの魔物' : '魔物';
+  ticker(`${name}を討伐! 💰${fmtBig(br.gold)} を手に入れた。`, 'gold');
+  if ((p.battle.kills) % BATTLE.weaponEvery === 0) {
+    ticker('武器屋に新しい得物が入ったようだ。', 'gold');
+  }
+  if (br.chapterBoss) {
+    const ch = chapterOf(p.battle.kills);
+    p.scenario.chapter = ch;
+    ticker(`【第${ch}章】 への道がひらいた。物語を読もう。`, 'gold');
+  }
+  // シナリオ解放チェック(討伐数ゲート)
+  scenarioGateCheck();
+  checkMilestones();
+  renderMenuBadges();
+}
+
+// ---------- シナリオ ----------
+function settledCount() {
+  return Object.values(app.profile.cards).filter((c) => c.reps > 0 && c.S >= 3).length;
+}
+
+function sceneCost(scene) {
+  if (!scene.costW) return 0;
+  return Math.round(scene.costW * enemyHp(app.profile.battle.kills));
+}
+
+function applyFlag(flagStr) {
+  if (!flagStr) return;
+  const m = flagStr.match(/^(\w+)\+(\d+)$/);
+  const sc = app.profile.scenario;
+  if (m) sc.flags[m[1]] = (sc.flags[m[1]] || 0) + Number(m[2]);
+  else sc.flags[flagStr] = true;
+}
+
+function canPassGate(gate) {
+  if (!gate) return true;
+  if (gate.settled && settledCount() < gate.settled) return false;
+  if (gate.kills && app.profile.battle.kills < gate.kills) return false;
+  return true;
+}
+
+function scenarioGateCheck() {
+  const sc = app.profile.scenario;
+  if (sc.scene) return;
+  const next = SCENARIO.scenes.find((s) => !sc.read[s.id]);
+  if (next && canPassGate(next.gate)) ticker('📜 物語の続きが読める。', 'gold');
+}
+
+function nextScene() {
+  const sc = app.profile.scenario;
+  if (sc.scene) return sceneById(sc.scene);
+  return SCENARIO.scenes.find((s) => !sc.read[s.id]) || null;
+}
+
+function renderStorySheet() {
+  const p = app.profile;
+  const sc = p.scenario;
+  const scene = nextScene();
+  const body = $('#sheetBody');
+  if (!scene || (scene.gate && !canPassGate(scene.gate))) {
+    const hint = scene && scene.gate && scene.gate.settled
+      ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
+      : '続きはこれから書かれる——。';
+    body.innerHTML = `<h3>📜 物語</h3>
+      <p class="story-done">${esc(SCENARIO.title)}</p>
+      <p class="story-hint">${esc(hint)}</p>
+      <div class="story-read">${SCENARIO.scenes.filter((s) => sc.read[s.id]).map((s) => `<button class="read-row" data-reread="${s.id}">${esc(s.title)}</button>`).join('')}</div>`;
+    body.onclick = (e) => {
+      if (!fresh('sheet')) return;
+      const r = e.target.closest('[data-reread]');
+      if (r) renderScene(sceneById(r.dataset.reread), true);
+    };
+    renderedAt.sheet = performance.now();
+    return;
+  }
+  renderScene(scene, false);
+}
+
+function renderScene(scene, reread) {
+  const p = app.profile;
+  const sc = p.scenario;
+  const cost = reread ? 0 : (sc.read[scene.id] ? 0 : sceneCost(scene));
+  const body = $('#sheetBody');
+  const canAfford = p.gold >= cost;
+  body.innerHTML = `
+    <h3>📜 ${esc(scene.title)}</h3>
+    <div class="scene">${scene.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
+    ${scene.choice && !reread ? `
+      <div class="choices">
+        <p class="choice-prompt">${esc(scene.choice.prompt)}</p>
+        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-choice="${i}">${esc(o.text)}</button>`).join('')}
+      </div>` : `
+      <button class="primary-btn" data-act="story-next" ${!reread && !canAfford ? 'disabled' : ''}>
+        ${reread ? 'とじる' : cost > 0 ? (canAfford ? `つづける(💰${fmtBig(cost)})` : `💰${fmtBig(cost)} 必要 — 魔物を倒そう`) : 'つづける'}
+      </button>`}
+  `;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    const c = e.target.closest('[data-choice]');
+    if (c && scene.choice) {
+      const opt = scene.choice.options[Number(c.dataset.choice)];
+      applyFlag(opt.flag);
+      sc.read[scene.id] = 1;
+      sc.scene = (opt.next || scene.next) === 'end' ? null : (opt.next || scene.next);
+      app.save();
+      renderStorySheet();
+      return;
+    }
+    const a = e.target.closest('[data-act="story-next"]');
+    if (a) {
+      if (reread) { renderStorySheet(); return; }
+      if (cost > 0) { p.gold -= cost; renderStat(); }
+      sc.read[scene.id] = 1;
+      sc.scene = scene.next === 'end' ? null : scene.next;
+      app.save();
+      renderStorySheet();
+    }
+  };
+  renderedAt.sheet = performance.now();
+}
+
+// ---------- シート ----------
+function openSheet(kind) {
+  sheetKind = kind;
+  $('#sheetScrim').classList.remove('hidden');
+  $('#sheet').classList.remove('hidden');
+  renderedAt.sheet = performance.now();
+  if (kind === 'story') renderStorySheet();
+  if (kind === 'weapons') renderWeaponsSheet();
+  if (kind === 'base') renderBaseSheet();
+  if (kind === 'spellbook') renderSpellbookSheet();
+  if (kind === 'settings') renderSettingsSheet();
+}
+
+function closeSheet() {
+  sheetKind = null;
+  $('#sheetScrim').classList.add('hidden');
+  $('#sheet').classList.add('hidden');
+  renderAll();
+}
+
+function renderWeaponsSheet() {
+  const p = app.profile;
+  const body = $('#sheetBody');
+  const avail = weaponsAvailable(p);
+  const price = weaponPrice(p.battle.kills);
+  const nextIdx = (p.weapons || []).length;
+  const next = weaponAt(nextIdx);
+  body.innerHTML = `
+    <h3>⚔ 武器屋 <small>💰${fmtBig(p.gold)}</small></h3>
+    ${avail > 0 ? `
+      <div class="buy-row">
+        <div><b>${next.icon} ${esc(next.name)}</b><small>攻撃×${next.mult} ・ ${esc(next.traitDesc)}</small></div>
+        <button class="primary-btn small" data-act="buy-weapon" ${p.gold >= price ? '' : 'disabled'}>${p.gold >= price ? `💰${fmtBig(price)}` : `あと${fmtBig(price - p.gold)}`}</button>
+      </div>` : `<p class="story-hint">次の入荷まで: 討伐あと${BATTLE.weaponEvery - (p.battle.kills % BATTLE.weaponEvery)}体</p>`}
+    <h4>持ちもの(倍率は全部かさなる・特性は装備中だけ)</h4>
+    ${(p.weapons || []).map((i) => {
+      const wp = weaponAt(i);
+      return `<button class="weapon-row ${p.equip === i ? 'on' : ''}" data-equip="${i}">
+        <span>${wp.icon} ${esc(wp.name)}</span><small>×${wp.mult} ・ ${esc(wp.traitDesc)}</small>
+        ${p.equip === i ? '<b>装備中</b>' : ''}
+      </button>`;
+    }).join('')}
+  `;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    if (e.target.closest('[data-act="buy-weapon"]')) {
+      const wpn = battle.buyWeapon();
+      if (wpn) {
+        sfx('fanfare');
+        ticker(`${wpn.icon}『${wpn.name}』を手に入れた! 攻撃×${wpn.mult}`, 'gold');
+        renderStat();
+        renderWeaponsSheet();
+        renderedAt.sheet = performance.now();
+      }
+      return;
+    }
+    const eq = e.target.closest('[data-equip]');
+    if (eq) {
+      p.equip = Number(eq.dataset.equip);
+      app.save();
+      renderWeaponsSheet();
+      renderedAt.sheet = performance.now();
+    }
   };
 }
 
-// ---------- 店(施設) ----------
-function renderShop() {
+function renderBaseSheet() {
   const p = app.profile;
-  const shop = $('#shop');
-  if (!REVEAL.shop(p, ws)) { shop.innerHTML = ''; return; }
-  const items = ws.buyables();
+  const body = $('#sheetBody');
   const rows = [];
-  let teaser = null;
-  for (const f of items) {
+  for (const f of FACILITIES) {
     if (f.id === 'fire') continue;
     const revealed = SHOP_REVEAL[f.id] ? SHOP_REVEAL[f.id](p, ws) : true;
-    if (!revealed) { if (!teaser) teaser = f; continue; }
-    if (f.soldOut && f.max === 1) continue;
-    const afford = p.lights >= f.price;
-    rows.push(`<button class="shop-row ${afford ? '' : 'poor'}" data-buy="${f.id}">
-      <span class="shop-name">${esc(f.name)}${f.owned ? ` <small>×${f.owned}</small>` : ''}</span>
-      <span class="shop-desc">${esc(f.desc)}</span>
-      <span class="shop-price">${afford ? `${fmt(f.price)}灯` : `あと${fmt(f.price - p.lights)}灯`}</span>
+    const owned = p.facilities[f.id] || 0;
+    if (!revealed) { rows.push(`<div class="shop-row teaser"><span>${esc(f.name)}</span><small>……まだ作れない</small></div>`); continue; }
+    if (owned >= f.max) { rows.push(`<div class="shop-row done"><span>${f.icon} ${esc(f.name)} ×${owned}</span><small>${esc(f.desc)}</small></div>`); continue; }
+    const price = facilityPrice(f, owned);
+    const ok = p.lights >= price;
+    rows.push(`<button class="shop-row ${ok ? '' : 'poor'}" data-buy="${f.id}">
+      <span>${f.icon} ${esc(f.name)}${owned ? ` ×${owned}` : ''}</span>
+      <small>${esc(f.desc)}</small>
+      <b>${ok ? `✨${fmtBig(price)}` : `あと✨${fmtBig(price - p.lights)}`}</b>
     </button>`);
   }
-  if (teaser) {
-    rows.push(`<div class="shop-row teaser"><span class="shop-name">${esc(teaser.name)}</span><span class="shop-desc">……まだ作れない。工房が育てば。</span></div>`);
-  }
-  shop.innerHTML = rows.length ? `<div class="shop-head">— 工房に作れるもの —</div>${rows.join('')}` : '';
-  shop.onclick = (e) => {
+  body.innerHTML = `<h3>🏘 拠点 <small>✨${fmtBig(p.lights)}</small></h3>
+    <p class="story-hint">魔素(✨)で村を立て直す。施設は留守中も魔素を生む。</p>${rows.join('')}`;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
     const b = e.target.closest('[data-buy]');
-    if (b) buyFacility(b.dataset.buy);
+    if (b && ws.buy(b.dataset.buy)) {
+      sfx('open');
+      checkMilestones();
+      renderBaseSheet();
+      renderedAt.sheet = performance.now();
+      renderStat();
+    }
   };
 }
 
-function buyFacility(id) {
-  if (ws.buy(id)) {
-    sfx('open');
-    checkMilestones();
-    renderAll();
-  } else {
-    const f = ws.buyables().find((x) => x.id === id);
-    if (f && app.profile.lights < f.price) floatText(`あと${fmt(f.price - app.profile.lights)}灯`, 'need');
-  }
-}
-
-// ---------- 言霊リスト ----------
-function renderRoster() {
+function renderSpellbookSheet() {
   const p = app.profile;
-  const roster = $('#roster');
-  if (!REVEAL.roster(p, ws)) { roster.innerHTML = ''; return; }
   const now = Date.now();
-  const rows = [];
+  const body = $('#sheetBody');
   const items = [];
   for (const [w, s] of Object.entries(p.steps)) {
     const e = app.index.byKey.get(w);
-    if (e) items.push({ w, e, kind: 'step', due: s.due, sort: -2 });
+    if (e) items.push({ w, e, kind: 'step', sort: -2 });
   }
   for (const [w, c] of Object.entries(p.cards)) {
     const e = app.index.byKey.get(w);
@@ -349,169 +671,242 @@ function renderRoster() {
     items.push({ w, e, c, kind: 'card', R, tier: rarityIndex(c), sort: R < 0.9 ? -1 : R });
   }
   items.sort((a, b) => a.sort - b.sort);
-  const open = roster.dataset.open || '';
-  for (const it of items.slice(0, 40)) {
-    let status, cls = '';
-    if (it.kind === 'step') {
-      status = now >= it.due ? 'よびかけ待ち' : 'ねむりが浅い';
-      cls = 'step';
-    } else {
-      const drowsyNow = now >= 0 && it.R < 0.9;
-      const mana = Math.round(p.mana[it.w] || 0);
-      if (drowsyNow) { status = `うとうと${mana ? `(熟成+${mana})` : ''}`; cls = 'drowsy'; }
-      else {
-        const days = Math.max(0, (it.c.due - now) / 86400000);
-        status = `${TIER_NAMES[it.tier]}・働き中(あと${days < 1 ? '今夜まで' : Math.round(days) + '日'})`;
+  const left = Math.min(ws.inviteCapToday(), Math.max(0, ws.roomLeft()));
+  const open = body.dataset?.open || '';
+  body.innerHTML = `
+    <h3>📖 呪文書 <small>${items.length}語</small></h3>
+    <button class="primary-btn small" data-act="invite" ${left ? '' : 'disabled'}>新しい呪文を編む${left ? `(きょうあと${left})` : '(きょうは終わり)'}</button>
+    <div id="inviteArea"></div>
+    <div class="spell-list">
+    ${items.slice(0, 60).map((it) => {
+      const color = it.kind === 'step' ? '#9a8fa8' : RARITY[it.tier].color;
+      const status = it.kind === 'step' ? 'おぼえかけ' : `${TIER_NAMES[it.tier]}${it.R < 0.9 ? '・修行どき' : ''}`;
+      return `<div class="spell-row" data-w="${esc(it.w)}">
+        <span style="color:${color}">◆</span><b>${esc(it.w)}</b><small>${esc(it.e.j)}</small><i>${status}</i>
+      </div>${open === it.w ? spellDetail(it) : ''}`;
+    }).join('')}
+    ${items.length > 60 ? `<p class="story-hint">ほか${items.length - 60}語</p>` : ''}
+    </div>
+  `;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    if (e.target.closest('[data-act="invite"]')) { renderInvite(); return; }
+    const inv = e.target.closest('[data-invite-w]');
+    if (inv) {
+      const w = inv.dataset.inviteW;
+      if (ws.invite(w)) {
+        battle.addExp('invite');
+        sfx('flip');
+        const entry = app.index.byKey.get(w);
+        ticker(`新しい呪文『${w}』(${entry.j})を書きとめた。`);
+        if (p.settings.autoSpeak || p.settings.listen) speak(w, p.settings.rate);
+        pool.refill();
+        renderSpellbookSheet();
+        renderedAt.sheet = performance.now();
       }
-    }
-    const mark = it.kind === 'step' ? '・' : ['・', '☆', '★', '★', '✦'][it.tier];
-    const color = it.kind === 'step' ? '#9a8fa8' : RARITY[it.tier].color;
-    rows.push(`<div class="ro-row ${cls}" data-w="${esc(it.w)}">
-      <span class="ro-mark" style="color:${color}">${mark}</span>
-      <span class="ro-word">${esc(it.w)}</span>
-      <span class="ro-status">${esc(status)}</span>
-    </div>${open === it.w ? rosterDetail(it) : ''}`);
-  }
-  const more = items.length - 40;
-  roster.innerHTML = `<div class="ro-head">— 工房のことだま <small>${items.length}体</small> —</div>${rows.join('')}${more > 0 ? `<div class="ro-more">ほか${more}体</div>` : ''}`;
-  roster.onclick = (e) => {
-    const row = e.target.closest('.ro-row');
-    if (row) {
-      roster.dataset.open = roster.dataset.open === row.dataset.w ? '' : row.dataset.w;
-      renderRoster();
       return;
     }
-    const spk = e.target.closest('[data-speak]');
-    if (spk) { speak(spk.dataset.speak, app.profile.settings.rate); return; }
-    const wake = e.target.closest('[data-wake]');
-    if (wake) { queue = [wake.dataset.wake]; nextRecall(); }
+    const sp = e.target.closest('[data-speak]');
+    if (sp) { speak(sp.dataset.speak, p.settings.rate); return; }
+    const row = e.target.closest('.spell-row');
+    if (row) {
+      body.dataset.open = body.dataset.open === row.dataset.w ? '' : row.dataset.w;
+      renderSpellbookSheet();
+      renderedAt.sheet = performance.now();
+    }
   };
 }
 
-function rosterDetail(it) {
-  const p = app.profile;
+function spellDetail(it) {
   const e = it.e;
-  const drowsyNow = it.kind === 'card' && it.R < 0.9;
-  return `<div class="ro-detail">
-    <div class="ro-ja">${esc(e.j)} <span class="pos">${POS_JA[e.p] || ''}</span> <button class="mini-btn" data-speak="${esc(e.w)}">🔊</button></div>
-    ${e.ex ? `<div class="ro-ex">${esc(e.ex)}<br><small>${esc(e.jx)}</small></div>` : ''}
-    ${it.kind === 'card' ? `<div class="ro-meta">輝き ${(it.R * 100).toFixed(0)}% ・ ${TIER_NAMES[it.tier]} ・ 思い出した回数 ${it.c.reps}</div>` : ''}
-    ${drowsyNow ? `<button class="mini-btn warm" data-wake="${esc(it.w)}">起こす</button>` : ''}
+  return `<div class="spell-detail">
+    <div>${esc(e.j)} <span class="pos">${POS_JA[e.p] || ''}</span> <button class="mini-act" data-speak="${esc(e.w)}">🔊</button></div>
+    ${e.ex ? `<div class="spell-ex">${esc(e.ex)}<br><small>${esc(e.jx)}</small></div>` : ''}
+    ${it.c ? `<small>つよさ ${(it.R * 100).toFixed(0)}% ・ 唱えた回数 ${app.profile.taps[it.w] || 0}</small>` : ''}
   </div>`;
 }
 
-// ---------- 想起セッション ----------
-function startRecallSession() {
-  queue = [...ws.introQueue(), ...ws.wakeQueue().map((x) => x.w)];
-  dayEndShown = false;
-  if (!queue.length) {
-    addLog(line('wake_none'));
-    return;
-  }
-  nextRecall();
+function renderInvite() {
+  const cands = ws.inviteCandidates(3);
+  const area = $('#inviteArea');
+  if (!cands.length) { area.innerHTML = `<p class="story-hint">${esc(line('invite_empty'))}</p>`; return; }
+  area.innerHTML = cands.map((e) => `
+    <div class="cand">
+      <b>${esc(e.w)}</b> <span>${esc(e.j)}</span> <small>${LEVEL_NAMES[e.l]}・${FIELD_NAMES[e.f] || ''}</small>
+      <button class="mini-act" data-speak="${esc(e.w)}">🔊</button>
+      <button class="mini-act warm" data-invite-w="${esc(e.w)}">書きとめる</button>
+    </div>`).join('');
 }
 
-function nextRecall() {
-  const p = app.profile;
-  if (!queue.length) {
-    cardState = null;
-    renderCard();
-    renderAll();
-    if (!dayEndShown && ws.inviteCapToday() === 0) {
-      dayEndShown = true;
-      addLog(line('day_end', { time: hhmm(ws.snapshot().nextBell.ts) }));
+function renderSettingsSheet() {
+  const s = app.profile.settings;
+  const body = $('#sheetBody');
+  body.innerHTML = `
+    <h3>⚙ 設定</h3>
+    <h4>呪文のレベル</h4>
+    <div class="chips">${[1, 2, 3, 4, 5].map((l) => `<button class="chip ${s.levels.includes(l) ? 'on' : ''}" data-lv="${l}">${LEVEL_NAMES[l]}</button>`).join('')}</div>
+    <h4>分野</h4>
+    <div class="chips">${ALL_FIELDS.map((f) => `<button class="chip ${s.fields.includes(f) ? 'on' : ''}" data-fd="${f}">${FIELD_NAMES[f]}</button>`).join('')}</div>
+    <h4>1日に編める呪文</h4>
+    <div class="chips">${[5, 10, 15, 20].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n}語</button>`).join('')}</div>
+    <h4>音</h4>
+    <div class="chips">
+      <button class="chip ${s.listen ? 'on' : ''}" data-tg="listen">聴き取り${ttsAvailable() ? '' : '(非対応)'}</button>
+      <button class="chip ${s.autoSpeak ? 'on' : ''}" data-tg="autoSpeak">自動読み上げ</button>
+    </div>
+    <label class="slider-row">速さ <input type="range" id="rateSlider" min="0.6" max="1.2" step="0.05" value="${s.rate}"></label>
+    <h4>記録</h4>
+    <div class="chips">
+      <button class="chip" data-act="export">書き出す</button>
+      <button class="chip" data-act="import">読み込む</button>
+      <button class="chip danger" data-act="reset">すべて忘れる</button>
+    </div>
+    <p class="story-hint">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ 討伐 ${app.profile.battle.kills}体</p>
+  `;
+  body.onclick = (ev) => {
+    if (!fresh('sheet')) return;
+    const reopen = () => { renderSettingsSheet(); renderedAt.sheet = performance.now(); };
+    const lv = ev.target.closest('[data-lv]');
+    if (lv) { const l = Number(lv.dataset.lv); if (s.levels.includes(l)) { if (s.levels.length > 1) s.levels = s.levels.filter((x) => x !== l); } else s.levels = [...s.levels, l].sort(); app.save(); reopen(); return; }
+    const fd = ev.target.closest('[data-fd]');
+    if (fd) { const f = fd.dataset.fd; if (s.fields.includes(f)) { if (s.fields.length > 1) s.fields = s.fields.filter((x) => x !== f); } else s.fields.push(f); app.save(); reopen(); return; }
+    const np = ev.target.closest('[data-np]');
+    if (np) { s.newPerDay = Number(np.dataset.np); app.save(); reopen(); return; }
+    const tg = ev.target.closest('[data-tg]');
+    if (tg) { s[tg.dataset.tg] = !s[tg.dataset.tg]; app.save(); reopen(); return; }
+    const act = ev.target.closest('[data-act]');
+    if (!act) return;
+    if (act.dataset.act === 'export') {
+      const data = JSON.stringify(app.profile);
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(data).then(() => ticker('記録を書き出した。')).catch(() => prompt('コピーしてください', data));
+      else prompt('コピーしてください', data);
     }
-    return;
-  }
-  const w = queue.shift();
-  const fresh = !p.cards[w] && !p.steps[w];
-  const r = ws.openRecall(w);
-  if (!r) { nextRecall(); return; }
-  if (fresh) {
-    cardState = { mode: 'study', r };
-    renderCard();
-    if (p.settings.autoSpeak || p.settings.listen) speak(w, p.settings.rate);
-  } else {
-    cardState = { mode: 'recall', r };
-    renderCard();
-    if (r.form === 'listen') speak(w, p.settings.rate);
-  }
+    if (act.dataset.act === 'import') {
+      const raw = prompt('書き出した記録を貼り付け:');
+      if (!raw) return;
+      try { const obj = JSON.parse(raw); if (!obj.cards) throw 0; saveProfile(obj); location.reload(); } catch { ticker('読み込めなかった。'); }
+    }
+    if (act.dataset.act === 'reset') {
+      if (confirm('本当にすべて忘れる?')) { saveProfile(defaultProfile()); location.reload(); }
+    }
+  };
+  $('#rateSlider').oninput = (ev) => { s.rate = Number(ev.target.value); lazySave(); };
 }
 
-function renderCard() {
-  const card = $('#card');
-  cardRenderedAt = performance.now();
-  if (!cardState) { card.innerHTML = ''; return; }
-  const p = app.profile;
-  const { mode, r } = cardState;
+// ---------- 焚き火(修行=SRS。敵もタイマーもない場所) ----------
+function openTakibi() {
+  takibiState = { queue: [...ws.introQueue(), ...ws.wakeQueue().map((x) => x.w)], card: null };
+  $('#takibi').classList.remove('hidden');
+  document.body.classList.add('in-takibi');
+  nextTakibi();
+}
 
+function closeTakibi() {
+  takibiState = null;
+  $('#takibi').classList.add('hidden');
+  document.body.classList.remove('in-takibi');
+  pool.refill();
+  renderAll();
+}
+
+function nextTakibi() {
+  const p = app.profile;
+  if (!takibiState.queue.length) {
+    renderTakibiDone();
+    return;
+  }
+  const w = takibiState.queue.shift();
+  const isFresh = !p.cards[w] && !p.steps[w];
+  const r = ws.openRecall(w);
+  if (!r) { nextTakibi(); return; }
+  takibiState.card = { mode: isFresh ? 'study' : 'recall', r };
+  renderTakibi();
+  if (isFresh && (p.settings.autoSpeak || p.settings.listen)) speak(w, p.settings.rate);
+  if (!isFresh && r.form === 'listen') speak(w, p.settings.rate);
+}
+
+function renderTakibiDone() {
+  const p = app.profile;
+  const body = $('#takibiBody');
+  const chest = ws.canOpenChest() ? 'open' : ws.canMakeChest() ? 'make' : null;
+  body.innerHTML = `
+    <div class="takibi-head">🔥</div>
+    <p class="takibi-line">${esc(line('wake_none'))}</p>
+    ${chest === 'open' ? '<button class="primary-btn" data-act="chest-open">宝箱をひらく</button>' : ''}
+    ${chest === 'make' ? '<button class="primary-btn" data-act="chest-make">今日のことばを宝箱へ</button>' : ''}
+    <p class="takibi-line dim">つぎの鐘は ${hhmm(ws.snapshot().nextBell.ts)} ごろ。</p>
+    <button class="ghost-btn" data-act="close">たちあがる</button>
+  `;
+  body.onclick = (e) => {
+    if (!fresh('takibi')) return;
+    const a = e.target.closest('[data-act]');
+    if (!a) return;
+    if (a.dataset.act === 'close') closeTakibi();
+    if (a.dataset.act === 'chest-make') { if (ws.makeChest()) { sfx('flip'); ticker(line('chest_make'), 'gold'); renderTakibiDone(); renderedAt.takibi = performance.now(); } }
+    if (a.dataset.act === 'chest-open') {
+      if (ws.openChest()) {
+        sfx('open');
+        ticker(line('chest_open'), 'gold');
+        takibiState.queue = [...ws.introQueue(), ...ws.wakeQueue().map((x) => x.w)];
+        nextTakibi();
+      }
+    }
+  };
+  renderedAt.takibi = performance.now();
+}
+
+function renderTakibi() {
+  const p = app.profile;
+  const { mode, r } = takibiState.card;
+  const body = $('#takibiBody');
+  renderedAt.takibi = performance.now();
+  let inner = '';
   if (mode === 'study') {
-    card.innerHTML = `<div class="icard pop">
-      <div class="icard-tag">新しい言霊</div>
-      <div class="icard-word">${esc(r.entry.w)} <button class="mini-btn" data-act="spk">🔊</button></div>
+    inner = `
+      <div class="icard-tag">新しい呪文</div>
+      <div class="icard-word">${esc(r.entry.w)} <button class="mini-act" data-act="spk">🔊</button></div>
       <div class="icard-ja">${esc(r.entry.j)} <span class="pos">${POS_JA[r.entry.p] || ''}</span></div>
       ${r.entry.ex ? `<div class="icard-ex">${esc(r.entry.ex)}<br><small>${esc(r.entry.jx)}</small></div>` : ''}
-      <button class="primary-btn" data-act="got">おぼえた</button>
-    </div>`;
+      <button class="primary-btn" data-act="got">おぼえた</button>`;
   } else if (mode === 'recall') {
     const f = r.form;
     let prompt;
     if (f === 'listen') prompt = `<button class="replay" data-act="spk">🔊</button>`;
-    else if (f === 'j2e') prompt = `<div class="icard-word ja">${esc(r.entry.j)}</div><div class="icard-sub">${POS_JA[r.entry.p] || ''}・英語は?</div>`;
+    else if (f === 'j2e') prompt = `<div class="icard-word ja">${esc(r.entry.j)}</div><div class="icard-sub">${POS_JA[r.entry.p] || ''}・異界の言葉で?</div>`;
     else if (f === 'cloze') prompt = `<div class="icard-cloze">${esc(clozePrompt(r.entry))}</div><div class="icard-sub">${esc(r.entry.jx || '')}</div>`;
     else prompt = `<div class="icard-word">${esc(r.entry.w)}</div><div class="icard-sub">${POS_JA[r.entry.p] || ''}・意味は?</div>`;
-    card.innerHTML = `<div class="icard pop">
-      ${r.stepState ? '<div class="icard-tag dim">ねむりの浅い言霊</div>' : ''}
+    inner = `
+      ${r.stepState ? '<div class="icard-tag dim">おぼえかけの呪文</div>' : ''}
       ${r.mikiri ? '<div class="icard-tag pinto">ピンときた!</div>' : ''}
       <div class="icard-prompt">${prompt}</div>
-      ${r.q ? choicesHtml(r.q) : `
-        <div class="icard-actions">
-          ${REVEAL.pinto(p) && !r.mikiri ? '<button class="ghost-btn" data-act="pinto">ピンときた</button>' : ''}
-          <button class="primary-btn" data-act="open">選択肢をひらく</button>
-        </div>`}
-      ${queue.length ? `<div class="icard-rest">あと${queue.length + 1}体</div>` : ''}
-    </div>`;
+      ${r.q ? `<div class="ichoices">${r.q.choices.map((c, i) => `<button class="ichoice" data-choice="${i}">${esc(c.t)}</button>`).join('')}</div>`
+        : `<div class="icard-actions">
+            ${p.surely >= 6 && !r.mikiri ? '<button class="ghost-btn" data-act="pinto">ピンときた</button>' : ''}
+            <button class="primary-btn" data-act="open">選択肢をひらく</button>
+          </div>`}
+      <div class="takibi-rest">${takibiState.queue.length ? `あと${takibiState.queue.length + 1}語` : ''}</div>`;
   } else if (mode === 'answer') {
-    const res = cardState.res;
-    const e = res.entry;
-    card.innerHTML = `<div class="icard miss">
-      <div class="icard-word small">${esc(e.w)} <button class="mini-btn" data-act="spk">🔊</button></div>
+    const e = takibiState.card.res.entry;
+    inner = `
+      <div class="icard-word small">${esc(e.w)} <button class="mini-act" data-act="spk">🔊</button></div>
       <div class="icard-ja">${esc(e.j)}</div>
       ${e.ex ? `<div class="icard-ex">${esc(e.ex)}<br><small>${esc(e.jx)}</small></div>` : ''}
-      <button class="primary-btn" data-act="next">つぎへ</button>
-    </div>`;
-  } else if (mode === 'invite') {
-    const cands = cardState.cands;
-    card.innerHTML = `<div class="icard pop">
-      <div class="icard-tag">靄のむこうから来た</div>
-      ${cands.map((e, i) => `
-        <div class="cand">
-          <div class="cand-head"><b>${esc(e.w)}</b> <span class="cand-ja">${esc(e.j)}</span>
-            <button class="mini-btn" data-speak="${esc(e.w)}">🔊</button></div>
-          <div class="cand-meta">${LEVEL_NAMES[e.l]}・${FIELD_NAMES[e.f] || ''}${e.ex ? ` — <i>${esc(e.ex)}</i>` : ''}</div>
-          <button class="ghost-btn small" data-invite="${i}">この子を招く</button>
-        </div>`).join('')}
-      <button class="text-btn" data-act="close">また今度</button>
-    </div>`;
+      <button class="primary-btn" data-act="next">つぎへ</button>`;
   }
-
-  card.onclick = (e) => {
-    if (performance.now() - cardRenderedAt < 250) return; // 前の画面へのタップの貫通防止
-    const sp = e.target.closest('[data-speak]');
-    if (sp) { speak(sp.dataset.speak, p.settings.rate); return; }
-    const inv = e.target.closest('[data-invite]');
-    if (inv) { doInvite(Number(inv.dataset.invite)); return; }
+  body.innerHTML = `<div class="takibi-head">🔥</div><div class="icard">${inner}</div><button class="text-btn" data-act="close">やめておく</button>`;
+  body.onclick = (e) => {
+    if (!fresh('takibi')) return;
     const ch = e.target.closest('[data-choice]');
-    if (ch) { answer(Number(ch.dataset.choice)); return; }
+    if (ch) { answerTakibi(Number(ch.dataset.choice)); return; }
     const a = e.target.closest('[data-act]');
     if (!a) return;
     const act = a.dataset.act;
-    if (act === 'spk') speak(cardState.r ? cardState.r.entry.w : cardState.res.entry.w, p.settings.rate);
-    if (act === 'got') { cardState = { mode: 'recall', r: cardState.r }; renderCard(); }
-    if (act === 'pinto') { ws.declareMikiri(); cardState.r.mikiri = true; sfx('flip'); renderCard(); }
-    if (act === 'open') { ws.openChoices(); renderCard(); }
-    if (act === 'next') nextRecall();
-    if (act === 'close') { cardState = null; renderCard(); }
+    if (act === 'spk') speak(takibiState.card.r ? takibiState.card.r.entry.w : takibiState.card.res.entry.w, p.settings.rate);
+    if (act === 'got') { takibiState.card.mode = 'recall'; renderTakibi(); }
+    if (act === 'pinto') { ws.declareMikiri(); takibiState.card.r.mikiri = true; sfx('flip'); renderTakibi(); }
+    if (act === 'open') { ws.openChoices(); renderTakibi(); }
+    if (act === 'next') nextTakibi();
+    if (act === 'close') closeTakibi();
   };
 }
 
@@ -519,309 +914,124 @@ function clozePrompt(entry) {
   return entry.ex.replace(new RegExp(`\\b${entry.w.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i'), '____');
 }
 
-function choicesHtml(q) {
-  return `<div class="ichoices">${q.choices.map((c, i) => `<button class="ichoice" data-choice="${i}">${esc(c.t)}</button>`).join('')}</div>`;
-}
-
-function answer(idx) {
-  const r = cardState.r;
+function answerTakibi(idx) {
+  const p = app.profile;
+  const r = takibiState.card.r;
   if (!r || !r.q) return;
   const res = ws.submitRecall(idx);
   if (!res) return;
-  const p = app.profile;
-
-  // 選択肢に正誤を一瞬見せる(画面は止めない)
-  document.querySelectorAll('.ichoice').forEach((el, i) => {
+  document.querySelectorAll('#takibi .ichoice').forEach((el, i) => {
     el.disabled = true;
     if (r.q.choices[i].correct) el.classList.add('ok');
     else if (i === idx) el.classList.add('ng');
   });
-
   if (res.correct) {
-    const total = res.reward + res.manaReleased;
-    const burstTxt = res.burstM >= 1.8 ? ` ×${res.burstM.toFixed(1)}` : '';
+    battle.addExp(res.mikiri ? 'mikiri' : 'recall');
+    if (res.graduated) battle.addExp('graduate');
     sfx(res.burstM >= 2.2 || res.graduated ? 'crit' : 'ok');
-    if (navigator.vibrate) navigator.vibrate(res.burstM >= 2.2 ? 25 : 10);
-    floatText(`+${fmt(total)}${burstTxt}`, res.burstM >= 2.2 ? 'crit' : '');
-    if (res.manaReleased > 0) addLog(`『${res.entry.w}』が目を覚ました。${lineVar('mana_burst') || ''} +${fmt(res.manaReleased)}`);
-    else addLog(`『${res.entry.w}』…… 灯った(+${fmt(res.reward)}${burstTxt})`);
-    if (res.graduated) {
-      const S = p.cards[res.entry.w]?.S || 2.5;
-      if (!p.story.seen.first_grad) { addLog(line('first_grad', { word: res.entry.w }), 'story'); p.story.seen.first_grad = 1; }
-      else addLog(line('first_promote', { word: res.entry.w, n: Math.max(1, Math.round(S)) }), 'story');
-    } else if (res.promoted) {
-      addLog(lineVar('promote', { word: res.entry.w, tier: res.promoted }), 'story');
-    }
+    if (navigator.vibrate) navigator.vibrate(10);
+    const total = res.reward + res.manaReleased;
+    p.lights += 0; // 報酬はsubmitRecall内で加算済み
+    if (res.manaReleased > 0) ticker(`『${res.entry.w}』が目を覚ました。${lineVar('mana_burst') || ''} +✨${fmtBig(total)}`);
+    if (res.graduated) ticker(line(p.story.seen.first_grad ? 'first_promote' : 'first_grad', { word: res.entry.w, n: Math.max(1, Math.round(p.cards[res.entry.w]?.S || 2.5)) }), 'gold');
+    else if (res.promoted) ticker(lineVar('promote', { word: res.entry.w, tier: res.promoted }), 'gold');
+    if (!p.story.seen.first_grad && res.graduated) p.story.seen.first_grad = 1;
     if (p.settings.autoSpeak && r.form !== 'listen') speak(res.entry.w, p.settings.rate);
-    checkMilestones({ word: res.entry.w });
-    if (res.graduated) { pool.refill(); renderPool(); }
-    setTimeout(() => { if (cardState && cardState.r === r) nextRecall(); }, 600);
-    cardState.advancing = true;
+    setTimeout(() => { if (takibiState) nextTakibi(); }, 550);
   } else {
     sfx('bad');
-    addLog(lineVar('miss_soft', { word: res.entry.w }));
     speak(res.entry.w, p.settings.rate);
     setTimeout(() => {
-      cardState = { mode: 'answer', res };
-      renderCard();
+      if (!takibiState) return;
+      takibiState.card = { mode: 'answer', res };
+      renderTakibi();
     }, 450);
   }
-  renderHud();
-  renderVerbs();
 }
 
-// ---------- 招く ----------
-function openInvite() {
-  const left = Math.min(ws.inviteCapToday(), Math.max(0, ws.roomLeft()));
-  if (left <= 0) {
-    addLog(lineVar('invite_cap') || 'きょうの招きはここまで。');
-    return;
-  }
-  const cands = ws.inviteCandidates(3);
-  if (!cands.length) { addLog(line('invite_empty')); return; }
-  cardState = { mode: 'invite', cands };
-  renderCard();
-}
-
-function doInvite(i) {
-  const e = cardState.cands[i];
-  if (!e) return;
-  if (ws.invite(e.w)) {
-    sfx('flip');
-    addLog(`『${e.w}』(${e.j})が工房に来た。3分したら、声をかけてみよう。`);
-    if (app.profile.settings.autoSpeak || app.profile.settings.listen) speak(e.w, app.profile.settings.rate);
-    cardState.cands.splice(i, 1);
-    const left = Math.min(ws.inviteCapToday(), Math.max(0, ws.roomLeft()));
-    if (!cardState.cands.length || left <= 0) { cardState = null; }
-    renderCard();
-    renderVerbs();
-    renderRoster();
-    pool.refill();
-    renderPool(); // 内部状態と画面のタイルを必ず同期させる(ズレ=全タップ不正解の事故)
-    renderAll();
-  }
-}
-
-// ---------- 宝箱 ----------
-function makeChest() {
-  const c = ws.makeChest();
-  if (c) { addLog(line('chest_make'), 'story'); sfx('flip'); renderVerbs(); }
-}
-
-function openChest() {
-  const words = ws.openChest();
-  if (!words) return;
-  sfx('open');
-  addLog(line('chest_open'), 'story');
-  queue = [...ws.introQueue(), ...ws.wakeQueue().map((x) => x.w)];
-  if (queue.length) nextRecall();
-  renderVerbs();
-}
-
-// ---------- 灯し場(マッチングプール) ----------
-function fmtBig(n) {
-  if (n < 10000) return Math.floor(n).toLocaleString('ja-JP');
-  if (n < 1e8) return `${(n / 1e4).toFixed(n < 1e6 ? 1 : 0)}万`;
-  if (n < 1e12) return `${(n / 1e8).toFixed(n < 1e10 ? 1 : 0)}億`;
-  return `${(n / 1e12).toFixed(1)}兆`;
-}
-
-function renderPool() {
-  const p = app.profile;
-  if (!pool.cue) pool.refill();
-  const cueEl = $('#poolCue');
-  const grid = $('#poolGrid');
-  if (!pool.cue) { cueEl.textContent = ''; grid.innerHTML = ''; return; }
-  cueEl.innerHTML = `<span class="cue-label">この意味のことばは?</span><b>${esc(pool.cue.j)}</b>`;
-  grid.innerHTML = pool.tiles.map((e) => {
-    const taps = p.taps[e.w] || 0;
-    const next = pool.constructor === Pool ? null : null;
-    void next;
-    return `<button class="pool-tile" data-tap="${esc(e.w)}">${esc(e.w)}<small>${'★'.repeat(Math.min(4, milestoneStars(taps)))}</small></button>`;
-  }).join('');
-  renderPoolHead();
-}
-
-function milestoneStars(taps) {
-  let s = 0;
-  for (const m of [10, 50, 250, 1000, 5000]) if (taps >= m) s++;
-  return s;
-}
-
-function renderPoolHead() {
-  const p = app.profile;
-  const target = pool.orderTarget();
-  const pct = Math.min(100, Math.round((p.order.got / target) * 100));
-  $('#poolOrder').innerHTML = `注文${p.order.n + 1} <span class="order-bar"><span class="order-fill" style="width:${pct}%"></span></span> ${p.order.got}/${target}`;
-  const fever = Date.now() < pool.feverUntil;
-  $('#poolCombo').textContent = fever ? '🔥フィーバー!' : (pool.combo >= 3 ? `×${pool.combo}` : '');
-  $('#pool').classList.toggle('fever', fever);
-}
-
-function poolTap(w, tileEl) {
-  const p = app.profile;
-  const res = pool.tap(w);
-  if (!res) return;
-  if (!res.correct) {
-    sfx('bad');
-    tileEl.classList.add('shake');
-    tileEl.disabled = true; // 0.4秒ロック(罰はこれだけ。没収なし)
-    setTimeout(() => { tileEl.classList.remove('shake'); tileEl.disabled = false; }, 400);
-    renderPoolHead();
-    return;
-  }
-  const gain = res.gain;
-  p.lights += gain;          // 灯し場の実入りは棚を経由しない(手売りの直収入)
-  p.totalLights += gain;
-  sfx(res.fever ? 'crit' : 'tick');
-  if (navigator.vibrate) navigator.vibrate(res.fever ? 30 : 5);
-  const r = tileEl.getBoundingClientRect();
-  spark(r.x + r.width / 2, r.y + 8, res.fever);
-  tileFloat(tileEl, `+${fmtBig(gain)}`);
-  if (res.fever) addLog(line('fever_line'), 'story');
-  if (res.milestone) addLog(line('milestone_word', { word: w }));
-  if (res.orderDone) {
-    const reward = res.orderDone.reward;
-    p.lights += reward;
-    p.totalLights += reward;
-    sfx('open');
-    addLog(`${lineVar('order_done')} +${fmtBig(reward)}灯`, 'story');
+// ---------- ループ ----------
+function startLoops() {
+  setInterval(() => {
+    const now = Date.now();
+    ws.tick(now);
+    const t = pool.tickSecond(now);
+    if (t.rushEnded) {
+      document.body.classList.remove('rush');
+      sfx('land');
+      ticker(`詠唱ラッシュ +✨${fmtBig(rushEarned)} — 余韻のあいだ、ためが速い(45秒以内の再点火で ×${(CURVE.fever.mult + CURVE.fever.chainStep * Math.min(pool.chain + 1, CURVE.fever.chainCap)).toFixed(2)})`, 'gold');
+      rushEarned = 0;
+    }
+    const atk = battle.tick(now);
+    if (atk && atk.attacked) {
+      sfx('hit');
+      if (navigator.vibrate) navigator.vibrate(40);
+      document.body.classList.add('shake-body');
+      setTimeout(() => document.body.classList.remove('shake-body'), 350);
+      if (atk.defeated) ticker('押し返された……だが、得たものは何も失っていない。');
+      renderStage();
+    }
+    const ev = maybeEvent(app.profile, now);
+    if (ev && !sheetKind && !takibiState) ticker(ev);
+    helperTick();
     checkMilestones();
-    renderShop();
-    renderVerbs();
-  }
-  renderPool();
-  renderHud();
-  lazySave();
+    renderBand();
+    renderMenuBadges();
+    lazySave();
+  }, 1000);
+
+  // rAF: 魔素カウンタ補間・ラッシュ残時間・ボス攻撃カウントダウン
+  const frame = () => {
+    const p = app.profile;
+    const now = Date.now();
+    const snap = ws.snapshot(now);
+    const idleRoom = Math.max(0, snap.cap - p.lights);
+    const interp = p.lights + Math.min((snap.rate * (now - p.settledAt)) / 60000, idleRoom);
+    const m = $('#stMana');
+    if (m) m.innerHTML = `✨${fmtBig(interp)}<small id="stRate">${snap.rate > 0 ? ` +${snap.rate.toFixed(1)}/分` : ''}</small>`;
+    if (pool.rushActive(now)) {
+      const remain = (pool.rushEndsAt - now) / 1000;
+      $('#gaugeFill').style.width = `${Math.min(100, (remain / (CURVE.fever.capMs / 1000)) * 100)}%`;
+      $('#gaugeNum').textContent = `×${pool.rushMult().toFixed(2)} ${remain.toFixed(1)}s`;
+    }
+    if (p.boss.engaged) {
+      const s = Math.max(0, (p.boss.nextAtk - now) / 1000);
+      $('#bossTimer').textContent = `${s.toFixed(1)}`;
+    }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      const ret = ws.settleReturn();
+      if (ret.gained > 2 && ret.away > 5 * 60000) {
+        ticker(lineVar('settle_return', { n: fmtBig(ret.gained) }));
+      }
+      renderAll();
+    } else {
+      battle.retreat(); // 離席中にボスに殴られ続けない(正直な凍結)
+    }
+  });
 }
 
-function tileFloat(el, text) {
-  const f = document.createElement('div');
-  f.className = 'tile-float';
-  f.textContent = text;
-  const r = el.getBoundingClientRect();
-  f.style.left = `${r.x + r.width / 2}px`;
-  f.style.top = `${r.y - 6}px`;
-  document.body.appendChild(f);
-  setTimeout(() => f.remove(), 700);
-}
-
-// からくりの手: 見ている間、お題にひとりでに応える(レベル1=8秒に1回)
+// からくりの手: 見ている間お題にひとりでに応える(価値×0.5、ゲージ・敵HPに乗らない)
+let helperAcc = 0;
 function helperTick() {
   const p = app.profile;
   const lv = p.facilities.helper || 0;
-  if (!lv || !pool.cue || document.hidden) return;
+  if (!lv || !pool.cue || document.hidden || sheetKind || takibiState) return;
   helperAcc += lv;
   if (helperAcc < 8) return;
   helperAcc = 0;
   const cueW = pool.cue.w;
   const res = pool.tap(cueW, { auto: true });
   if (res && res.correct) {
-    const gain = res.gain;
-    p.lights += gain;
-    p.totalLights += gain;
+    p.lights += res.gain;
+    p.totalLights += res.gain;
     const tile = document.querySelector(`[data-tap="${CSS.escape(cueW)}"]`);
-    if (tile) { tile.classList.add('auto'); setTimeout(() => tile.classList.remove('auto'), 400); tileFloat(tile, `+${fmtBig(gain)}`); }
+    if (tile) { tile.classList.add('auto'); setTimeout(() => tile.classList.remove('auto'), 400); }
     renderPool();
   }
 }
 
-// ---------- 設定 ----------
-function toggleSettings() {
-  const el = $('#settings');
-  if (!el.classList.contains('hidden')) { el.classList.add('hidden'); return; }
-  const s = app.profile.settings;
-  el.classList.remove('hidden');
-  el.innerHTML = `
-    <div class="set-head">— 設定 —</div>
-    <h4>招くことばのレベル</h4>
-    <div class="chips">${[1, 2, 3, 4, 5].map((l) => `<button class="chip ${s.levels.includes(l) ? 'on' : ''}" data-lv="${l}">${LEVEL_NAMES[l]}</button>`).join('')}</div>
-    <h4>分野</h4>
-    <div class="chips">${ALL_FIELDS.map((f) => `<button class="chip ${s.fields.includes(f) ? 'on' : ''}" data-fd="${f}">${FIELD_NAMES[f]}</button>`).join('')}</div>
-    <h4>1日に招ける数</h4>
-    <div class="chips">${[5, 10, 15, 20].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n}体</button>`).join('')}</div>
-    <h4>音</h4>
-    <div class="chips">
-      <button class="chip ${s.listen ? 'on' : ''}" data-tg="listen">聴き取りの想起${ttsAvailable() ? '' : '(非対応)'}</button>
-      <button class="chip ${s.autoSpeak ? 'on' : ''}" data-tg="autoSpeak">自動で読み上げ</button>
-    </div>
-    <label class="slider-row">読み上げの速さ <input type="range" id="rateSlider" min="0.6" max="1.2" step="0.05" value="${s.rate}"></label>
-    <h4>記録</h4>
-    <div class="chips">
-      <button class="chip" data-act="export">書き出す</button>
-      <button class="chip" data-act="import">読み込む</button>
-      <button class="chip danger" data-act="reset">すべて忘れる</button>
-    </div>
-    <div class="set-stats">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ ことだま ${ws.graduates()}体</div>
-  `;
-  el.onclick = (ev) => {
-    const lv = ev.target.closest('[data-lv]');
-    if (lv) {
-      const l = Number(lv.dataset.lv);
-      if (s.levels.includes(l)) { if (s.levels.length > 1) s.levels = s.levels.filter((x) => x !== l); }
-      else s.levels = [...s.levels, l].sort();
-      app.save(); toggleSettings(); toggleSettings(); return;
-    }
-    const fd = ev.target.closest('[data-fd]');
-    if (fd) {
-      const f = fd.dataset.fd;
-      if (s.fields.includes(f)) { if (s.fields.length > 1) s.fields = s.fields.filter((x) => x !== f); }
-      else s.fields.push(f);
-      app.save(); toggleSettings(); toggleSettings(); return;
-    }
-    const np = ev.target.closest('[data-np]');
-    if (np) { s.newPerDay = Number(np.dataset.np); app.save(); toggleSettings(); toggleSettings(); return; }
-    const tg = ev.target.closest('[data-tg]');
-    if (tg) { s[tg.dataset.tg] = !s[tg.dataset.tg]; app.save(); toggleSettings(); toggleSettings(); return; }
-    const act = ev.target.closest('[data-act]');
-    if (!act) return;
-    if (act.dataset.act === 'export') {
-      const data = JSON.stringify(app.profile);
-      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(data).then(() => addLog('記録を書き出した(クリップボード)。')).catch(() => prompt('コピーしてください', data));
-      else prompt('コピーしてください', data);
-    }
-    if (act.dataset.act === 'import') {
-      const raw = prompt('書き出した記録を貼り付け:');
-      if (!raw) return;
-      try { const obj = JSON.parse(raw); if (!obj.cards) throw 0; saveProfile(obj); location.reload(); }
-      catch { addLog('読み込めなかった。'); }
-    }
-    if (act.dataset.act === 'reset') {
-      if (confirm('本当にすべて忘れる?言霊たちの記憶も消える')) { saveProfile(defaultProfile()); location.reload(); }
-    }
-  };
-  $('#rateSlider').oninput = (ev) => { s.rate = Number(ev.target.value); lazySave(); };
-}
-
-// ---------- ループ ----------
-function startLoops() {
-  // 毎秒: 精算・マイルストーン・イベント・からくりの手
-  setInterval(() => {
-    ws.tick();
-    checkMilestones();
-    const ev = maybeEvent(app.profile);
-    if (ev) addLog(ev);
-    helperTick();
-    renderPoolHead();
-    renderVerbs();
-    lazySave();
-  }, 1000);
-  // 毎フレーム: カウンタ補間
-  const frame = () => { renderHud(); requestAnimationFrame(frame); };
-  requestAnimationFrame(frame);
-  // 30秒ごと: リスト更新(うとうと状態の変化)
-  setInterval(() => { renderRoster(); renderShop(); }, 30000);
-  // 復帰時の精算
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      const ret = ws.settleReturn();
-      if (ret.gained > 2 && ret.away > 5 * 60000) {
-        addLog(lineVar('settle_return', { n: fmt(ret.gained) }));
-        if (ret.drowsy > 0) addLog(lineVar('drowsy_call', { n: ret.drowsy }));
-      }
-      renderAll();
-    }
-  });
-}
-
-export function toast(msg) { addLog(msg); }
+export function toast(msg) { ticker(msg); }

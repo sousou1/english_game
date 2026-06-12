@@ -1,34 +1,38 @@
-// 灯し場(マッチングプール): 上に日本語のお題、下に覚えた英単語のタイル。
-// 該当する語をタップ→灯火+注文進捗。タップは「覚えた言葉の運用」そのもの。
-// SRSのスケジュールには一切書き込まない(高速再認はノイズ。深い記憶は「起こす」が担う)。
-//
-// 数値はインフレ研究(Cookie Clicker/AdCap/Clicker Heroes/Egg Inc/Duolingo MM実測)準拠:
-// - 語彙(線形入力)をマイルストーン層で指数出力に変換する
-// - 誤タップ没収なし(コンボ切れ+0.4秒ロックのみ)
-// - 正解タップレートの想定 0.7/秒、プール6枚=正解密度17%
+// 詠唱プール(v3): 日本語のお題→英単語タイル6枚から該当をタップ=詠唱攻撃。
+// タップは「覚えた言葉の運用」。SRSには1バイトも書き込まない(B7)。
+// 数値はインフレ研究+v3統合仕様準拠。誤タップ没収なし(コンボ切れ+0.4秒ロックのみ)。
 import { rarityIndex } from './srs.js';
 import { isDrowsy } from './schedule.js';
+import { critChance, weaponMultTotal, equippedTrait } from './battle.js';
 
 export const CURVE = {
   tapBase: 1,
-  tierMult: [1, 2, 4, 8, 16, 32],          // 職位 2^rank(語り部の先に余白)
-  milestones: [10, 50, 250, 1000, 5000],   // 語ごとの累計正解タップで×2(×5刻みで逓減)
+  tierMult: [1, 2, 4, 8, 16, 32],
+  milestones: [10, 50, 250, 1000, 5000],
   milestoneMult: 2,
-  collMilestones: [25, 50, 100, 200, 300, 500, 750], // 累計習得語数で全体×2
-  comboStep: 0.02,                          // +2%/連続
-  comboCap: 50,                             // 上限×2
-  feverAt: 25,                              // 連続正解でフィーバー
-  feverMult: 3,
-  feverMs: 15000,
-  freshFast: { ms: 2000, mult: 1.5 },       // お題2秒以内の正解×1.5
-  freshOk: { ms: 5000, mult: 1.2 },         // 5秒以内×1.2(遅くても減点なし)
-  orderBase: 30,                            // 注文の要求仕事量(灯火建て)
-  orderGrowth: 1.35,                        // 〜40注文
-  orderGrowthLate: 1.13,                    // 41注文〜(二段勾配)
-  orderKnee: 40,
-  bigOrderEvery: 5,                         // 5注文ごとに大注文(要求×3)
-  bigOrderMult: 3,
+  collMilestones: [25, 50, 100, 200, 300, 500, 750],
+  comboStep: 0.02,
+  comboCap: 50,
+  freshFast: { ms: 2000, mult: 1.5 },
+  freshOk: { ms: 5000, mult: 1.2 },
   poolSize: 6,
+  // 詠唱ラッシュ(時限フィーバー): 本物の賭けタイマーのみ
+  fever: {
+    gaugeMax: 25,
+    lossMiss: 3,
+    idleDecayAfterMs: 3000, // 3秒無操作で減衰開始
+    decayPerSec: 1,
+    holdMs: 30000,          // 満タン保持30秒、以降−1/秒(点火を迫る本物の賭け)
+    baseMs: 10000,          // 基本10秒
+    extendMs: 400,          // 正解ごとに+0.4秒
+    capMs: 18000,           // 上限18秒(風詠みの弓で21秒)
+    mult: 3,
+    chainStep: 0.25,        // 連鎖で×3.0→×3.25→…→×4.0
+    chainCap: 4,
+    chainWindowMs: 45000,   // 終了後45秒以内の再点火で連鎖継続
+    emberG: 6,              // 残り火: 終了後ゲージ6から
+    afterglowMs: 15000,     // 余韻15秒: ゲージ上昇2倍
+  },
 };
 
 export function collMult(learnedCount) {
@@ -44,10 +48,19 @@ export class Pool {
     this.cue = null;
     this.cueAt = 0;
     this.combo = 0;
-    this.feverUntil = 0;
+    // ラッシュ状態機械
+    this.g = 0;
+    this.mode = 'idle'; // idle | ready | rush
+    this.readyAt = 0;
+    this.rushEndsAt = 0;
+    this.rushCapAt = 0;
+    this.chain = 0;
+    this.chainWindowUntil = 0;
+    this.afterglowUntil = 0;
+    this.lastTapAt = 0;
+    this.guardUsedAt = 0;
     const p = this.app.profile;
     if (!p.taps) p.taps = {};
-    if (!p.order) p.order = { n: 0, got: 0 };
     if (!p.vref) p.vref = 1;
   }
 
@@ -67,13 +80,11 @@ export class Pool {
 
   available() { return this.learnedEntries().length >= 3; }
 
-  // 恒久全体倍率: コレクション×呼び込みの鈴
   globalMult() {
     const p = this.app.profile;
-    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0);
+    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0) * weaponMultTotal(p);
   }
 
-  // 語の価値 = 基礎 × 2^職位 × 語マイルストーン × 全体倍率
   wordValue(entry) {
     const p = this.app.profile;
     const card = p.cards[entry.w];
@@ -85,29 +96,18 @@ export class Pool {
   }
 
   comboMult() {
-    let m = 1 + Math.min(this.combo, CURVE.comboCap) * CURVE.comboStep;
-    if (Date.now() < this.feverUntil) m *= CURVE.feverMult;
-    return m;
+    return 1 + Math.min(this.combo, CURVE.comboCap) * CURVE.comboStep;
   }
 
-  isBigOrder(n = this.app.profile.order.n) {
-    return (n + 1) % CURVE.bigOrderEvery === 0;
+  rushActive(now = Date.now()) { return this.mode === 'rush' && now < this.rushEndsAt; }
+
+  rushMult() {
+    return CURVE.fever.mult + CURVE.fever.chainStep * Math.min(this.chain, CURVE.fever.chainCap);
   }
 
-  orderTarget(n = this.app.profile.order.n) {
-    const k = n + 1;
-    let w;
-    if (k <= CURVE.orderKnee) w = CURVE.orderBase * Math.pow(CURVE.orderGrowth, k - 1);
-    else w = CURVE.orderBase * Math.pow(CURVE.orderGrowth, CURVE.orderKnee - 1) * Math.pow(CURVE.orderGrowthLate, k - CURVE.orderKnee);
-    if (this.isBigOrder(n)) w *= CURVE.bigOrderMult;
-    return Math.round(w);
-  }
+  afterglow(now = Date.now()) { return now < this.afterglowUntil; }
 
-  orderReward(n = this.app.profile.order.n) {
-    return Math.round(this.orderTarget(n) * 0.5); // 一時金=要求の50%(研究: W×0.5)
-  }
-
-  // プール補充。復習期限が近い語をやや優先(運用が復習の入り口になる)
+  // ---- プール ----
   refill() {
     const p = this.app.profile;
     const all = this.learnedEntries();
@@ -143,53 +143,108 @@ export class Pool {
     if (cand.length) this.tiles[idx] = cand[Math.floor(Math.random() * cand.length)];
   }
 
-  // タップ。autoはからくりの手(価値×0.5、コンボ・注文に乗らない)
+  // ---- ラッシュ操作 ----
+  ignite(now = Date.now()) {
+    if (this.mode !== 'ready') return false;
+    this.chain = now < this.chainWindowUntil ? Math.min(this.chain + 1, CURVE.fever.chainCap) : 0;
+    const trait = equippedTrait(this.app.profile);
+    const cap = CURVE.fever.capMs + (trait === 'rushExt' ? 3000 : 0);
+    this.mode = 'rush';
+    this.rushEndsAt = now + CURVE.fever.baseMs;
+    this.rushCapAt = now + cap;
+    this.g = 0;
+    return true;
+  }
+
+  // 1秒ティック。{rushEnded, readyExpired} を返す
+  tickSecond(now = Date.now()) {
+    const out = { rushEnded: false };
+    if (this.mode === 'rush' && now >= this.rushEndsAt) {
+      this.mode = 'idle';
+      this.g = CURVE.fever.emberG;
+      this.chainWindowUntil = now + CURVE.fever.chainWindowMs;
+      this.afterglowUntil = now + CURVE.fever.afterglowMs;
+      out.rushEnded = true;
+      return out;
+    }
+    if (this.mode === 'ready') {
+      if (now - this.readyAt > CURVE.fever.holdMs) {
+        this.g = Math.max(0, this.g - CURVE.fever.decayPerSec);
+        if (this.g < CURVE.fever.gaugeMax) this.mode = 'idle';
+      }
+      return out;
+    }
+    if (this.mode === 'idle' && this.g > 0 && now - this.lastTapAt > CURVE.fever.idleDecayAfterMs) {
+      this.g = Math.max(0, this.g - CURVE.fever.decayPerSec);
+    }
+    return out;
+  }
+
+  // ---- タップ ----
   tap(w, { auto = false } = {}) {
     const p = this.app.profile;
+    const now = Date.now();
     if (!this.cue) return null;
     const correct = w === this.cue.w;
+
     if (!correct) {
-      this.combo = 0;
-      return { correct: false, gain: 0, combo: 0 };
+      let guarded = false;
+      const trait = equippedTrait(p);
+      if (!auto && trait === 'comboGuard' && now - this.guardUsedAt > 60000) {
+        this.guardUsedAt = now;
+        guarded = true; // 旅装の短剣: コンボを守った
+      } else {
+        this.combo = 0;
+      }
+      if (!auto && this.mode !== 'rush') this.g = Math.max(0, this.g - CURVE.fever.lossMiss);
+      this.lastTapAt = now;
+      return { correct: false, gain: 0, combo: this.combo, guarded };
     }
+
     const taps = (p.taps[w] || 0) + 1;
     p.taps[w] = taps;
     const milestone = CURVE.milestones.includes(taps) ? taps : null;
-
     const base = this.wordValue(this.cue);
-    let gain;
-    let fever = false;
+
+    let gain; let crit = false; let fresh = 1; let gaugeReady = false;
     if (auto) {
       gain = Math.max(1, Math.round(base * 0.5));
     } else {
       this.combo++;
-      const dt = Date.now() - this.cueAt;
-      const fresh = dt <= CURVE.freshFast.ms ? CURVE.freshFast.mult : dt <= CURVE.freshOk.ms ? CURVE.freshOk.mult : 1;
-      gain = Math.max(1, Math.round(base * this.comboMult() * fresh));
-      if (this.combo === CURVE.feverAt && Date.now() >= this.feverUntil) {
-        this.feverUntil = Date.now() + CURVE.feverMs;
-        fever = true;
+      this.lastTapAt = now;
+      const trait = equippedTrait(p);
+      const fastMs = CURVE.freshFast.ms + (trait === 'freshExt' ? 1000 : 0);
+      const dt = now - this.cueAt;
+      fresh = dt <= fastMs ? CURVE.freshFast.mult : dt <= CURVE.freshOk.ms ? CURVE.freshOk.mult : 1;
+      const rush = this.rushActive(now) ? this.rushMult() : 1;
+      const critP = critChance(this.app.battleLevel || 1, trait === 'crit4' ? 0.04 : 0);
+      crit = Math.random() < critP;
+      gain = Math.max(1, Math.round(base * this.comboMult() * fresh * rush * (crit ? 2 : 1)));
+
+      // ラッシュ延長 or ゲージ充填
+      if (this.rushActive(now)) {
+        this.rushEndsAt = Math.min(this.rushEndsAt + CURVE.fever.extendMs, this.rushCapAt);
+      } else {
+        this.g += this.afterglow(now) ? 2 : 1;
+        if (this.g >= CURVE.fever.gaugeMax && this.mode === 'idle') {
+          this.g = CURVE.fever.gaugeMax;
+          this.mode = 'ready';
+          this.readyAt = now;
+          gaugeReady = true;
+        }
       }
     }
 
-    // V_ref: 直近タップ価値の移動平均(放置生産の参照値)
-    p.vref = Math.max(this.globalMult(), p.vref * 0.97 + (auto ? base * 0.5 : gain / Math.max(1, this.comboMult())) * 0.03);
-
-    // 注文の進捗は手動タップの獲得がそのまま乗る(獲得=納品)
-    let orderDone = null;
-    if (!auto) {
-      p.order.got += gain;
-      if (p.order.got >= this.orderTarget()) {
-        orderDone = { reward: this.orderReward(), n: p.order.n, big: this.isBigOrder() };
-        p.order.n++;
-        p.order.got = 0;
-      }
-    }
+    // V_ref: 放置生産の参照値(恒久部のみの移動平均)
+    p.vref = Math.max(this.globalMult(), p.vref * 0.97 + base * 0.03);
 
     const idx = this.tiles.findIndex((e) => e.w === w);
     if (idx >= 0 && this.tiles.length >= CURVE.poolSize) this.swapTile(idx);
     this.pickCue();
 
-    return { correct: true, gain, combo: this.combo, fever, feverActive: Date.now() < this.feverUntil, milestone, orderDone };
+    return {
+      correct: true, gain, combo: this.combo, crit, fresh, milestone, gaugeReady,
+      rush: this.rushActive(now) ? { mult: this.rushMult(), endsAt: this.rushEndsAt } : null,
+    };
   }
 }

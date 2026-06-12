@@ -86,6 +86,45 @@ function tone(freq, t0, dur, type = 'sine', gain = 0.12) {
   o.stop(ctx.currentTime + t0 + dur + 0.02);
 }
 
+// 周波数スイープ(キュイン=当確音の文法)
+function sweep(f0, f1, t0, dur, type = 'sawtooth', gain = 0.1) {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(f0, ctx.currentTime + t0);
+  o.frequency.exponentialRampToValueAtTime(f1, ctx.currentTime + t0 + dur);
+  g.gain.setValueAtTime(0.0001, ctx.currentTime + t0);
+  g.gain.exponentialRampToValueAtTime(gain, ctx.currentTime + t0 + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t0 + dur);
+  o.connect(g).connect(ctx.destination);
+  o.start(ctx.currentTime + t0);
+  o.stop(ctx.currentTime + t0 + dur + 0.02);
+}
+
+// ホワイトノイズ(払い出しの「シャラ」)
+function noiseBurst(t0, dur, gain = 0.05) {
+  const buf = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * dur)), ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const g = ctx.createGain();
+  g.gain.value = gain;
+  src.connect(g).connect(ctx.destination);
+  src.start(ctx.currentTime + t0);
+}
+
+// コンボ音階(ペンタトニック上昇 — 連打が音楽になる。切れると階段が下に戻る)
+const SCALE = [523, 587, 659, 784, 880, 1046, 1175, 1318, 1568];
+export function comboTone(combo) {
+  if (!ctx || ctx.state !== 'running') return;
+  try {
+    const idx = Math.min(Math.floor(combo / 3), SCALE.length - 1);
+    tone(SCALE[idx], 0, 0.05, 'triangle', 0.05);
+    if (combo > 0 && combo % 5 === 0) tone(SCALE[idx] * 1.5, 0.02, 0.07, 'triangle', 0.04);
+  } catch (e) { /* ignore */ }
+}
+
 export function sfx(name) {
   if (!ctx) return;
   if (ctx.state !== 'running') { ctx.resume().catch(() => {}); return; }
@@ -123,6 +162,37 @@ export function sfx(name) {
         tone(523, 0.09, 0.1, 'triangle');
         tone(659, 0.18, 0.1, 'triangle');
         tone(1046, 0.27, 0.35, 'triangle', 0.15);
+        break;
+      case 'kyuin': // ラッシュ突入(当確音の文法)
+        sweep(300, 1760, 0, 0.22, 'sawtooth', 0.11);
+        tone(1760, 0.2, 0.35, 'triangle', 0.08);
+        break;
+      case 'reach': // ゲージ満タン・とどめ詠唱
+        tone(740, 0, 0.08, 'triangle', 0.08);
+        tone(988, 0.09, 0.08, 'triangle', 0.08);
+        tone(740, 0.18, 0.08, 'triangle', 0.08);
+        tone(988, 0.27, 0.12, 'triangle', 0.09);
+        tone(98, 0, 0.5, 'sawtooth', 0.04);
+        break;
+      case 'payout': // 払い出しジャラジャラ
+        for (let i = 0; i < 10; i++) tone(i % 2 ? 1318 : 1046, i * 0.03, 0.025, 'square', 0.045);
+        noiseBurst(0, 0.28, 0.04);
+        break;
+      case 'promote':
+        tone(392, 0, 0.1, 'triangle', 0.09);
+        tone(523, 0.1, 0.1, 'triangle', 0.09);
+        tone(659, 0.2, 0.14, 'triangle', 0.1);
+        break;
+      case 'zawa': // 不穏(ボス・接近)
+        for (let i = 0; i < 8; i++) tone(110, i * 0.055, 0.05, 'sawtooth', 0.035);
+        break;
+      case 'land': // ラッシュ終了の着地音(残念音ではない)
+        tone(1046, 0, 0.1, 'triangle', 0.07);
+        tone(784, 0.1, 0.16, 'triangle', 0.07);
+        break;
+      case 'hit': // 被弾
+        tone(150, 0, 0.12, 'sawtooth', 0.09);
+        noiseBurst(0, 0.1, 0.05);
         break;
     }
   } catch (e) { /* ignore */ }

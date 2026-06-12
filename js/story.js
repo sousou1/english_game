@@ -34,13 +34,12 @@ export const REVEAL = {
 
 // 施設が店に並ぶ条件(グレー予告含む)
 export const SHOP_REVEAL = {
-  fire: (p) => p.totalLights >= 8,
-  fairy: (p) => (p.order?.n || 0) >= 1,
-  scribe: (p) => (p.order?.n || 0) >= 10,
-  kamado: (p) => (p.order?.n || 0) >= 20,
-  still: (p) => (p.order?.n || 0) >= 30,
-  ring: (p) => (p.order?.n || 0) >= 2,
-  helper: (p) => (p.order?.n || 0) >= 35,
+  fairy: (p) => (p.battle?.kills || 0) >= 1,
+  scribe: (p) => (p.battle?.kills || 0) >= 10,
+  kamado: (p) => (p.battle?.kills || 0) >= 20,
+  still: (p) => (p.battle?.kills || 0) >= 30,
+  ring: (p) => (p.battle?.kills || 0) >= 2,
+  helper: (p) => (p.battle?.kills || 0) >= 35,
   shelf: (p, ws) => ws.graduates() >= 1 || p.stats.recalls >= 8,
   dorm: (p, ws) => ws.graduates() >= 3,
   bell: (p, ws) => ws.graduates() >= 5,

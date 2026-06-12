@@ -26,9 +26,15 @@ export function defaultProfile() {
     lights: 0,      // 灯火(現在)
     totalLights: 0, // 累計(アンロック判定)
     surely: 0,      // 確かな想起数
-    taps: {},       // w -> 灯し場で正しくタップした回数
-    order: { n: 0, got: 0 }, // 灯し場の注文(仕事量建ての進捗解禁)
+    taps: {},       // w -> 詠唱プールで正しくタップした回数
     vref: 1,        // 直近タップ価値の移動平均(放置生産の参照値)
+    battle: { kills: 0, dmg: 0 }, // 討伐数と現在の敵への累積ダメージ(旧・注文)
+    gold: 0,        // ゴールド(討伐報酬。武器・シナリオ用)
+    exp: 0,         // 経験値(Lv→HP・会心のみ。攻撃力には乗らない)
+    weapons: [0],   // 所持武器(倍率は累積)
+    equip: 0,       // 装備中(特性は1本のみ)
+    boss: { engaged: false, bodyHp: null, scars: 0, hp: null, nextAtk: 0 },
+    scenario: { scene: null, flags: {}, chapter: 1, read: {} },
     facilities: {}, // id -> 個数
     chest: null,    // {openDay, words[]}
     story: { seen: {}, intro: 0 },
@@ -82,6 +88,10 @@ export function loadProfile() {
         delete p.facilities.bellows;
       }
       delete p.facilities.kiln; // 大窯は生産ティア施設に置換
+      if (p.order) { // v3: 注文→敵(値はそのまま討伐数・与ダメに移行)
+        p.battle = { kills: p.order.n || 0, dmg: p.order.got || 0 };
+        delete p.order;
+      }
       return p;
     }
     return migrateV1(p);
