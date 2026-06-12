@@ -15,9 +15,33 @@ let tShown = 0;
 let revealTimer = 0;
 let ptr = null;
 let feedbackTimer = 0;
+let feedbackFn = null;     // 回答後の自動送り(タップで先送り可能にするため保持)
+let feedbackAt = 0;
+let stageRenderedAt = 0;   // ゴーストクリック・ダブルタップ貫通対策: 描画直後の入力を無効化
+let scoreAnimUntil = 0;
 
 const $ = (s) => document.querySelector(s);
 const screen = () => $('#screen');
+
+// 画面差し替え直後300msの入力は「前の画面に向けたタップ」なので捨てる
+function stageRendered() { stageRenderedAt = performance.now(); }
+function freshInput() { return performance.now() - stageRenderedAt > 300; }
+
+function scheduleFeedback(fn, delay) {
+  clearTimeout(feedbackTimer);
+  feedbackFn = fn;
+  feedbackAt = performance.now();
+  feedbackTimer = setTimeout(() => { feedbackFn = null; fn(); }, delay);
+}
+
+// フィードバック中のタップで待たずに次へ(250msだけ誤タップガード)
+function skipFeedback() {
+  if (!feedbackFn || performance.now() - feedbackAt < 250) return;
+  clearTimeout(feedbackTimer);
+  const fn = feedbackFn;
+  feedbackFn = null;
+  fn();
+}
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
@@ -46,6 +70,7 @@ export function goHome() {
   phase = 'idle';
   clearTimeout(revealTimer);
   clearTimeout(feedbackTimer);
+  feedbackFn = null;
   const p = app.profile;
   const now = Date.now();
   const today = todayKey();
@@ -184,9 +209,21 @@ function updateRunHud() {
     el.classList.toggle('cur', n === run.nodeIdx);
   });
   $('#scoreTarget').textContent = run.target;
+  // 数字とゲージは常に同期(カウントアップ演出中だけ演出に任せる)
+  const sn = $('#scoreNow');
+  if (sn && performance.now() > scoreAnimUntil) sn.textContent = Math.round(run.nodeScore);
   const fill = Math.min(100, (run.nodeScore / run.target) * 100);
-  $('#scoreFill').style.width = `${fill}%`;
-  $('#scoreFill').classList.toggle('full', fill >= 100);
+  const fillEl = $('#scoreFill');
+  if (fillEl.dataset.node !== String(run.nodeIdx)) {
+    // ノードが変わった直後はゲージを逆流アニメさせず瞬時にリセットする
+    fillEl.dataset.node = String(run.nodeIdx);
+    fillEl.style.transition = 'none';
+    fillEl.style.width = `${fill}%`;
+    requestAnimationFrame(() => { fillEl.style.transition = ''; });
+  } else {
+    fillEl.style.width = `${fill}%`;
+  }
+  fillEl.classList.toggle('full', fill >= 100);
   $('#combo').innerHTML = run.combo >= 2 ? `🔥×${run.combo}` : '';
   $('#toolsRow').innerHTML = run.tools.map((id) => {
     const t = toolById(id);
@@ -199,6 +236,7 @@ function animateScore(from, to) {
   if (!el) return;
   const t0 = performance.now();
   const dur = 450;
+  scoreAnimUntil = t0 + dur;
   const tick = (t) => {
     const k = Math.min(1, (t - t0) / dur);
     el.textContent = Math.round(from + (to - from) * (1 - (1 - k) ** 3));
@@ -231,7 +269,9 @@ function renderStudy(item) {
     <button class="icon-btn big spk" data-act="speak">🔊</button>
     <button class="big-btn" data-act="forge">炉にくべる →</button>
   </div>`;
+  stageRendered();
   $('#stage').onclick = (e2) => {
+    if (!freshInput()) return; // 前画面へのタップの貫通防止
     const a = e2.target.closest('[data-act]');
     if (!a) return;
     if (a.dataset.act === 'speak') speak(e.w, app.profile.settings.rate);
@@ -268,7 +308,9 @@ function renderPrompt(item) {
     </div>
     <div class="tap-hint">タップで選択肢を出す</div>
   </div>`;
+  stageRendered();
   $('#stage').onclick = (e) => {
+    if (!freshInput()) return;
     const a = e.target.closest('[data-act]');
     if (!a) return;
     if (a.dataset.act === 'replay') { speak(item.entry.w, app.profile.settings.rate); return; }
@@ -277,10 +319,12 @@ function renderPrompt(item) {
     if (a.dataset.act === 'pass') doPass();
   };
   if (isListen) speak(item.entry.w, app.profile.settings.rate);
-  requestAnimationFrame(() => {
-    const f = $('#thinkFill');
-    if (f) { f.style.transition = 'width 2.2s linear'; f.style.width = '0%'; }
-  });
+  // Web Animations API: rAF位相に依存せず確実にバーが動く(transition方式はフレーム位相で即0%になる事故がある)
+  const f = $('#thinkFill');
+  if (f) {
+    if (f.animate) f.animate([{ width: '100%' }, { width: '0%' }], { duration: 2250, easing: 'linear', fill: 'forwards' });
+    else { void f.offsetWidth; f.style.transition = 'width 2.25s linear'; f.style.width = '0%'; }
+  }
   clearTimeout(revealTimer);
   revealTimer = setTimeout(() => { if (phase === 'prompt') revealChoices(); }, 2300);
 }
@@ -333,9 +377,12 @@ function revealChoices() {
     </div>
     <div class="tap-hint">フリック or タップで回答</div>
   </div>`;
+  stageRendered();
   $('#stage').onclick = (e) => {
     if (e.target.closest('[data-act="replay"]')) { speak(item.entry.w, app.profile.settings.rate); return; }
     if (e.target.closest('[data-act="peek"]')) { peekWord(item); return; }
+    // ゴーストクリック対策: 画面差し替え直後のclick(=想起の間へのタップの残響)は回答にしない
+    if (!freshInput()) return;
     const c = e.target.closest('.choice');
     if (c && phase === 'choices') answer(Number(c.dataset.i));
   };
@@ -363,9 +410,9 @@ function answer(idx) {
     fx.innerHTML = `+${res.points}${res.crit ? '<span class="crit-label">再燃バースト!</span>' : ''}${res.breakdown && res.breakdown.burstM >= 2.2 ? `<span class="burst-detail">×${res.breakdown.burstM.toFixed(1)}</span>` : ''}`;
     $('.qa').appendChild(fx);
     if (res.crit) { $('#stage').classList.add('flash'); setTimeout(() => $('#stage')?.classList.remove('flash'), 350); }
-    updateRunHud();
     animateScore(before, run.nodeScore);
-    feedbackTimer = setTimeout(() => { if (run === myRun) handleStep(run.advance()); }, res.crit ? 1100 : 850);
+    updateRunHud();
+    scheduleFeedback(() => { if (run === myRun) handleStep(run.advance()); }, res.crit ? 1100 : 850);
   } else {
     sfx('bad');
     if (res.phoenix) toast('🪶 不死鳥の羽がコンボを守った');
@@ -373,14 +420,15 @@ function answer(idx) {
     $('#stage').classList.add('shake');
     setTimeout(() => $('#stage')?.classList.remove('shake'), 400);
     updateRunHud();
-    feedbackTimer = setTimeout(() => {
+    scheduleFeedback(() => {
       if (run === myRun) renderMissPanel(res, item.retry ? 'また取り逃した…' : 'この言霊は暴走した — ノード終盤に再来する');
-    }, 650);
+    }, 500);
   }
 }
 
 function renderMissPanel(res, label) {
   if (!$('#stage') || !run) return; // 帰還後にタイマーが残っていた場合のガード
+  phase = 'feedback';
   const e = res.entry;
   $('#stage').innerHTML = `
   <div class="miss-panel pop">
@@ -392,7 +440,9 @@ function renderMissPanel(res, label) {
     <button class="icon-btn big spk" data-act="speak">🔊</button>
     <button class="big-btn" data-act="next">心に刻んだ →</button>
   </div>`;
+  stageRendered();
   $('#stage').onclick = (ev) => {
+    if (!freshInput()) return; // 連打の貫通防止
     const a = ev.target.closest('[data-act]');
     if (!a) return;
     if (a.dataset.act === 'speak') speak(e.w, app.profile.settings.rate);
@@ -418,7 +468,9 @@ function renderNodeCleared(step) {
     </div>
     <button class="text-btn" data-act="skip">受け取らない</button>
   </div>`;
+  stageRendered();
   $('#stage').onclick = (e) => {
+    if (!freshInput()) return;
     const card = e.target.closest('.reward-card');
     if (card) { sfx('flip'); handleStep(run.takeReward(card.dataset.id)); return; }
     if (e.target.closest('[data-act="skip"]')) handleStep(run.takeReward(null));
@@ -466,27 +518,48 @@ function renderResult(r) {
 
 // ---------- ジェスチャー ----------
 function onPtrDown(e) {
-  ptr = { x: e.clientX, y: e.clientY, t: Date.now() };
+  // 開始時点のフェーズと押し始めた選択肢を記録する。
+  // 指が動いている間に自動リビール等で画面が変わった場合、ジェスチャーは無効(盲目回答の防止)。
+  ptr = { x: e.clientX, y: e.clientY, phase, choiceEl: e.target.closest?.('.choice') || null };
 }
 
 function onPtrUp(e) {
   if (!ptr) return;
-  const dx = e.clientX - ptr.x;
-  const dy = e.clientY - ptr.y;
+  const p0 = ptr;
   ptr = null;
+  const dx = e.clientX - p0.x;
+  const dy = e.clientY - p0.y;
   const dist = Math.hypot(dx, dy);
-  if (dist < 30) {
-    // タップ: 想起の間なら選択肢を出す(ボタン類はclickハンドラ側で処理)
-    if (phase === 'prompt' && !e.target.closest('[data-act]')) revealChoices();
+
+  // フィードバック中のタップは「次へ送る」(完全な無反応時間を作らない)
+  if (phase === 'feedback') { skipFeedback(); return; }
+  if (!freshInput()) return;          // 画面差し替え直後の入力は前画面へのタップ
+  if (p0.phase !== phase) return;     // 押している間に画面が変わった→破棄
+
+  if (phase === 'choices') {
+    // 押し始めた選択肢があるならそれを回答にする(指が転がっても隣の選択肢に化けない)
+    if (p0.choiceEl && p0.choiceEl.isConnected && !p0.choiceEl.disabled) {
+      answer(Number(p0.choiceEl.dataset.i));
+      return;
+    }
+    // 背景から始めたフリックのみ方向回答(誤爆防止に60px以上)
+    if (dist >= 60) {
+      const horizontal = Math.abs(dx) > Math.abs(dy);
+      const dir = horizontal ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0); // top,right,bottom,left
+      answer(dir);
+    }
     return;
   }
-  const horizontal = Math.abs(dx) > Math.abs(dy);
+
   if (phase === 'prompt') {
-    if (!horizontal && dy < 0) doMikiri();
-    else if (!horizontal && dy > 0) doPass();
-  } else if (phase === 'choices') {
-    const dir = horizontal ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0); // top,right,bottom,left
-    answer(dir);
+    if (dist < 30) {
+      if (!e.target.closest('[data-act]')) revealChoices();
+      return;
+    }
+    // 見切り/パスは縦に強くはっきりしたスワイプのみ(30pxの指滑りで即パスさせない)
+    const vertical = Math.abs(dy) > Math.abs(dx) * 1.5;
+    if (vertical && dy < -60) doMikiri();
+    else if (vertical && dy > 60) doPass();
   }
 }
 
