@@ -593,7 +593,10 @@ function renderStorySheet() {
 // シーン挿絵(assets/img/ に存在するものだけ表示される)
 const SCENE_ART = {
   c01_010: 'scene_rooftop', c01_020: 'scene_festival', c01_040: 'scene_firstspell',
-  c01_100: 'scene_capital', c02_000: 'scene_chapter',
+  c01_050: 'scene_lookback', c01_070: 'scene_camp', c01_090: 'scene_roadmorning',
+  c01_100: 'scene_capital', c01_110: 'scene_market', c01_120: 'scene_alley',
+  c01_140: 'scene_silentroad', c01_160: 'scene_inn', c01_170: 'scene_attic',
+  c01_180: 'scene_oathroof', c02_000: 'scene_chapter',
 };
 
 function renderScene(scene, reread) {
