@@ -26,6 +26,9 @@ export function defaultProfile() {
     lights: 0,      // 灯火(現在)
     totalLights: 0, // 累計(アンロック判定)
     surely: 0,      // 確かな想起数
+    taps: {},       // w -> 灯し場で正しくタップした回数
+    order: { n: 0, got: 0 }, // 灯し場の注文(仕事量建ての進捗解禁)
+    vref: 1,        // 直近タップ価値の移動平均(放置生産の参照値)
     facilities: {}, // id -> 個数
     chest: null,    // {openDay, words[]}
     story: { seen: {}, intro: 0 },
@@ -74,6 +77,11 @@ export function loadProfile() {
       const d = defaultProfile();
       p.settings = { ...d.settings, ...(p.settings || {}) };
       for (const k of Object.keys(d)) if (!(k in p)) p[k] = d[k];
+      if (p.facilities.bellows) { // ふいご廃止→からくりの手に置換
+        p.facilities.helper = (p.facilities.helper || 0) + p.facilities.bellows;
+        delete p.facilities.bellows;
+      }
+      delete p.facilities.kiln; // 大窯は生産ティア施設に置換
       return p;
     }
     return migrateV1(p);

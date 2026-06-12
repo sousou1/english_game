@@ -236,24 +236,46 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
 .slider-row input { flex: 1; accent-color: var(--fire1); }
 .set-stats { margin-top: 12px; font-size: 12px; color: var(--dim); text-align: center; }
 
-/* ---------- ふいご(クリッカー) ---------- */
-.fanzone {
+/* ---------- 灯し場(マッチングプール) ---------- */
+.pool {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   max-width: 520px; margin: 0 auto;
-  height: calc(72px + var(--safe-bottom));
-  padding-bottom: var(--safe-bottom);
-  background: linear-gradient(to top, rgba(11, 10, 16, .97) 60%, transparent);
-  display: flex; align-items: center; justify-content: center;
-  touch-action: none; cursor: pointer;
+  background: linear-gradient(to top, #141019 88%, transparent);
+  border-top: 1px solid var(--panel2);
+  padding: 6px 12px calc(8px + var(--safe-bottom));
+  display: flex; flex-direction: column; gap: 6px;
+  transition: box-shadow .3s;
 }
-.fan-glow {
-  position: absolute; bottom: -36px; left: 50%; transform: translateX(-50%);
-  width: 280px; height: 110px; border-radius: 50%;
-  background: radial-gradient(50% 60% at 50% 100%, rgba(255, 138, 42, .7), transparent 75%);
-  opacity: .15; pointer-events: none; transition: opacity .25s;
+.pool.fever { box-shadow: 0 -4px 30px rgba(255, 138, 42, .45); border-top-color: var(--fire1); }
+.pool-head { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--dim); }
+.pool-order { flex: 1; display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.order-bar { flex: 1; max-width: 130px; height: 6px; background: var(--panel2); border-radius: 99px; overflow: hidden; display: inline-block; }
+.order-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--fire1), var(--fire2)); border-radius: 99px; transition: width .25s; }
+.pool-combo { color: var(--fire2); font-weight: 800; min-width: 56px; text-align: right; }
+.pool-toggle { color: var(--dim); font-size: 14px; padding: 2px 8px; }
+.pool-cue { text-align: center; padding: 2px 0 4px; }
+.pool-cue .cue-label { display: block; font-size: 10px; color: var(--dim); letter-spacing: .1em; }
+.pool-cue b { font-size: 24px; color: var(--fire2); font-weight: 800; }
+.pool-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+.pool-tile {
+  background: var(--panel); border: 1px solid var(--panel2); border-radius: 11px;
+  padding: 11px 6px; font-size: 16px; font-weight: 700; letter-spacing: .02em;
+  transition: transform .07s; position: relative; line-height: 1.2;
 }
-.fan-label { font-size: 13px; font-weight: 700; color: var(--dim); text-align: center; z-index: 1; pointer-events: none; }
-.fan-label small { display: block; font-weight: 400; font-size: 10px; margin-top: 2px; opacity: .7; }
+.pool-tile:active { transform: scale(.94); background: var(--panel2); }
+.pool-tile small { display: block; font-size: 8px; color: var(--fire2); letter-spacing: .15em; min-height: 10px; }
+.pool-tile.shake { animation: shake .3s; border-color: var(--bad); }
+.pool-tile.auto { border-color: var(--fire2); background: rgba(255, 209, 102, .08); }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); }
+}
+.tile-float {
+  position: fixed; z-index: 60; transform: translateX(-50%); pointer-events: none;
+  font-size: 15px; font-weight: 900; color: var(--fire2);
+  text-shadow: 0 0 10px rgba(255, 138, 42, .8);
+  animation: floatup .7s forwards;
+}
 
 .spark {
   position: fixed; width: 5px; height: 5px; border-radius: 50%; z-index: 50;

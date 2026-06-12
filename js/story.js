@@ -27,20 +27,24 @@ export const REVEAL = {
   shop: (p, ws) => !!p.facilities.fire && (ws.graduates() >= 1 || p.stats.recalls >= 8),
   pinto: (p) => p.surely >= 6,
   bellTime: (p) => !!p.facilities.bell,
-  ttf: (p) => !!p.facilities.vault,
-  fan: (p) => true, // 靄を払うは最初から(導入そのものがタップ)
+  ttf: (p) => (p.facilities.shelf || 0) >= 1,
+  pool: (p, ws) => !!p.facilities.fire && (ws.graduates() + Object.keys(p.steps).length) >= 3,
   settings: (p) => !!p.facilities.fire,
 };
 
 // 施設が店に並ぶ条件(グレー予告含む)
 export const SHOP_REVEAL = {
   fire: (p) => p.totalLights >= 8,
+  fairy: (p) => (p.order?.n || 0) >= 1,
+  scribe: (p) => (p.order?.n || 0) >= 10,
+  kamado: (p) => (p.order?.n || 0) >= 20,
+  still: (p) => (p.order?.n || 0) >= 30,
+  ring: (p) => (p.order?.n || 0) >= 2,
+  helper: (p) => (p.order?.n || 0) >= 35,
   shelf: (p, ws) => ws.graduates() >= 1 || p.stats.recalls >= 8,
   dorm: (p, ws) => ws.graduates() >= 3,
   bell: (p, ws) => ws.graduates() >= 5,
   voice: (p) => p.stats.correct >= 18,
-  vault: (p) => (p.facilities.shelf || 0) >= 1 && p.totalLights >= 150,
-  bellows: (p) => p.surely >= 60,
 };
 
 // ---- マイルストーン(一度だけ発火しログに流す) ----
@@ -52,9 +56,9 @@ const MILESTONES = [
   { id: 'first_buy', when: (p) => (p.facilities.shelf || 0) >= 1 },
   { id: 'pinto_open', when: (p) => p.surely >= 6 },
   { id: 'voice_open', when: (p) => !!p.facilities.voice },
-  { id: 'vault_open', when: (p) => !!p.facilities.vault },
   { id: 'bell_tower', when: (p) => !!p.facilities.bell },
-  { id: 'bellows_auto', when: (p) => !!p.facilities.bellows },
+  { id: 'helper_auto', when: (p) => !!p.facilities.helper },
+  { id: 'pool_open', when: (p, ws) => !!p.facilities.fire && (ws.graduates() + Object.keys(p.steps).length) >= 3 },
   { id: 'wave_preview', when: (p, ws) => ws.graduates() >= 15 },
   // 少女アーク: 言霊が増えるほど、少女が言葉に近づいていく
   { id: 'girl_1', when: (p, ws) => ws.graduates() >= 8 },

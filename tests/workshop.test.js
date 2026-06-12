@@ -59,11 +59,12 @@ test('ステップ→卒業→火をおこすと放置生産が動く', () => {
   const res = answerCorrect(ws);
   assert.ok(res.graduated, '卒業していない');
   assert.ok(app.profile.cards[w].reps >= 1);
-  // 火をおこす
-  app.profile.lights = 100;
+  // 火をおこす+生産施設(火守りの小妖精)
+  app.profile.lights = 300;
   assert.ok(ws.buy('fire'));
-  const snap = ws.snapshot();
-  assert.ok(snap.rate > 0, '生産が動いていない');
+  assert.equal(ws.snapshot().rate, 0, '施設なしで生産が動いてしまう');
+  assert.ok(ws.buy('fairy'));
+  assert.ok(ws.snapshot().rate > 0, '生産が動いていない');
 });
 
 test('うとうとの言霊を起こすと熟成マナが弾けて灯火になる', () => {
@@ -115,17 +116,6 @@ test('ピンときた: 検証は6択になり、成功はeasy級の効果', () =
   const res = ws.submitRecall(q.choices.findIndex((c) => c.correct));
   assert.ok(res.correct);
   assert.ok(app.profile.cards[e.w].S > before * 2);
-});
-
-test('ふいご: 言霊ゼロではproducing=false(風だけでは火は生まれない)', () => {
-  const app = makeApp();
-  const ws = new Workshop(app);
-  const r1 = ws.fan();
-  assert.ok(!r1.producing);
-  assert.ok(ws.boost > 0);
-  // ブーストには上限がある
-  for (let i = 0; i < 100; i++) ws.fan();
-  assert.ok(ws.boost <= 1.5);
 });
 
 test('宝箱: 3体招いた日に作れて、翌日ひらける', () => {

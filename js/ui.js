@@ -3,6 +3,7 @@
 import { rarityIndex, retrievability, RARITY } from './srs.js';
 import { POS_JA } from './quiz.js';
 import { Workshop } from './workshop.js';
+import { Pool } from './pool.js';
 import { TIER_NAMES } from './economy.js';
 import { REVEAL, SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
 import { sfx, speak, initAudio, ttsAvailable } from './audio.js';
@@ -10,9 +11,11 @@ import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FI
 
 let app = null;
 let ws = null;
+let pool = null;
 let cardState = null;   // null | {mode:'study'|'recall'|'answer'|'invite'|'chest', ...}
 let queue = [];         // 想起キュー(w の配列)
-let fanHold = 0;
+let poolCollapsed = false;
+let helperAcc = 0;      // からくりの手の蓄積タイマー
 let saveTimer = 0;
 let dayEndShown = false;
 let cardRenderedAt = 0; // 描画直後の入力事故(ダブルタップ貫通)防止
@@ -60,6 +63,7 @@ function checkMilestones(vars = {}) {
 export function initUI(appRef) {
   app = appRef;
   ws = new Workshop(app);
+  pool = new Pool(app);
   document.body.addEventListener('pointerdown', () => initAudio());
 
   $('#screen').innerHTML = `
@@ -78,14 +82,30 @@ export function initUI(appRef) {
     <div id="roster" class="roster hidden"></div>
     <div id="settings" class="settings-panel hidden"></div>
     <div id="intro" class="intro hidden"></div>
-    <div id="fanzone" class="fanzone hidden">
-      <div class="fan-glow" id="fanGlow"></div>
-      <div class="fan-label">靄を払う <small>タップ/長押しで風を送る</small></div>
+    <div id="pool" class="pool hidden">
+      <div class="pool-head">
+        <span class="pool-order" id="poolOrder"></span>
+        <span class="pool-combo" id="poolCombo"></span>
+        <button class="pool-toggle" id="poolToggle">▾</button>
+      </div>
+      <div class="pool-body" id="poolBody">
+        <div class="pool-cue" id="poolCue"></div>
+        <div class="pool-grid" id="poolGrid"></div>
+      </div>
     </div>
   `;
 
-  wireFanzone();
   $('#gear').onclick = () => toggleSettings();
+  $('#poolToggle').onclick = () => {
+    poolCollapsed = !poolCollapsed;
+    $('#poolBody').classList.toggle('hidden', poolCollapsed);
+    $('#poolToggle').textContent = poolCollapsed ? '▴' : '▾';
+    updateScreenPad();
+  };
+  $('#poolGrid').onclick = (e) => {
+    const t = e.target.closest('[data-tap]');
+    if (t) poolTap(t.dataset.tap, t);
+  };
 
   const p = app.profile;
   // 復元: 過去ログ
@@ -183,13 +203,22 @@ function renderAll() {
   $('#verbs').classList.toggle('hidden', !REVEAL.verbs(p) && !REVEAL.fireBuy(p) && !canRecallNow());
   $('#shop').classList.toggle('hidden', !REVEAL.shop(p, ws));
   $('#roster').classList.toggle('hidden', !REVEAL.roster(p, ws));
-  $('#fanzone').classList.toggle('hidden', p.story.intro < 99);
+  const poolVisible = REVEAL.pool(p, ws);
+  $('#pool').classList.toggle('hidden', !poolVisible);
+  if (poolVisible && !pool.cue) { pool.refill(); renderPool(); }
+  updateScreenPad();
   $('#bellTime').classList.toggle('hidden', !REVEAL.bellTime(p));
   $('#placeName').textContent = placeName();
   renderVerbs();
   renderShop();
   renderRoster();
   renderHud();
+}
+
+function updateScreenPad() {
+  const poolVisible = !$('#pool').classList.contains('hidden');
+  const h = poolVisible ? (poolCollapsed ? 56 : 270) : 16;
+  $('#screen').style.paddingBottom = `calc(${h}px + var(--safe-bottom))`;
 }
 
 function placeName() {
@@ -211,16 +240,16 @@ function renderHud() {
   const p = app.profile;
   const now = Date.now();
   const snap = ws.snapshot(now);
-  // 補間表示: 最後の精算からの増分を足す(本物のレートで動く)
-  const interp = Math.min(snap.cap, p.lights + (snap.rate * (now - p.settledAt)) / 60000);
-  $('#lights').textContent = fmt(interp);
-  $('#rateTag').textContent = snap.rate > 0 ? ` (+${snap.rate.toFixed(1)}/分${ws.boost > 0.05 ? '🌬' : ''})` : '';
-  $('#capNow').textContent = fmt(interp);
-  $('#capMax').textContent = fmt(snap.cap);
+  // 補間表示: 放置分は棚の空きまで、灯し場の実入りは棚を超えてよい
+  const idleRoom = Math.max(0, snap.cap - p.lights);
+  const interp = p.lights + Math.min((snap.rate * (now - p.settledAt)) / 60000, idleRoom);
+  $('#lights').textContent = fmtBig(interp);
+  $('#rateTag').textContent = snap.rate > 0 ? ` (+${snap.rate.toFixed(1)}/分)` : '';
+  $('#capNow').textContent = fmtBig(Math.min(interp, snap.cap));
+  $('#capMax').textContent = fmtBig(snap.cap);
   $('#ttf').textContent = REVEAL.ttf(p) && snap.ttf != null && snap.rate > 0
     ? (snap.ttf <= 0 ? ' 棚いっぱい' : ` 満タンまで${Math.ceil(snap.ttf / 60000)}分`) : '';
   if (REVEAL.bellTime(p)) $('#bellTime').textContent = `◉ ${hhmm(snap.nextBell.ts)}`;
-  $('#fanGlow').style.opacity = Math.min(1, 0.15 + ws.boost * 0.6);
 }
 
 // ---------- 動詞 ----------
@@ -525,6 +554,7 @@ function answer(idx) {
     }
     if (p.settings.autoSpeak && r.form !== 'listen') speak(res.entry.w, p.settings.rate);
     checkMilestones({ word: res.entry.w });
+    if (res.graduated) { pool.refill(); renderPool(); }
     setTimeout(() => { if (cardState && cardState.r === r) nextRecall(); }, 600);
     cardState.advancing = true;
   } else {
@@ -566,6 +596,9 @@ function doInvite(i) {
     renderCard();
     renderVerbs();
     renderRoster();
+    pool.refill();
+    renderPool(); // 内部状態と画面のタイルを必ず同期させる(ズレ=全タップ不正解の事故)
+    renderAll();
   }
 }
 
@@ -585,29 +618,112 @@ function openChest() {
   renderVerbs();
 }
 
-// ---------- ふいご ----------
-function wireFanzone() {
-  const fz = $('#fanzone');
-  let lastEmpty = 0;
-  const fan = (x, y) => {
-    const res = ws.fan();
-    sfx('tick');
-    spark(x, y);
-    if (!res.producing && Date.now() - lastEmpty > 6000) {
-      lastEmpty = Date.now();
-      addLog(lineVar('empty_tap') || '風だけでは、火は生まれない。');
-    }
-    renderHud();
-  };
-  fz.addEventListener('pointerdown', (e) => {
-    fan(e.clientX, e.clientY);
-    clearInterval(fanHold);
-    fanHold = setInterval(() => fan(e.clientX, e.clientY), 140); // 長押しオート連打
-  });
-  const stop = () => clearInterval(fanHold);
-  fz.addEventListener('pointerup', stop);
-  fz.addEventListener('pointercancel', stop);
-  fz.addEventListener('pointerleave', stop);
+// ---------- 灯し場(マッチングプール) ----------
+function fmtBig(n) {
+  if (n < 10000) return Math.floor(n).toLocaleString('ja-JP');
+  if (n < 1e8) return `${(n / 1e4).toFixed(n < 1e6 ? 1 : 0)}万`;
+  if (n < 1e12) return `${(n / 1e8).toFixed(n < 1e10 ? 1 : 0)}億`;
+  return `${(n / 1e12).toFixed(1)}兆`;
+}
+
+function renderPool() {
+  const p = app.profile;
+  if (!pool.cue) pool.refill();
+  const cueEl = $('#poolCue');
+  const grid = $('#poolGrid');
+  if (!pool.cue) { cueEl.textContent = ''; grid.innerHTML = ''; return; }
+  cueEl.innerHTML = `<span class="cue-label">この意味のことばは?</span><b>${esc(pool.cue.j)}</b>`;
+  grid.innerHTML = pool.tiles.map((e) => {
+    const taps = p.taps[e.w] || 0;
+    const next = pool.constructor === Pool ? null : null;
+    void next;
+    return `<button class="pool-tile" data-tap="${esc(e.w)}">${esc(e.w)}<small>${'★'.repeat(Math.min(4, milestoneStars(taps)))}</small></button>`;
+  }).join('');
+  renderPoolHead();
+}
+
+function milestoneStars(taps) {
+  let s = 0;
+  for (const m of [10, 50, 250, 1000, 5000]) if (taps >= m) s++;
+  return s;
+}
+
+function renderPoolHead() {
+  const p = app.profile;
+  const target = pool.orderTarget();
+  const pct = Math.min(100, Math.round((p.order.got / target) * 100));
+  $('#poolOrder').innerHTML = `注文${p.order.n + 1} <span class="order-bar"><span class="order-fill" style="width:${pct}%"></span></span> ${p.order.got}/${target}`;
+  const fever = Date.now() < pool.feverUntil;
+  $('#poolCombo').textContent = fever ? '🔥フィーバー!' : (pool.combo >= 3 ? `×${pool.combo}` : '');
+  $('#pool').classList.toggle('fever', fever);
+}
+
+function poolTap(w, tileEl) {
+  const p = app.profile;
+  const res = pool.tap(w);
+  if (!res) return;
+  if (!res.correct) {
+    sfx('bad');
+    tileEl.classList.add('shake');
+    tileEl.disabled = true; // 0.4秒ロック(罰はこれだけ。没収なし)
+    setTimeout(() => { tileEl.classList.remove('shake'); tileEl.disabled = false; }, 400);
+    renderPoolHead();
+    return;
+  }
+  const gain = res.gain;
+  p.lights += gain;          // 灯し場の実入りは棚を経由しない(手売りの直収入)
+  p.totalLights += gain;
+  sfx(res.fever ? 'crit' : 'tick');
+  if (navigator.vibrate) navigator.vibrate(res.fever ? 30 : 5);
+  const r = tileEl.getBoundingClientRect();
+  spark(r.x + r.width / 2, r.y + 8, res.fever);
+  tileFloat(tileEl, `+${fmtBig(gain)}`);
+  if (res.fever) addLog(line('fever_line'), 'story');
+  if (res.milestone) addLog(line('milestone_word', { word: w }));
+  if (res.orderDone) {
+    const reward = res.orderDone.reward;
+    p.lights += reward;
+    p.totalLights += reward;
+    sfx('open');
+    addLog(`${lineVar('order_done')} +${fmtBig(reward)}灯`, 'story');
+    checkMilestones();
+    renderShop();
+    renderVerbs();
+  }
+  renderPool();
+  renderHud();
+  lazySave();
+}
+
+function tileFloat(el, text) {
+  const f = document.createElement('div');
+  f.className = 'tile-float';
+  f.textContent = text;
+  const r = el.getBoundingClientRect();
+  f.style.left = `${r.x + r.width / 2}px`;
+  f.style.top = `${r.y - 6}px`;
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 700);
+}
+
+// からくりの手: 見ている間、お題にひとりでに応える(レベル1=8秒に1回)
+function helperTick() {
+  const p = app.profile;
+  const lv = p.facilities.helper || 0;
+  if (!lv || !pool.cue || document.hidden) return;
+  helperAcc += lv;
+  if (helperAcc < 8) return;
+  helperAcc = 0;
+  const cueW = pool.cue.w;
+  const res = pool.tap(cueW, { auto: true });
+  if (res && res.correct) {
+    const gain = res.gain;
+    p.lights += gain;
+    p.totalLights += gain;
+    const tile = document.querySelector(`[data-tap="${CSS.escape(cueW)}"]`);
+    if (tile) { tile.classList.add('auto'); setTimeout(() => tile.classList.remove('auto'), 400); tileFloat(tile, `+${fmtBig(gain)}`); }
+    renderPool();
+  }
 }
 
 // ---------- 設定 ----------
@@ -679,12 +795,14 @@ function toggleSettings() {
 
 // ---------- ループ ----------
 function startLoops() {
-  // 毎秒: 精算・マイルストーン・イベント
+  // 毎秒: 精算・マイルストーン・イベント・からくりの手
   setInterval(() => {
     ws.tick();
     checkMilestones();
     const ev = maybeEvent(app.profile);
     if (ev) addLog(ev);
+    helperTick();
+    renderPoolHead();
     renderVerbs();
     lazySave();
   }, 1000);

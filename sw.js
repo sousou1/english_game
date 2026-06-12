@@ -1,4 +1,4 @@
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = `kotodama-${VERSION}`;
 const CORE = [
   './',
@@ -12,6 +12,7 @@ const CORE = [
   './js/schedule.js',
   './js/story.js',
   './js/story-lines.js',
+  './js/pool.js',
   './js/quiz.js',
   './js/srs.js',
   './js/audio.js',

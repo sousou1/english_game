@@ -77,10 +77,28 @@ if (inviteBtn) {
   if (closeBtn) await closeBtn.tap();
 }
 
-// ふいご(クリッカー): 連打でブーストが乗る
-for (let i = 0; i < 6; i++) { await page.touchscreen.tap(195, 800); await page.waitForTimeout(70); }
-const boost = await page.evaluate(() => window.__app && document.querySelector('#fanGlow').style.opacity);
-ok(Number(boost) > 0.2, `ふいご連打でグローが強まる (opacity=${boost})`);
+// 灯し場(マッチングプール): お題に合うタイルをタップして灯火が増える
+await page.waitForSelector('#pool:not(.hidden)', { timeout: 4000 });
+ok(true, '灯し場が現れた');
+const before = await page.evaluate(() => window.__app.profile.lights);
+let poolTaps = 0;
+for (let i = 0; i < 8 && poolTaps < 5; i++) {
+  const cueW = await page.evaluate(() => {
+    const cue = document.querySelector('#poolCue b')?.textContent;
+    const W = window.__app.words.find((x) => x.j === cue);
+    return W ? W.w : null;
+  });
+  if (!cueW) break;
+  const tile = await page.$(`[data-tap="${cueW}"]`);
+  if (!tile) break;
+  await tile.tap();
+  poolTaps++;
+  await page.waitForTimeout(120);
+}
+const after = await page.evaluate(() => window.__app.profile.lights);
+ok(poolTaps >= 5 && after > before, `灯し場で${poolTaps}回マッチして灯火が増えた (+${Math.round(after - before)})`);
+const orderGot = await page.evaluate(() => window.__app.profile.order.got + window.__app.profile.order.n * 1000);
+ok(orderGot > 0, '注文ゲージが進んだ');
 
 // 設定パネル(インライン)
 await page.tap('#gear');
