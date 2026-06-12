@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "nature",
+  "words": [
+    {"w": "photosynthesis", "p": "noun", "j": "光合成", "ex": "Plants convert sunlight into energy through photosynthesis.", "jx": "植物は光合成によって太陽光をエネルギーに変える。"},
+    {"w": "biodiversity", "p": "noun", "j": "生物多様性", "ex": "Deforestation severely threatens the region's biodiversity.", "jx": "森林破壊はその地域の生物多様性を深刻に脅かす。"},
+    {"w": "precipitation", "p": "noun", "j": "降水量", "ex": "Annual precipitation in the rainforest exceeds 2,000 millimeters.", "jx": "熱帯雨林の年間降水量は2,000ミリメートルを超える。"},
+    {"w": "metamorphosis", "p": "noun", "j": "変態・変容", "ex": "The caterpillar undergoes metamorphosis to become a butterfly.", "jx": "毛虫は変態を経て蝶になる。"},
+    {"w": "proliferate", "p": "verb", "j": "急増する", "ex": "Invasive species tend to proliferate rapidly in new environments.", "jx": "外来種は新しい環境で急速に増殖する傾向がある。"},
+    {"w": "symbiosis", "p": "noun", "j": "共生", "ex": "The clownfish and sea anemone exemplify symbiosis in nature.", "jx": "クマノミとイソギンチャクは自然界における共生の典型例だ。"},
+    {"w": "sediment", "p": "noun", "j": "堆積物", "ex": "River sediment accumulates at the delta over centuries.", "jx": "川の堆積物は何世紀もかけてデルタに積もる。"},
+    {"w": "osmosis", "p": "noun", "j": "浸透", "ex": "Water molecules move across cell membranes by osmosis.", "jx": "水分子は浸透によって細胞膜を通過する。"},
+    {"w": "tectonic", "p": "adjective", "j": "地殻変動の", "ex": "Tectonic activity along the fault causes frequent earthquakes.", "jx": "断層沿いの地殻変動活動が頻繁な地震を引き起こす。"},
+    {"w": "evaporate", "p": "verb", "j": "蒸発する", "ex": "Surface water evaporates quickly under intense sunlight.", "jx": "表面の水は強烈な日光のもとで急速に蒸発する。"},
+    {"w": "nocturnal", "p": "adjective", "j": "夜行性の", "ex": "Owls are nocturnal predators that hunt in darkness.", "jx": "フクロウは暗闇の中で狩りをする夜行性の捕食者だ。"},
+    {"w": "pollinate", "p": "verb", "j": "受粉させる", "ex": "Bees pollinate flowers as they collect nectar.", "jx": "ミツバチは蜜を集めながら花に受粉させる。"},
+    {"w": "stratosphere", "p": "noun", "j": "成層圏", "ex": "The ozone layer is located in the stratosphere.", "jx": "オゾン層は成層圏に位置している。"},
+    {"w": "hibernate", "p": "verb", "j": "冬眠する", "ex": "Bears hibernate throughout the coldest winter months.", "jx": "クマは最も寒い冬の数ヶ月間、冬眠する。"},
+    {"w": "tundra", "p": "noun", "j": "ツンドラ", "ex": "Few trees survive in the frozen tundra of the Arctic.", "jx": "北極圏の凍ったツンドラで生き残れる木はほとんどない。"},
+    {"w": "catalyze", "p": "verb", "j": "触媒する", "ex": "Enzymes catalyze biochemical reactions within living cells.", "jx": "酵素は生細胞内の生化学反応を触媒する。"},
+    {"w": "magma", "p": "noun", "j": "マグマ", "ex": "Magma rises through the crust and erupts as lava.", "jx": "マグマは地殻を通り上昇し溶岩として噴出する。"},
+    {"w": "permafrost", "p": "noun", "j": "永久凍土", "ex": "Melting permafrost releases stored methane into the atmosphere.", "jx": "溶ける永久凍土は蓄えられたメタンを大気中に放出する。"},
+    {"w": "ecosystem", "p": "noun", "j": "生態系", "ex": "A coral reef is one of the most complex ecosystems on Earth.", "jx": "サンゴ礁は地球上で最も複雑な生態系の一つだ。"},
+    {"w": "migratory", "p": "adjective", "j": "渡りの", "ex": "Migratory birds travel thousands of kilometers each season.", "jx": "渡り鳥は毎シーズン何千キロもの距離を移動する。"},
+    {"w": "sublimate", "p": "verb", "j": "昇華する", "ex": "Dry ice sublimates directly from solid to gas at room temperature.", "jx": "ドライアイスは室温で固体から直接気体へと昇華する。"},
+    {"w": "aquifer", "p": "noun", "j": "帯水層", "ex": "The city draws its drinking water from an underground aquifer.", "jx": "その都市は地下の帯水層から飲料水を汲み上げている。"},
+    {"w": "dormant", "p": "adjective", "j": "休眠中の", "ex": "The volcano has remained dormant for over two centuries.", "jx": "その火山は200年以上休眠状態にある。"},
+    {"w": "entropy", "p": "noun", "j": "エントロピー", "ex": "Entropy in an isolated system tends to increase over time.", "jx": "孤立系のエントロピーは時間とともに増大する傾向がある。"},
+    {"w": "bioluminescence", "p": "noun", "j": "生物発光", "ex": "Deep-sea organisms use bioluminescence to attract prey.", "jx": "深海生物は餌を引き寄せるために生物発光を利用する。"}
+  ]
+}

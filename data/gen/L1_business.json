@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "business",
+  "words": [
+    {"w": "job", "p": "noun", "j": "仕事", "ex": "She has a good job.", "jx": "彼女は良い仕事を持っています。"},
+    {"w": "work", "p": "verb", "j": "働く", "ex": "I work at a shop.", "jx": "私はお店で働いています。"},
+    {"w": "office", "p": "noun", "j": "事務所", "ex": "He goes to the office every day.", "jx": "彼は毎日事務所に行きます。"},
+    {"w": "meeting", "p": "noun", "j": "会議", "ex": "We have a meeting at nine.", "jx": "私たちは9時に会議があります。"},
+    {"w": "boss", "p": "noun", "j": "上司", "ex": "My boss is very kind.", "jx": "私の上司はとても親切です。"},
+    {"w": "money", "p": "noun", "j": "お金", "ex": "I need more money.", "jx": "私はもっとお金が必要です。"},
+    {"w": "pay", "p": "verb", "j": "支払う", "ex": "Please pay at the desk.", "jx": "受付でお支払いください。"},
+    {"w": "buy", "p": "verb", "j": "買う", "ex": "We buy new computers.", "jx": "私たちは新しいコンピュータを買います。"},
+    {"w": "sell", "p": "verb", "j": "売る", "ex": "They sell food here.", "jx": "彼らはここで食べ物を売っています。"},
+    {"w": "shop", "p": "noun", "j": "店", "ex": "This shop opens at ten.", "jx": "この店は10時に開きます。"},
+    {"w": "price", "p": "noun", "j": "値段", "ex": "What is the price of this bag?", "jx": "このバッグの値段はいくらですか？"},
+    {"w": "cost", "p": "noun", "j": "費用", "ex": "The cost is very low.", "jx": "費用はとても低いです。"},
+    {"w": "order", "p": "verb", "j": "注文する", "ex": "Can I order by phone?", "jx": "電話で注文できますか？"},
+    {"w": "company", "p": "noun", "j": "会社", "ex": "She works for a big company.", "jx": "彼女は大きな会社で働いています。"},
+    {"w": "business", "p": "noun", "j": "ビジネス", "ex": "His business is going well.", "jx": "彼のビジネスはうまくいっています。"},
+    {"w": "open", "p": "verb", "j": "開く", "ex": "The store opens at nine.", "jx": "その店は9時に開きます。"},
+    {"w": "close", "p": "verb", "j": "閉まる", "ex": "The shop closes at six.", "jx": "その店は6時に閉まります。"},
+    {"w": "send", "p": "verb", "j": "送る", "ex": "Please send me the file.", "jx": "そのファイルを送ってください。"},
+    {"w": "call", "p": "verb", "j": "電話する", "ex": "I will call you tomorrow.", "jx": "明日電話します。"},
+    {"w": "sign", "p": "verb", "j": "署名する", "ex": "Please sign your name here.", "jx": "ここにお名前を署名してください。"},
+    {"w": "hire", "p": "verb", "j": "雇う", "ex": "We want to hire new staff.", "jx": "私たちは新しいスタッフを雇いたいです。"},
+    {"w": "bank", "p": "noun", "j": "銀行", "ex": "I go to the bank on Friday.", "jx": "私は金曜日に銀行に行きます。"},
+    {"w": "card", "p": "noun", "j": "カード", "ex": "Do you have a business card?", "jx": "名刺をお持ちですか？"},
+    {"w": "budget", "p": "noun", "j": "予算", "ex": "Our budget is small this year.", "jx": "今年の予算は少ないです。"},
+    {"w": "profit", "p": "noun", "j": "利益", "ex": "The profit is good this month.", "jx": "今月の利益は良いです。"}
+  ]
+}

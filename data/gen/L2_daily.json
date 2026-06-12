@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "daily",
+  "words": [
+    {"w": "arrive", "p": "verb", "j": "到着する", "ex": "I arrive at school at eight.", "jx": "私は8時に学校に到着します。"},
+    {"w": "grocery", "p": "noun", "j": "食料雑貨", "ex": "She went to the grocery store.", "jx": "彼女は食料品店に行きました。"},
+    {"w": "laundry", "p": "noun", "j": "洗濯物", "ex": "I do laundry every Sunday.", "jx": "私は毎週日曜日に洗濯をします。"},
+    {"w": "sweep", "p": "verb", "j": "掃く", "ex": "He sweeps the floor each morning.", "jx": "彼は毎朝床を掃きます。"},
+    {"w": "refrigerator", "p": "noun", "j": "冷蔵庫", "ex": "Put the milk in the refrigerator.", "jx": "牛乳を冷蔵庫に入れてください。"},
+    {"w": "neighbor", "p": "noun", "j": "隣人", "ex": "My neighbor is very friendly.", "jx": "私の隣人はとても親切です。"},
+    {"w": "schedule", "p": "noun", "j": "予定表", "ex": "Let me check my schedule first.", "jx": "まず予定表を確認させてください。"},
+    {"w": "furniture", "p": "noun", "j": "家具", "ex": "They bought new furniture last week.", "jx": "彼らは先週新しい家具を買いました。"},
+    {"w": "towel", "p": "noun", "j": "タオル", "ex": "Please hand me a towel.", "jx": "タオルを取ってください。"},
+    {"w": "garbage", "p": "noun", "j": "ごみ", "ex": "Take out the garbage, please.", "jx": "ごみを出してください。"},
+    {"w": "receipt", "p": "noun", "j": "レシート", "ex": "Keep your receipt after shopping.", "jx": "買い物後はレシートを取っておいてください。"},
+    {"w": "discount", "p": "noun", "j": "割引", "ex": "There is a big discount today.", "jx": "今日は大きな割引があります。"},
+    {"w": "prefer", "p": "verb", "j": "好む", "ex": "I prefer tea over coffee.", "jx": "私はコーヒーよりお茶が好きです。"},
+    {"w": "repair", "p": "verb", "j": "修理する", "ex": "He repairs the broken chair.", "jx": "彼は壊れた椅子を修理します。"},
+    {"w": "curtain", "p": "noun", "j": "カーテン", "ex": "Open the curtains in the morning.", "jx": "朝はカーテンを開けてください。"},
+    {"w": "pillow", "p": "noun", "j": "枕", "ex": "I need a soft pillow to sleep.", "jx": "寝るのに柔らかい枕が必要です。"},
+    {"w": "shelf", "p": "noun", "j": "棚", "ex": "The books are on the shelf.", "jx": "本は棚の上にあります。"},
+    {"w": "alarm", "p": "noun", "j": "目覚まし", "ex": "I set an alarm for seven.", "jx": "私は7時に目覚ましをセットします。"},
+    {"w": "rinse", "p": "verb", "j": "すすぐ", "ex": "Rinse the vegetables before cooking.", "jx": "料理する前に野菜をすすいでください。"},
+    {"w": "drawer", "p": "noun", "j": "引き出し", "ex": "The spoons are in the drawer.", "jx": "スプーンは引き出しの中にあります。"},
+    {"w": "wrap", "p": "verb", "j": "包む", "ex": "She wraps the gift carefully.", "jx": "彼女は丁寧にプレゼントを包みます。"},
+    {"w": "errand", "p": "noun", "j": "用事", "ex": "I have several errands to do.", "jx": "私にはいくつかの用事があります。"},
+    {"w": "convenient", "p": "adjective", "j": "便利な", "ex": "This store is very convenient.", "jx": "このお店はとても便利です。"},
+    {"w": "tidy", "p": "adjective", "j": "きちんとした", "ex": "Her room is always tidy.", "jx": "彼女の部屋はいつもきちんとしています。"},
+    {"w": "measure", "p": "verb", "j": "計測する", "ex": "Please measure the window size.", "jx": "窓のサイズを計測してください。"}
+  ]
+}

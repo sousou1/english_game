@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "society",
+  "words": [
+    {"w": "accountability", "p": "noun", "j": "説明責任", "ex": "The minister faced demands for accountability.", "jx": "大臣は説明責任を求められた。"},
+    {"w": "referendum", "p": "noun", "j": "国民投票", "ex": "The government held a referendum on the issue.", "jx": "政府はその問題について国民投票を実施した。"},
+    {"w": "jurisdiction", "p": "noun", "j": "管轄権", "ex": "The case fell under federal jurisdiction.", "jx": "その事件は連邦管轄に属した。"},
+    {"w": "propaganda", "p": "noun", "j": "プロパガンダ", "ex": "The regime spread propaganda through state media.", "jx": "政権は国営メディアを通じてプロパガンダを広めた。"},
+    {"w": "sovereignty", "p": "noun", "j": "主権", "ex": "The treaty threatened the nation's sovereignty.", "jx": "その条約は国家の主権を脅かした。"},
+    {"w": "ratify", "p": "verb", "j": "批准する", "ex": "Both nations agreed to ratify the treaty.", "jx": "両国はその条約を批准することに同意した。"},
+    {"w": "impeach", "p": "verb", "j": "弾劾する", "ex": "The assembly voted to impeach the president.", "jx": "議会は大統領を弾劾することを決議した。"},
+    {"w": "extradite", "p": "verb", "j": "引き渡す", "ex": "The suspect was extradited to face charges abroad.", "jx": "容疑者は海外での訴追のために引き渡された。"},
+    {"w": "disenfranchise", "p": "verb", "j": "選挙権を奪う", "ex": "New laws could disenfranchise minority voters.", "jx": "新たな法律は少数派の有権者から選挙権を奪う可能性がある。"},
+    {"w": "dissent", "p": "noun", "j": "異議", "ex": "Political dissent was suppressed under the regime.", "jx": "その政権下では政治的異議が弾圧された。"},
+    {"w": "sanction", "p": "noun", "j": "制裁", "ex": "The council imposed economic sanctions on the country.", "jx": "理事会はその国に経済制裁を課した。"},
+    {"w": "subpoena", "p": "noun", "j": "召喚状", "ex": "Witnesses received a subpoena to testify in court.", "jx": "証人たちは法廷で証言するよう召喚状を受け取った。"},
+    {"w": "oligarchy", "p": "noun", "j": "寡頭政治", "ex": "Critics described the system as an oligarchy.", "jx": "批評家たちはその制度を寡頭政治と表現した。"},
+    {"w": "geopolitical", "p": "adjective", "j": "地政学的な", "ex": "The conflict had serious geopolitical consequences.", "jx": "その紛争は深刻な地政学的影響をもたらした。"},
+    {"w": "partisan", "p": "adjective", "j": "党派的な", "ex": "The debate became increasingly partisan.", "jx": "その討論はますます党派的になった。"},
+    {"w": "disinformation", "p": "noun", "j": "偽情報", "ex": "Social media amplified the spread of disinformation.", "jx": "ソーシャルメディアは偽情報の拡散を増幅させた。"},
+    {"w": "redress", "p": "noun", "j": "救済", "ex": "Victims sought legal redress for their losses.", "jx": "被害者たちは損失に対する法的救済を求めた。"},
+    {"w": "adjudicate", "p": "verb", "j": "裁定する", "ex": "An independent body will adjudicate the dispute.", "jx": "独立機関がその紛争を裁定する。"},
+    {"w": "incarcerate", "p": "verb", "j": "収監する", "ex": "He was incarcerated for five years.", "jx": "彼は5年間収監された。"},
+    {"w": "amnesty", "p": "noun", "j": "恩赦", "ex": "The government declared amnesty for political prisoners.", "jx": "政府は政治犯に恩赦を宣言した。"},
+    {"w": "pluralism", "p": "noun", "j": "多元主義", "ex": "Democracy depends on political pluralism.", "jx": "民主主義は政治的多元主義に依存している。"},
+    {"w": "clandestine", "p": "adjective", "j": "秘密裏の", "ex": "The agency conducted clandestine operations overseas.", "jx": "その機関は海外で秘密裏の作戦を行った。"},
+    {"w": "coerce", "p": "verb", "j": "強制する", "ex": "Authorities coerced witnesses into silence.", "jx": "当局は証人を沈黙させるよう強制した。"},
+    {"w": "demagoguery", "p": "noun", "j": "扇動政治", "ex": "Voters grew tired of the politician's demagoguery.", "jx": "有権者たちはその政治家の扇動政治に嫌気が差した。"},
+    {"w": "whistleblower", "p": "noun", "j": "内部告発者", "ex": "The whistleblower exposed widespread corruption.", "jx": "内部告発者は広範な汚職を暴露した。"}
+  ]
+}

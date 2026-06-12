@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "travel",
+  "words": [
+    {"w": "itinerary", "p": "noun", "j": "旅程表", "ex": "She planned a detailed itinerary for the trip.", "jx": "彼女は旅行の詳細な旅程表を作成した。"},
+    {"w": "embark", "p": "verb", "j": "乗り込む", "ex": "Passengers will embark from Gate 12.", "jx": "乗客はゲート12から乗り込みます。"},
+    {"w": "disembark", "p": "verb", "j": "降りる", "ex": "We disembark at the final destination.", "jx": "私たちは最終目的地で降りる。"},
+    {"w": "transit", "p": "noun", "j": "乗り継ぎ", "ex": "He waited three hours in transit at Tokyo.", "jx": "彼は東京での乗り継ぎで3時間待った。"},
+    {"w": "reservation", "p": "noun", "j": "予約", "ex": "I made a reservation at the hotel.", "jx": "私はホテルに予約を入れた。"},
+    {"w": "accommodation", "p": "noun", "j": "宿泊施設", "ex": "The accommodation included breakfast every morning.", "jx": "その宿泊施設には毎朝朝食が含まれていた。"},
+    {"w": "navigate", "p": "verb", "j": "道を進む", "ex": "It was difficult to navigate the busy streets.", "jx": "混雑した街路を進むのは難しかった。"},
+    {"w": "departure", "p": "noun", "j": "出発", "ex": "The departure was delayed by two hours.", "jx": "出発は2時間遅れた。"},
+    {"w": "customs", "p": "noun", "j": "税関", "ex": "All travelers must pass through customs.", "jx": "すべての旅行者は税関を通らなければならない。"},
+    {"w": "itinerant", "p": "adjective", "j": "旅をする", "ex": "He lived an itinerant lifestyle for years.", "jx": "彼は何年もの間、旅をする生活を送った。"},
+    {"w": "expedition", "p": "noun", "j": "遠征旅行", "ex": "The expedition to the mountains took two weeks.", "jx": "山への遠征旅行は2週間かかった。"},
+    {"w": "excursion", "p": "noun", "j": "小旅行", "ex": "We joined a day excursion to the ruins.", "jx": "私たちは遺跡への日帰り小旅行に参加した。"},
+    {"w": "layover", "p": "noun", "j": "途中降機", "ex": "There was a long layover in Dubai.", "jx": "ドバイで長い途中降機があった。"},
+    {"w": "amenity", "p": "noun", "j": "設備・サービス", "ex": "The hotel offered many amenities to guests.", "jx": "そのホテルは多くの設備をゲストに提供した。"},
+    {"w": "orientation", "p": "noun", "j": "方向把握", "ex": "She needed orientation in the unfamiliar city.", "jx": "彼女は不慣れな街で方向把握が必要だった。"},
+    {"w": "scenic", "p": "adjective", "j": "景色の良い", "ex": "They took a scenic route through the valley.", "jx": "彼らは谷を通る景色の良いルートを選んだ。"},
+    {"w": "landmark", "p": "noun", "j": "目印・名所", "ex": "The tower is a famous landmark in the city.", "jx": "その塔は街の有名な名所だ。"},
+    {"w": "desolate", "p": "adjective", "j": "人気のない", "ex": "The road was desolate except for a few cars.", "jx": "その道路は数台の車を除いて人気がなかった。"},
+    {"w": "spontaneous", "p": "adjective", "j": "自発的な", "ex": "They made a spontaneous decision to travel.", "jx": "彼らは自発的に旅行を決めた。"},
+    {"w": "voucher", "p": "noun", "j": "引換券", "ex": "Present this voucher at the front desk.", "jx": "フロントでこの引換券を提示してください。"},
+    {"w": "detour", "p": "noun", "j": "回り道", "ex": "The road closure forced a long detour.", "jx": "道路閉鎖により長い回り道を余儀なくされた。"},
+    {"w": "adjacent", "p": "adjective", "j": "隣接した", "ex": "Our rooms were adjacent to each other.", "jx": "私たちの部屋は互いに隣接していた。"},
+    {"w": "check in", "p": "phrase", "j": "チェックインする", "ex": "We arrived early to check in at the hotel.", "jx": "私たちはホテルのチェックインのために早めに到着した。"},
+    {"w": "set off", "p": "phrase", "j": "出発する", "ex": "They set off for the airport at dawn.", "jx": "彼らは夜明けに空港へ向けて出発した。"},
+    {"w": "currency", "p": "noun", "j": "通貨", "ex": "He exchanged currency before leaving the country.", "jx": "彼は出国前に通貨を両替した。"}
+  ]
+}

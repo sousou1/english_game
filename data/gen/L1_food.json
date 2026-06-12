@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "food",
+  "words": [
+    {"w": "apple", "p": "noun", "j": "りんご", "ex": "I eat an apple every day.", "jx": "私は毎日りんごを食べます。"},
+    {"w": "bread", "p": "noun", "j": "パン", "ex": "She buys bread at the shop.", "jx": "彼女はお店でパンを買います。"},
+    {"w": "rice", "p": "noun", "j": "ご飯", "ex": "We eat rice for lunch.", "jx": "私たちは昼食にご飯を食べます。"},
+    {"w": "milk", "p": "noun", "j": "牛乳", "ex": "He drinks a glass of milk.", "jx": "彼はコップ一杯の牛乳を飲みます。"},
+    {"w": "water", "p": "noun", "j": "水", "ex": "Please drink more water.", "jx": "もっと水を飲んでください。"},
+    {"w": "egg", "p": "noun", "j": "たまご", "ex": "I have two eggs for breakfast.", "jx": "私は朝食にたまごを2つ食べます。"},
+    {"w": "meat", "p": "noun", "j": "肉", "ex": "We cook meat for dinner.", "jx": "私たちは夕食に肉を料理します。"},
+    {"w": "fish", "p": "noun", "j": "魚", "ex": "My father likes fish very much.", "jx": "私の父は魚がとても好きです。"},
+    {"w": "vegetable", "p": "noun", "j": "野菜", "ex": "Eat your vegetables every day.", "jx": "毎日野菜を食べなさい。"},
+    {"w": "fruit", "p": "noun", "j": "果物", "ex": "I like fruit for a snack.", "jx": "私はおやつに果物が好きです。"},
+    {"w": "cook", "p": "verb", "j": "料理する", "ex": "My mother cooks dinner at home.", "jx": "私の母は家で夕食を料理します。"},
+    {"w": "eat", "p": "verb", "j": "食べる", "ex": "We eat lunch at noon.", "jx": "私たちは正午に昼食を食べます。"},
+    {"w": "drink", "p": "verb", "j": "飲む", "ex": "She drinks tea every morning.", "jx": "彼女は毎朝お茶を飲みます。"},
+    {"w": "hungry", "p": "adjective", "j": "空腹な", "ex": "I am hungry after school.", "jx": "私は放課後お腹が空きます。"},
+    {"w": "hot", "p": "adjective", "j": "熱い", "ex": "The soup is very hot.", "jx": "スープはとても熱いです。"},
+    {"w": "sweet", "p": "adjective", "j": "甘い", "ex": "This cake is very sweet.", "jx": "このケーキはとても甘いです。"},
+    {"w": "body", "p": "noun", "j": "体", "ex": "Exercise is good for your body.", "jx": "運動は体によいです。"},
+    {"w": "health", "p": "noun", "j": "健康", "ex": "Good food helps your health.", "jx": "よい食べ物は健康に役立ちます。"},
+    {"w": "doctor", "p": "noun", "j": "医者", "ex": "I went to see the doctor.", "jx": "私は医者に診てもらいに行きました。"},
+    {"w": "hospital", "p": "noun", "j": "病院", "ex": "She works at the hospital.", "jx": "彼女は病院で働いています。"},
+    {"w": "exercise", "p": "verb", "j": "運動する", "ex": "I exercise every morning.", "jx": "私は毎朝運動します。"},
+    {"w": "sick", "p": "adjective", "j": "病気な", "ex": "He stayed home because he was sick.", "jx": "彼は病気だったので家にいました。"},
+    {"w": "lunch", "p": "noun", "j": "昼食", "ex": "Let's have lunch together.", "jx": "一緒に昼食を食べましょう。"},
+    {"w": "breakfast", "p": "noun", "j": "朝食", "ex": "I always eat breakfast at seven.", "jx": "私はいつも7時に朝食を食べます。"},
+    {"w": "restaurant", "p": "noun", "j": "レストラン", "ex": "We had dinner at a restaurant.", "jx": "私たちはレストランで夕食を食べました。"}
+  ]
+}

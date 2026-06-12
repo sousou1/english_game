@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "business",
+  "words": [
+    {"w": "meeting", "p": "noun", "j": "会議", "ex": "We have a meeting at nine.", "jx": "私たちは9時に会議があります。"},
+    {"w": "office", "p": "noun", "j": "オフィス", "ex": "She works in a small office.", "jx": "彼女は小さなオフィスで働いています。"},
+    {"w": "boss", "p": "noun", "j": "上司", "ex": "My boss gave me new work.", "jx": "上司が私に新しい仕事を与えました。"},
+    {"w": "salary", "p": "noun", "j": "給料", "ex": "His salary is very good.", "jx": "彼の給料はとても良いです。"},
+    {"w": "contract", "p": "noun", "j": "契約", "ex": "We signed a contract today.", "jx": "私たちは今日契約にサインしました。"},
+    {"w": "budget", "p": "noun", "j": "予算", "ex": "The budget for this project is low.", "jx": "このプロジェクトの予算は少ないです。"},
+    {"w": "client", "p": "noun", "j": "顧客", "ex": "The client wants a new design.", "jx": "顧客は新しいデザインを求めています。"},
+    {"w": "deadline", "p": "noun", "j": "締め切り", "ex": "The deadline is next Friday.", "jx": "締め切りは来週の金曜日です。"},
+    {"w": "profit", "p": "noun", "j": "利益", "ex": "The company made a big profit.", "jx": "その会社は大きな利益を上げました。"},
+    {"w": "invoice", "p": "noun", "j": "請求書", "ex": "Please send me the invoice.", "jx": "請求書を送ってください。"},
+    {"w": "colleague", "p": "noun", "j": "同僚", "ex": "My colleague helped me finish the report.", "jx": "同僚が報告書を仕上げるのを手伝ってくれました。"},
+    {"w": "report", "p": "noun", "j": "報告書", "ex": "I need to write a report.", "jx": "私は報告書を書く必要があります。"},
+    {"w": "manager", "p": "noun", "j": "管理者", "ex": "The manager approved our plan.", "jx": "管理者が私たちの計画を承認しました。"},
+    {"w": "promote", "p": "verb", "j": "昇進させる", "ex": "She was promoted to team leader.", "jx": "彼女はチームリーダーに昇進しました。"},
+    {"w": "hire", "p": "verb", "j": "雇う", "ex": "They plan to hire more staff.", "jx": "彼らはスタッフをもっと雇う予定です。"},
+    {"w": "negotiate", "p": "verb", "j": "交渉する", "ex": "We need to negotiate the price.", "jx": "私たちは価格を交渉する必要があります。"},
+    {"w": "schedule", "p": "verb", "j": "予定を立てる", "ex": "Let's schedule a call for Monday.", "jx": "月曜日に通話の予定を立てましょう。"},
+    {"w": "present", "p": "verb", "j": "発表する", "ex": "He will present his ideas tomorrow.", "jx": "彼は明日自分のアイデアを発表します。"},
+    {"w": "approve", "p": "verb", "j": "承認する", "ex": "The manager approved the new plan.", "jx": "管理者が新しい計画を承認しました。"},
+    {"w": "invest", "p": "verb", "j": "投資する", "ex": "She decided to invest in stocks.", "jx": "彼女は株式に投資することにしました。"},
+    {"w": "available", "p": "adjective", "j": "都合がつく", "ex": "Are you available on Wednesday?", "jx": "水曜日は都合がつきますか?"},
+    {"w": "busy", "p": "adjective", "j": "忙しい", "ex": "She is very busy this week.", "jx": "彼女は今週とても忙しいです。"},
+    {"w": "successful", "p": "adjective", "j": "成功した", "ex": "The campaign was very successful.", "jx": "そのキャンペーンはとても成功しました。"},
+    {"w": "career", "p": "noun", "j": "キャリア", "ex": "He wants a career in finance.", "jx": "彼は金融分野でのキャリアを望んでいます。"},
+    {"w": "proposal", "p": "noun", "j": "提案書", "ex": "Please review my proposal.", "jx": "私の提案書を確認してください。"}
+  ]
+}

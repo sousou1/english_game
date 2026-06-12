@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "school",
+  "words": [
+    {"w": "lesson", "p": "noun", "j": "授業", "ex": "The math lesson was very interesting.", "jx": "数学の授業はとても面白かった。"},
+    {"w": "subject", "p": "noun", "j": "科目", "ex": "My favorite subject is history.", "jx": "私の好きな科目は歴史です。"},
+    {"w": "library", "p": "noun", "j": "図書館", "ex": "She reads books at the library every week.", "jx": "彼女は毎週図書館で本を読みます。"},
+    {"w": "explain", "p": "verb", "j": "説明する", "ex": "The teacher explained the new rule clearly.", "jx": "先生は新しいルールをわかりやすく説明しました。"},
+    {"w": "chapter", "p": "noun", "j": "章", "ex": "Please read the first chapter tonight.", "jx": "今夜、第1章を読んでください。"},
+    {"w": "history", "p": "noun", "j": "歴史", "ex": "We studied the history of ancient Rome.", "jx": "私たちは古代ローマの歴史を学びました。"},
+    {"w": "museum", "p": "noun", "j": "博物館", "ex": "Our class visited the science museum.", "jx": "私たちのクラスは科学博物館を訪れました。"},
+    {"w": "painting", "p": "noun", "j": "絵画", "ex": "There is a beautiful painting on the wall.", "jx": "壁に美しい絵画があります。"},
+    {"w": "poem", "p": "noun", "j": "詩", "ex": "She wrote a short poem about spring.", "jx": "彼女は春についての短い詩を書きました。"},
+    {"w": "grammar", "p": "noun", "j": "文法", "ex": "Good grammar is important in writing.", "jx": "文章を書くときは正しい文法が大切です。"},
+    {"w": "vocabulary", "p": "noun", "j": "語彙", "ex": "Reading books helps build your vocabulary.", "jx": "本を読むと語彙が増えます。"},
+    {"w": "university", "p": "noun", "j": "大学", "ex": "She wants to study science at university.", "jx": "彼女は大学で理科を学びたいと思っています。"},
+    {"w": "scholarship", "p": "noun", "j": "奨学金", "ex": "He received a scholarship to study abroad.", "jx": "彼は留学のための奨学金を受け取りました。"},
+    {"w": "graduate", "p": "verb", "j": "卒業する", "ex": "She will graduate from high school next year.", "jx": "彼女は来年高校を卒業します。"},
+    {"w": "culture", "p": "noun", "j": "文化", "ex": "We learned about Japanese culture in class.", "jx": "授業で日本の文化について学びました。"},
+    {"w": "knowledge", "p": "noun", "j": "知識", "ex": "Reading gives you a lot of knowledge.", "jx": "読書はたくさんの知識を与えてくれます。"},
+    {"w": "sculpture", "p": "noun", "j": "彫刻", "ex": "The students made a sculpture out of clay.", "jx": "生徒たちは粘土で彫刻を作りました。"},
+    {"w": "experiment", "p": "noun", "j": "実験", "ex": "We did an experiment in science class.", "jx": "理科の授業で実験をしました。"},
+    {"w": "research", "p": "noun", "j": "研究", "ex": "She did research about climate change.", "jx": "彼女は気候変動について研究しました。"},
+    {"w": "dictionary", "p": "noun", "j": "辞書", "ex": "Look up the word in a dictionary.", "jx": "辞書でその単語を調べてください。"},
+    {"w": "discuss", "p": "verb", "j": "話し合う", "ex": "Let us discuss the topic in groups.", "jx": "グループでそのテーマについて話し合いましょう。"},
+    {"w": "ancient", "p": "adjective", "j": "古代の", "ex": "We read a story about ancient Egypt.", "jx": "私たちは古代エジプトについての話を読みました。"},
+    {"w": "talent", "p": "noun", "j": "才能", "ex": "She has a great talent for drawing.", "jx": "彼女は絵を描く優れた才能があります。"},
+    {"w": "literature", "p": "noun", "j": "文学", "ex": "He enjoys reading English literature.", "jx": "彼は英文学を読むことを楽しんでいます。"},
+    {"w": "curious", "p": "adjective", "j": "好奇心旺盛な", "ex": "Good students are always curious about new things.", "jx": "良い生徒はいつも新しいことに好奇心旺盛です。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "society",
+  "words": [
+    {"w": "news", "p": "noun", "j": "ニュース", "ex": "I watch the news every night.", "jx": "私は毎晩ニュースを見ます。"},
+    {"w": "country", "p": "noun", "j": "国", "ex": "Japan is a beautiful country.", "jx": "日本は美しい国です。"},
+    {"w": "city", "p": "noun", "j": "都市", "ex": "She lives in a big city.", "jx": "彼女は大きな都市に住んでいます。"},
+    {"w": "people", "p": "noun", "j": "人々", "ex": "Many people live in this town.", "jx": "多くの人々がこの町に住んでいます。"},
+    {"w": "law", "p": "noun", "j": "法律", "ex": "We must follow the law.", "jx": "私たちは法律に従わなければなりません。"},
+    {"w": "government", "p": "noun", "j": "政府", "ex": "The government helps poor people.", "jx": "政府は貧しい人々を助けます。"},
+    {"w": "vote", "p": "verb", "j": "投票する", "ex": "I want to vote in the election.", "jx": "私は選挙で投票したいです。"},
+    {"w": "election", "p": "noun", "j": "選挙", "ex": "The election is next Monday.", "jx": "選挙は次の月曜日です。"},
+    {"w": "leader", "p": "noun", "j": "指導者", "ex": "She is a good leader.", "jx": "彼女は良い指導者です。"},
+    {"w": "police", "p": "noun", "j": "警察", "ex": "The police help keep us safe.", "jx": "警察は私たちを安全に守ってくれます。"},
+    {"w": "rule", "p": "noun", "j": "規則", "ex": "Please follow the school rules.", "jx": "学校の規則に従ってください。"},
+    {"w": "right", "p": "noun", "j": "権利", "ex": "Everyone has the right to speak.", "jx": "誰もが話す権利を持っています。"},
+    {"w": "war", "p": "noun", "j": "戦争", "ex": "War is very sad and dangerous.", "jx": "戦争はとても悲しく危険です。"},
+    {"w": "peace", "p": "noun", "j": "平和", "ex": "We all want peace in the world.", "jx": "私たちは皆、世界の平和を望んでいます。"},
+    {"w": "help", "p": "verb", "j": "助ける", "ex": "We should help each other.", "jx": "私たちはお互いに助け合うべきです。"},
+    {"w": "report", "p": "verb", "j": "報告する", "ex": "The news report says it is true.", "jx": "ニュースの報告によれば、それは本当です。"},
+    {"w": "problem", "p": "noun", "j": "問題", "ex": "This is a big social problem.", "jx": "これは大きな社会問題です。"},
+    {"w": "culture", "p": "noun", "j": "文化", "ex": "Every country has its own culture.", "jx": "すべての国には独自の文化があります。"},
+    {"w": "world", "p": "noun", "j": "世界", "ex": "There are many people in the world.", "jx": "世界にはたくさんの人々がいます。"},
+    {"w": "media", "p": "noun", "j": "メディア", "ex": "The media shares news with us.", "jx": "メディアは私たちにニュースを伝えます。"},
+    {"w": "crime", "p": "noun", "j": "犯罪", "ex": "Crime is a problem in big cities.", "jx": "犯罪は大都市の問題です。"},
+    {"w": "fair", "p": "adjective", "j": "公平な", "ex": "The rules must be fair for all.", "jx": "規則はすべての人に公平でなければなりません。"},
+    {"w": "protect", "p": "verb", "j": "守る", "ex": "The law must protect children.", "jx": "法律は子どもたちを守らなければなりません。"},
+    {"w": "community", "p": "noun", "j": "地域社会", "ex": "I love my local community.", "jx": "私は地元の地域社会が好きです。"},
+    {"w": "foreign", "p": "adjective", "j": "外国の", "ex": "She can speak a foreign language.", "jx": "彼女は外国語を話すことができます。"}
+  ]
+}

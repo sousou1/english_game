@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "travel",
+  "words": [
+    {"w": "itinerary", "p": "noun", "j": "旅程表", "ex": "She reviewed the itinerary before departing.", "jx": "彼女は出発前に旅程表を確認した。"},
+    {"w": "embarkation", "p": "noun", "j": "乗船手続き", "ex": "Embarkation at the port took over two hours.", "jx": "港での乗船手続きに2時間以上かかった。"},
+    {"w": "disembark", "p": "verb", "j": "下船する", "ex": "Passengers were asked to disembark immediately.", "jx": "乗客はすぐに下船するよう求められた。"},
+    {"w": "repatriation", "p": "noun", "j": "本国送還", "ex": "The embassy arranged her repatriation after the crisis.", "jx": "危機の後、大使館が彼女の本国送還を手配した。"},
+    {"w": "sojourn", "p": "noun", "j": "一時滞在", "ex": "His sojourn in Vienna lasted three weeks.", "jx": "ウィーンでの彼の一時滞在は3週間続いた。"},
+    {"w": "traverse", "p": "verb", "j": "横断する", "ex": "They traversed the mountain range on foot.", "jx": "彼らは徒歩で山脈を横断した。"},
+    {"w": "expeditionary", "p": "adjective", "j": "遠征の", "ex": "The expeditionary team reached the summit.", "jx": "遠征チームは山頂に到達した。"},
+    {"w": "visa", "p": "noun", "j": "査証", "ex": "He applied for a visa at the consulate.", "jx": "彼は領事館でビザを申請した。"},
+    {"w": "customs", "p": "noun", "j": "税関", "ex": "All luggage must pass through customs.", "jx": "すべての荷物は税関を通過しなければならない。"},
+    {"w": "layover", "p": "noun", "j": "乗り継ぎ待ち", "ex": "There was a six-hour layover in Dubai.", "jx": "ドバイで6時間の乗り継ぎ待ちがあった。"},
+    {"w": "circumnavigate", "p": "verb", "j": "一周航行する", "ex": "He circumnavigated the globe by sailboat.", "jx": "彼はヨットで地球を一周した。"},
+    {"w": "exorbitant", "p": "adjective", "j": "法外に高い", "ex": "The hotel charged exorbitant rates during the festival.", "jx": "ホテルはフェスティバル中に法外な料金を請求した。"},
+    {"w": "check in", "p": "phrase", "j": "チェックインする", "ex": "We need to check in two hours before departure.", "jx": "出発の2時間前にチェックインする必要がある。"},
+    {"w": "set off", "p": "phrase", "j": "出発する", "ex": "They set off at dawn to avoid the traffic.", "jx": "渋滞を避けるために彼らは夜明けに出発した。"},
+    {"w": "desolate", "p": "adjective", "j": "荒涼とした", "ex": "The road passed through a desolate landscape.", "jx": "その道は荒涼とした景色の中を通っていた。"},
+    {"w": "meander", "p": "verb", "j": "ゆっくり歩く", "ex": "We meandered through the narrow cobblestone streets.", "jx": "私たちは石畳の細い通りをゆっくりと歩いた。"},
+    {"w": "passport", "p": "noun", "j": "旅券", "ex": "Her passport expired before the scheduled trip.", "jx": "予定していた旅行の前に彼女の旅券が失効した。"},
+    {"w": "consulate", "p": "noun", "j": "領事館", "ex": "She obtained the documents from the nearest consulate.", "jx": "彼女は最寄りの領事館で書類を入手した。"},
+    {"w": "amenity", "p": "noun", "j": "設備・サービス", "ex": "The resort offers exceptional amenities to guests.", "jx": "そのリゾートは宿泊客に優れた設備を提供している。"},
+    {"w": "turbulence", "p": "noun", "j": "乱気流", "ex": "The pilot warned of severe turbulence ahead.", "jx": "パイロットは前方に激しい乱気流があると警告した。"},
+    {"w": "locale", "p": "noun", "j": "場所・現地", "ex": "The film was shot in a picturesque locale.", "jx": "その映画は絵のように美しい場所で撮影された。"},
+    {"w": "infrastructure", "p": "noun", "j": "交通インフラ", "ex": "Poor infrastructure made travel across the region difficult.", "jx": "インフラの未整備がその地域での移動を困難にした。"},
+    {"w": "arduous", "p": "adjective", "j": "過酷な", "ex": "The trek through the jungle was arduous.", "jx": "ジャングルを通るトレッキングは過酷だった。"},
+    {"w": "cartography", "p": "noun", "j": "地図製作", "ex": "Advances in cartography improved navigation at sea.", "jx": "地図製作の進歩が海上航行を改善した。"},
+    {"w": "expedite", "p": "verb", "j": "迅速に処理する", "ex": "The airline agreed to expedite the baggage claim.", "jx": "航空会社は手荷物受け取りを迅速に処理することに同意した。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "daily",
+  "words": [
+    {"w": "meticulously", "p": "adverb", "j": "細心に", "ex": "She meticulously organized her kitchen shelves.", "jx": "彼女は台所の棚を細心の注意を払って整理した。"},
+    {"w": "declutter", "p": "verb", "j": "整理整頓する", "ex": "He decluttered his wardrobe over the weekend.", "jx": "彼は週末にワードローブを整理整頓した。"},
+    {"w": "procure", "p": "verb", "j": "調達する", "ex": "She procured fresh ingredients from the local market.", "jx": "彼女は地元の市場から新鮮な食材を調達した。"},
+    {"w": "fastidious", "p": "adjective", "j": "几帳面な", "ex": "He is fastidious about keeping his home spotless.", "jx": "彼は家を清潔に保つことに几帳面だ。"},
+    {"w": "mundane", "p": "adjective", "j": "日常的な", "ex": "Mundane chores still require careful attention.", "jx": "日常的な家事も丁寧に行う必要がある。"},
+    {"w": "dilapidated", "p": "adjective", "j": "老朽化した", "ex": "The dilapidated fence needed immediate repair.", "jx": "老朽化したフェンスはすぐに修理が必要だった。"},
+    {"w": "renovate", "p": "verb", "j": "改装する", "ex": "They plan to renovate the bathroom next spring.", "jx": "彼らは来春にバスルームを改装する予定だ。"},
+    {"w": "frugal", "p": "adjective", "j": "倹約的な", "ex": "Her frugal habits helped reduce grocery expenses.", "jx": "彼女の倹約的な習慣が食料品の費用削減に役立った。"},
+    {"w": "allocate", "p": "verb", "j": "割り当てる", "ex": "She allocates two hours each day for household tasks.", "jx": "彼女は毎日2時間を家事に割り当てている。"},
+    {"w": "ventilate", "p": "verb", "j": "換気する", "ex": "It is important to ventilate the room after cooking.", "jx": "料理の後は部屋を換気することが大切だ。"},
+    {"w": "deteriorate", "p": "verb", "j": "劣化する", "ex": "The wooden floor began to deteriorate from moisture.", "jx": "木製の床が湿気で劣化し始めた。"},
+    {"w": "scrutinize", "p": "verb", "j": "詳しく調べる", "ex": "She scrutinized the grocery receipt for errors.", "jx": "彼女は食料品のレシートを詳しく調べて誤りを探した。"},
+    {"w": "imperative", "p": "adjective", "j": "不可欠な", "ex": "Regular maintenance is imperative for appliance longevity.", "jx": "定期的なメンテナンスは家電の長寿命化に不可欠だ。"},
+    {"w": "accumulate", "p": "verb", "j": "蓄積する", "ex": "Dust tends to accumulate under heavy furniture.", "jx": "ほこりは重い家具の下に蓄積しがちだ。"},
+    {"w": "habitual", "p": "adjective", "j": "習慣的な", "ex": "Her habitual morning routine starts with exercise.", "jx": "彼女の習慣的な朝のルーティンは運動から始まる。"},
+    {"w": "impeccable", "p": "adjective", "j": "申し分ない", "ex": "She keeps the living room in impeccable condition.", "jx": "彼女はリビングルームを申し分ない状態に保っている。"},
+    {"w": "discern", "p": "verb", "j": "見極める", "ex": "He could discern the quality of fabric by touch.", "jx": "彼は触ってみることで生地の品質を見極めることができた。"},
+    {"w": "streamline", "p": "verb", "j": "効率化する", "ex": "She streamlined her shopping routine to save time.", "jx": "彼女は時間を節約するために買い物のルーティンを効率化した。"},
+    {"w": "cumbersome", "p": "adjective", "j": "扱いにくい", "ex": "The cumbersome appliance took up too much counter space.", "jx": "その扱いにくい家電はカウンタースペースを取りすぎた。"},
+    {"w": "indispensable", "p": "adjective", "j": "欠かせない", "ex": "A sharp knife is indispensable for efficient meal preparation.", "jx": "よく切れるナイフは効率的な食事の準備に欠かせない。"},
+    {"w": "mitigate", "p": "verb", "j": "軽減する", "ex": "Proper insulation can mitigate heating costs in winter.", "jx": "適切な断熱は冬の暖房費を軽減できる。"},
+    {"w": "pristine", "p": "adjective", "j": "清潔な", "ex": "She returned the borrowed item in pristine condition.", "jx": "彼女は借りた物を清潔な状態で返した。"},
+    {"w": "expenditure", "p": "noun", "j": "支出", "ex": "Monthly household expenditure needs careful budgeting.", "jx": "毎月の家計支出は慎重な予算管理が必要だ。"},
+    {"w": "prioritize", "p": "verb", "j": "優先する", "ex": "He learned to prioritize essential purchases over luxuries.", "jx": "彼は贅沢品よりも必需品の購入を優先することを学んだ。"},
+    {"w": "adhere", "p": "verb", "j": "守る", "ex": "She adheres strictly to her weekly cleaning schedule.", "jx": "彼女は週間掃除スケジュールを厳格に守っている。"}
+  ]
+}

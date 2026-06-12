@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "school",
+  "words": [
+    {"w": "knowledge", "p": "noun", "j": "知識", "ex": "Reading books gives us a lot of knowledge.", "jx": "本を読むことで多くの知識が得られる。"},
+    {"w": "suggest", "p": "verb", "j": "提案する", "ex": "The teacher suggested a new way to study.", "jx": "先生は新しい勉強方法を提案した。"},
+    {"w": "education", "p": "noun", "j": "教育", "ex": "Education is important for every child.", "jx": "教育はすべての子どもにとって重要だ。"},
+    {"w": "lecture", "p": "noun", "j": "講義", "ex": "The professor gave an interesting lecture today.", "jx": "教授は今日興味深い講義をした。"},
+    {"w": "research", "p": "noun", "j": "研究", "ex": "She did research on ancient history.", "jx": "彼女は古代史について研究した。"},
+    {"w": "literature", "p": "noun", "j": "文学", "ex": "He studies English literature at university.", "jx": "彼は大学で英文学を学んでいる。"},
+    {"w": "examination", "p": "noun", "j": "試験", "ex": "Students must pass the final examination.", "jx": "学生は最終試験に合格しなければならない。"},
+    {"w": "discuss", "p": "verb", "j": "議論する", "ex": "We discussed the topic in class.", "jx": "私たちはクラスでそのテーマについて議論した。"},
+    {"w": "ancient", "p": "adjective", "j": "古代の", "ex": "They studied ancient Greek culture.", "jx": "彼らは古代ギリシャ文化を学んだ。"},
+    {"w": "artistic", "p": "adjective", "j": "芸術的な", "ex": "She has a very artistic sense of design.", "jx": "彼女はとても芸術的なデザインセンスを持っている。"},
+    {"w": "philosophy", "p": "noun", "j": "哲学", "ex": "Philosophy teaches us how to think clearly.", "jx": "哲学は明確に考える方法を教えてくれる。"},
+    {"w": "comprehend", "p": "verb", "j": "理解する", "ex": "It is hard to comprehend this complex idea.", "jx": "この複雑な考えを理解するのは難しい。"},
+    {"w": "curriculum", "p": "noun", "j": "カリキュラム", "ex": "The school updated its curriculum this year.", "jx": "学校は今年カリキュラムを更新した。"},
+    {"w": "scholarship", "p": "noun", "j": "奨学金", "ex": "He received a scholarship to study abroad.", "jx": "彼は留学のための奨学金を受け取った。"},
+    {"w": "creative", "p": "adjective", "j": "創造的な", "ex": "She is very creative in her writing.", "jx": "彼女は文章においてとても創造的だ。"},
+    {"w": "historical", "p": "adjective", "j": "歴史的な", "ex": "This is a historical building from the 18th century.", "jx": "これは18世紀の歴史的な建物だ。"},
+    {"w": "argument", "p": "noun", "j": "論点", "ex": "His argument was clear and well supported.", "jx": "彼の論点は明確でよく裏付けられていた。"},
+    {"w": "fluent", "p": "adjective", "j": "流暢な", "ex": "She is fluent in three languages.", "jx": "彼女は3か国語を流暢に話す。"},
+    {"w": "memorize", "p": "verb", "j": "暗記する", "ex": "Students need to memorize these vocabulary words.", "jx": "生徒はこれらの語彙を暗記する必要がある。"},
+    {"w": "theory", "p": "noun", "j": "理論", "ex": "Darwin developed a theory of evolution.", "jx": "ダーウィンは進化の理論を発展させた。"},
+    {"w": "analyze", "p": "verb", "j": "分析する", "ex": "We need to analyze the results carefully.", "jx": "私たちは結果を慎重に分析する必要がある。"},
+    {"w": "civilize", "p": "verb", "j": "文明化する", "ex": "Ancient Rome helped civilize much of Europe.", "jx": "古代ローマはヨーロッパの多くを文明化した。"},
+    {"w": "exhibit", "p": "noun", "j": "展示物", "ex": "The museum has a new exhibit on modern art.", "jx": "博物館に現代芸術の新しい展示物がある。"},
+    {"w": "assignment", "p": "noun", "j": "課題", "ex": "The teacher gave us a writing assignment.", "jx": "先生は私たちに作文の課題を出した。"},
+    {"w": "intellectual", "p": "adjective", "j": "知的な", "ex": "Reading is an intellectual activity.", "jx": "読書は知的な活動だ。"}
+  ]
+}

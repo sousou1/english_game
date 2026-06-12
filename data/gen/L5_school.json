@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "school",
+  "words": [
+    {"w": "pedagogy", "p": "noun", "j": "教育学", "ex": "Her research focuses on progressive pedagogy.", "jx": "彼女の研究は進歩的な教育学に焦点を当てている。"},
+    {"w": "curriculum", "p": "noun", "j": "カリキュラム", "ex": "The school revised its curriculum to include coding.", "jx": "学校はコーディングを含むようにカリキュラムを改訂した。"},
+    {"w": "dissertation", "p": "noun", "j": "学位論文", "ex": "She spent three years writing her doctoral dissertation.", "jx": "彼女は博士論文を書くのに3年を費やした。"},
+    {"w": "erudite", "p": "adjective", "j": "博学な", "ex": "The professor gave an erudite lecture on ancient history.", "jx": "教授は古代史について博学な講義をした。"},
+    {"w": "epistemology", "p": "noun", "j": "認識論", "ex": "Epistemology questions how we acquire knowledge.", "jx": "認識論は知識をどのように得るかを問う学問だ。"},
+    {"w": "hermeneutics", "p": "noun", "j": "解釈学", "ex": "Hermeneutics is central to literary criticism.", "jx": "解釈学は文学批評の中心的な学問だ。"},
+    {"w": "discern", "p": "verb", "j": "見極める", "ex": "Students must learn to discern fact from opinion.", "jx": "学生は事実と意見を見極めることを学ばなければならない。"},
+    {"w": "annotate", "p": "verb", "j": "注釈をつける", "ex": "Scholars annotate ancient texts to clarify meaning.", "jx": "学者たちは意味を明確にするために古代の文書に注釈をつける。"},
+    {"w": "synthesis", "p": "noun", "j": "統合・総合", "ex": "The essay requires a synthesis of multiple sources.", "jx": "そのエッセイは複数の資料の統合を必要とする。"},
+    {"w": "conjecture", "p": "noun", "j": "推測", "ex": "His claim was mere conjecture without evidence.", "jx": "彼の主張は証拠のない単なる推測だった。"},
+    {"w": "postulate", "p": "verb", "j": "仮定する", "ex": "The philosopher postulated a new theory of mind.", "jx": "その哲学者は心の新しい理論を仮定した。"},
+    {"w": "dialectic", "p": "noun", "j": "弁証法", "ex": "Hegel's dialectic shaped modern philosophy greatly.", "jx": "ヘーゲルの弁証法は近代哲学を大きく形作った。"},
+    {"w": "axiom", "p": "noun", "j": "公理", "ex": "Every mathematical proof begins with basic axioms.", "jx": "すべての数学的証明は基本的な公理から始まる。"},
+    {"w": "scrutinize", "p": "verb", "j": "精査する", "ex": "Researchers scrutinize data before drawing conclusions.", "jx": "研究者たちは結論を出す前にデータを精査する。"},
+    {"w": "paradigm", "p": "noun", "j": "パラダイム", "ex": "The discovery caused a paradigm shift in biology.", "jx": "その発見は生物学においてパラダイムシフトを引き起こした。"},
+    {"w": "elucidate", "p": "verb", "j": "解明する", "ex": "The lecture helped elucidate complex economic theories.", "jx": "その講義は複雑な経済理論を解明するのに役立った。"},
+    {"w": "scholastic", "p": "adjective", "j": "学業の", "ex": "Her scholastic achievements earned her a scholarship.", "jx": "彼女の学業成績は奨学金を勝ち取った。"},
+    {"w": "acumen", "p": "noun", "j": "洞察力", "ex": "His intellectual acumen impressed every professor.", "jx": "彼の知的な洞察力はすべての教授を感心させた。"},
+    {"w": "rhetoric", "p": "noun", "j": "修辞学", "ex": "Ancient Greeks valued rhetoric as an essential skill.", "jx": "古代ギリシャ人は修辞学を不可欠な技術として重んじた。"},
+    {"w": "infer", "p": "verb", "j": "推論する", "ex": "Readers must infer meaning from the context provided.", "jx": "読者は与えられた文脈から意味を推論しなければならない。"},
+    {"w": "chronicle", "p": "noun", "j": "年代記", "ex": "The historian wrote a detailed chronicle of the war.", "jx": "その歴史家は戦争の詳細な年代記を書いた。"},
+    {"w": "iconography", "p": "noun", "j": "図像学", "ex": "The course covers the iconography of Renaissance art.", "jx": "その講座はルネサンス美術の図像学を扱っている。"},
+    {"w": "abstraction", "p": "noun", "j": "抽象概念", "ex": "Philosophy often deals with high levels of abstraction.", "jx": "哲学はしばしば高度な抽象概念を扱う。"},
+    {"w": "ruminate", "p": "verb", "j": "熟考する", "ex": "He ruminated on the ethical implications for weeks.", "jx": "彼は何週間もその倫理的な意味合いについて熟考した。"},
+    {"w": "empirical", "p": "adjective", "j": "経験的な", "ex": "The study provides strong empirical evidence for the theory.", "jx": "その研究はその理論に対する強力な経験的証拠を提供する。"}
+  ]
+}

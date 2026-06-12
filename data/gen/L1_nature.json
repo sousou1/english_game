@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "nature",
+  "words": [
+    {"w": "sun", "p": "noun", "j": "太陽", "ex": "The sun is very bright today.", "jx": "今日は太陽がとても眩しいです。"},
+    {"w": "moon", "p": "noun", "j": "月", "ex": "The moon is big and round tonight.", "jx": "今夜の月は大きくて丸いです。"},
+    {"w": "star", "p": "noun", "j": "星", "ex": "I can see one star in the sky.", "jx": "空に星が一つ見えます。"},
+    {"w": "cloud", "p": "noun", "j": "雲", "ex": "There is a big cloud in the sky.", "jx": "空に大きな雲があります。"},
+    {"w": "rain", "p": "noun", "j": "雨", "ex": "The rain falls on the flowers.", "jx": "雨が花の上に降ります。"},
+    {"w": "snow", "p": "noun", "j": "雪", "ex": "Children play in the snow.", "jx": "子どもたちが雪の中で遊びます。"},
+    {"w": "wind", "p": "noun", "j": "風", "ex": "The wind blows the leaves away.", "jx": "風が葉を吹き飛ばします。"},
+    {"w": "river", "p": "noun", "j": "川", "ex": "Fish live in the river.", "jx": "川に魚が住んでいます。"},
+    {"w": "mountain", "p": "noun", "j": "山", "ex": "The mountain is very high.", "jx": "その山はとても高いです。"},
+    {"w": "tree", "p": "noun", "j": "木", "ex": "A bird sits in the tree.", "jx": "鳥が木の上にとまっています。"},
+    {"w": "flower", "p": "noun", "j": "花", "ex": "This flower smells very sweet.", "jx": "この花はとても甘い香りがします。"},
+    {"w": "leaf", "p": "noun", "j": "葉", "ex": "The leaf fell from the tree.", "jx": "葉が木から落ちました。"},
+    {"w": "seed", "p": "noun", "j": "種", "ex": "We plant a seed in the soil.", "jx": "私たちは土に種を植えます。"},
+    {"w": "animal", "p": "noun", "j": "動物", "ex": "What is your favorite animal?", "jx": "あなたの好きな動物は何ですか?"},
+    {"w": "bird", "p": "noun", "j": "鳥", "ex": "The bird flies high in the sky.", "jx": "鳥が空高く飛んでいます。"},
+    {"w": "fish", "p": "noun", "j": "魚", "ex": "I see a fish in the water.", "jx": "水の中に魚が見えます。"},
+    {"w": "insect", "p": "noun", "j": "昆虫", "ex": "An insect is on the leaf.", "jx": "葉の上に昆虫がいます。"},
+    {"w": "soil", "p": "noun", "j": "土", "ex": "Plants grow well in good soil.", "jx": "良い土では植物がよく育ちます。"},
+    {"w": "rock", "p": "noun", "j": "岩", "ex": "I found a small rock by the river.", "jx": "川のそばで小さな岩を見つけました。"},
+    {"w": "sky", "p": "noun", "j": "空", "ex": "The sky is blue and clear today.", "jx": "今日の空は青くて澄んでいます。"},
+    {"w": "grow", "p": "verb", "j": "育つ", "ex": "These plants grow very fast.", "jx": "これらの植物はとても速く育ちます。"},
+    {"w": "shine", "p": "verb", "j": "輝く", "ex": "The sun shines every morning.", "jx": "太陽は毎朝輝きます。"},
+    {"w": "wet", "p": "adjective", "j": "濡れた", "ex": "The grass is wet after the rain.", "jx": "雨の後、草が濡れています。"},
+    {"w": "wild", "p": "adjective", "j": "野生の", "ex": "A wild bird flew into our yard.", "jx": "野生の鳥が庭に飛んできました。"},
+    {"w": "forest", "p": "noun", "j": "森", "ex": "Many animals live in the forest.", "jx": "たくさんの動物が森に住んでいます。"}
+  ]
+}

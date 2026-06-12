@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "feelings",
+  "words": [
+    {"w": "ambivalent", "p": "adjective", "j": "複雑な気持ちの", "ex": "She felt ambivalent about leaving her hometown.", "jx": "彼女は故郷を離れることに複雑な気持ちを抱いた。"},
+    {"w": "apprehensive", "p": "adjective", "j": "不安な", "ex": "He was apprehensive about the results of the exam.", "jx": "彼は試験の結果を不安に思っていた。"},
+    {"w": "cherish", "p": "verb", "j": "大切にする", "ex": "She cherishes every moment spent with her family.", "jx": "彼女は家族と過ごす時間のすべてを大切にしている。"},
+    {"w": "compassion", "p": "noun", "j": "思いやり", "ex": "The nurse showed great compassion toward her patients.", "jx": "その看護師は患者に深い思いやりを示した。"},
+    {"w": "condescending", "p": "adjective", "j": "見下すような", "ex": "His condescending tone offended his colleagues.", "jx": "彼の見下すような口調は同僚を不快にさせた。"},
+    {"w": "consolation", "p": "noun", "j": "慰め", "ex": "Her kind words were a consolation during his grief.", "jx": "彼女の優しい言葉は彼の悲しみの慰めとなった。"},
+    {"w": "contempt", "p": "noun", "j": "軽蔑", "ex": "She could not hide her contempt for his dishonesty.", "jx": "彼女は彼の不誠実さへの軽蔑を隠せなかった。"},
+    {"w": "elation", "p": "noun", "j": "大きな喜び", "ex": "He felt pure elation when his daughter was born.", "jx": "娘が生まれたとき、彼は純粋な喜びを感じた。"},
+    {"w": "empathize", "p": "verb", "j": "共感する", "ex": "It is important to empathize with people in distress.", "jx": "苦境にある人々に共感することが大切だ。"},
+    {"w": "estrangement", "p": "noun", "j": "疎遠", "ex": "Years of estrangement made their reunion awkward.", "jx": "長年の疎遠が再会をぎこちなくさせた。"},
+    {"w": "forlorn", "p": "adjective", "j": "孤独で悲しい", "ex": "The child looked forlorn standing alone in the rain.", "jx": "その子供は雨の中一人で立ち、孤独で悲しそうに見えた。"},
+    {"w": "gratitude", "p": "noun", "j": "感謝の気持ち", "ex": "She expressed her gratitude with a heartfelt letter.", "jx": "彼女は心のこもった手紙で感謝の気持ちを伝えた。"},
+    {"w": "grudge", "p": "noun", "j": "恨み", "ex": "He held a grudge against his former business partner.", "jx": "彼は元ビジネスパートナーへの恨みを抱いていた。"},
+    {"w": "infatuation", "p": "noun", "j": "熱烈な恋慕", "ex": "His infatuation with her faded after a few months.", "jx": "彼の彼女への熱烈な恋慕は数か月後に冷めた。"},
+    {"w": "longing", "p": "noun", "j": "切望", "ex": "She felt a deep longing for her childhood home.", "jx": "彼女は幼少期の家への深い切望を感じた。"},
+    {"w": "melancholy", "p": "noun", "j": "憂鬱", "ex": "A sense of melancholy settled over him in autumn.", "jx": "秋になると彼には憂鬱な感覚が漂った。"},
+    {"w": "reconcile", "p": "verb", "j": "和解する", "ex": "They finally reconciled after years of conflict.", "jx": "彼らは長年の対立の末についに和解した。"},
+    {"w": "resentment", "p": "noun", "j": "憤り", "ex": "She harbored deep resentment toward her supervisor.", "jx": "彼女は上司に対して深い憤りを抱いていた。"},
+    {"w": "reticent", "p": "adjective", "j": "無口な", "ex": "He was reticent about sharing his personal struggles.", "jx": "彼は個人的な悩みを打ち明けることに口を閉ざしていた。"},
+    {"w": "solace", "p": "noun", "j": "安らぎ", "ex": "She found solace in music after the loss.", "jx": "彼女は喪失の後、音楽に安らぎを見出した。"},
+    {"w": "trepidation", "p": "noun", "j": "恐れ", "ex": "She approached the confrontation with trepidation.", "jx": "彼女は恐れを抱きながら対決に臨んだ。"},
+    {"w": "venerate", "p": "verb", "j": "深く敬う", "ex": "Children in this culture venerate their elders.", "jx": "この文化の子供たちは年長者を深く敬う。"},
+    {"w": "vexation", "p": "noun", "j": "いらだち", "ex": "His constant interruptions caused her vexation.", "jx": "彼の度重なる遮りが彼女のいらだちを招いた。"},
+    {"w": "wistful", "p": "adjective", "j": "物悲しい", "ex": "She gave a wistful smile looking at old photographs.", "jx": "古い写真を見ながら彼女は物悲しい笑みを浮かべた。"},
+    {"w": "yearn", "p": "verb", "j": "切望する", "ex": "He yearned for a close relationship with his father.", "jx": "彼は父親との親密な関係を切望していた。"}
+  ]
+}

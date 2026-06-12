@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "daily",
+  "words": [
+    {"w": "arrange", "p": "verb", "j": "整理する", "ex": "She arranged the books on the shelf.", "jx": "彼女は棚の本を整理した。"},
+    {"w": "available", "p": "adjective", "j": "利用できる", "ex": "Is this room available next weekend?", "jx": "来週末にこの部屋は利用できますか？"},
+    {"w": "borrow", "p": "verb", "j": "借りる", "ex": "Can I borrow your umbrella for today?", "jx": "今日傘を借りてもいいですか？"},
+    {"w": "category", "p": "noun", "j": "カテゴリー", "ex": "Sort your clothes into different categories.", "jx": "服を異なるカテゴリーに分けなさい。"},
+    {"w": "charge", "p": "verb", "j": "充電する", "ex": "I need to charge my phone before bed.", "jx": "寝る前にスマホを充電する必要がある。"},
+    {"w": "convenient", "p": "adjective", "j": "便利な", "ex": "This store is very convenient for daily shopping.", "jx": "この店は日常の買い物にとても便利だ。"},
+    {"w": "deliver", "p": "verb", "j": "配達する", "ex": "The package was delivered to my door.", "jx": "荷物が玄関まで配達された。"},
+    {"w": "discount", "p": "noun", "j": "割引", "ex": "I got a discount on this jacket.", "jx": "このジャケットを割引で買った。"},
+    {"w": "drawer", "p": "noun", "j": "引き出し", "ex": "Keep your documents in the top drawer.", "jx": "書類は一番上の引き出しに入れておいて。"},
+    {"w": "expire", "p": "verb", "j": "期限が切れる", "ex": "This coupon will expire at the end of the month.", "jx": "このクーポンは月末に期限が切れる。"},
+    {"w": "household", "p": "noun", "j": "家庭", "ex": "He manages all the household expenses.", "jx": "彼はすべての家庭の出費を管理している。"},
+    {"w": "laundry", "p": "noun", "j": "洗濯物", "ex": "I do the laundry every Sunday morning.", "jx": "私は毎週日曜日の朝に洗濯をする。"},
+    {"w": "lease", "p": "noun", "j": "賃貸契約", "ex": "She signed a one-year lease for the apartment.", "jx": "彼女はそのアパートの1年間の賃貸契約にサインした。"},
+    {"w": "maintain", "p": "verb", "j": "維持する", "ex": "It is important to maintain a clean kitchen.", "jx": "清潔なキッチンを維持することは大切だ。"},
+    {"w": "organize", "p": "verb", "j": "片づける", "ex": "Let's organize the closet this weekend.", "jx": "今週末にクローゼットを片づけよう。"},
+    {"w": "receipt", "p": "noun", "j": "レシート", "ex": "Please keep your receipt after purchase.", "jx": "購入後はレシートを保管してください。"},
+    {"w": "refrigerator", "p": "noun", "j": "冷蔵庫", "ex": "Put the leftover food in the refrigerator.", "jx": "残り物は冷蔵庫に入れてください。"},
+    {"w": "remind", "p": "verb", "j": "思い出させる", "ex": "Remind me to buy milk on the way home.", "jx": "帰りに牛乳を買うよう思い出させて。"},
+    {"w": "replace", "p": "verb", "j": "取り替える", "ex": "We need to replace the light bulb in the hall.", "jx": "廊下の電球を取り替える必要がある。"},
+    {"w": "routine", "p": "noun", "j": "日課", "ex": "Morning exercise is part of my daily routine.", "jx": "朝の運動は私の日課の一部だ。"},
+    {"w": "shortage", "p": "noun", "j": "不足", "ex": "There is a shortage of rice at the store.", "jx": "店でお米が不足している。"},
+    {"w": "sort", "p": "verb", "j": "分類する", "ex": "Please sort the recycling into the correct bins.", "jx": "リサイクルを正しいゴミ箱に分類してください。"},
+    {"w": "storage", "p": "noun", "j": "収納", "ex": "We need more storage space in this room.", "jx": "この部屋にはもっと収納スペースが必要だ。"},
+    {"w": "sufficient", "p": "adjective", "j": "十分な", "ex": "Make sure you have sufficient supplies at home.", "jx": "家に十分な備品があることを確認してください。"},
+    {"w": "sweep", "p": "verb", "j": "掃く", "ex": "He sweeps the floor every morning.", "jx": "彼は毎朝床を掃く。"}
+  ]
+}

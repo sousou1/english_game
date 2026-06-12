@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "travel",
+  "words": [
+    {"w": "arrive", "p": "verb", "j": "到着する", "ex": "We arrive at the airport at noon.", "jx": "私たちは正午に空港に到着します。"},
+    {"w": "depart", "p": "verb", "j": "出発する", "ex": "The train departs at eight o'clock.", "jx": "電車は8時に出発します。"},
+    {"w": "passport", "p": "noun", "j": "パスポート", "ex": "Please show your passport at the gate.", "jx": "ゲートでパスポートをご提示ください。"},
+    {"w": "luggage", "p": "noun", "j": "荷物", "ex": "I have two pieces of luggage.", "jx": "私は荷物が2個あります。"},
+    {"w": "ticket", "p": "noun", "j": "チケット", "ex": "She bought a ticket for the bus.", "jx": "彼女はバスのチケットを買いました。"},
+    {"w": "hotel", "p": "noun", "j": "ホテル", "ex": "We stayed at a nice hotel.", "jx": "私たちは素敵なホテルに泊まりました。"},
+    {"w": "reservation", "p": "noun", "j": "予約", "ex": "I made a reservation for two nights.", "jx": "私は2泊の予約をしました。"},
+    {"w": "flight", "p": "noun", "j": "フライト", "ex": "Our flight leaves at six in the morning.", "jx": "私たちのフライトは朝6時に出発します。"},
+    {"w": "platform", "p": "noun", "j": "ホーム", "ex": "The train is waiting at platform three.", "jx": "電車は3番ホームで待っています。"},
+    {"w": "destination", "p": "noun", "j": "目的地", "ex": "Paris is our final destination.", "jx": "パリが私たちの最終目的地です。"},
+    {"w": "tour", "p": "noun", "j": "ツアー", "ex": "We joined a city tour yesterday.", "jx": "私たちは昨日市内ツアーに参加しました。"},
+    {"w": "guide", "p": "noun", "j": "ガイド", "ex": "The guide showed us the old castle.", "jx": "ガイドは私たちに古い城を案内してくれました。"},
+    {"w": "map", "p": "noun", "j": "地図", "ex": "Can you show me on this map?", "jx": "この地図で教えてもらえますか？"},
+    {"w": "direction", "p": "noun", "j": "道順", "ex": "Can you give me directions to the station?", "jx": "駅への道順を教えてもらえますか？"},
+    {"w": "border", "p": "noun", "j": "国境", "ex": "We crossed the border by bus.", "jx": "私たちはバスで国境を越えました。"},
+    {"w": "customs", "p": "noun", "j": "税関", "ex": "We waited at customs for an hour.", "jx": "私たちは税関で1時間待ちました。"},
+    {"w": "departure", "p": "noun", "j": "出発", "ex": "Please check the departure time again.", "jx": "出発時刻をもう一度確認してください。"},
+    {"w": "transfer", "p": "verb", "j": "乗り換える", "ex": "You need to transfer at the next station.", "jx": "次の駅で乗り換える必要があります。"},
+    {"w": "fare", "p": "noun", "j": "運賃", "ex": "What is the fare to the city center?", "jx": "市内中心部までの運賃はいくらですか？"},
+    {"w": "schedule", "p": "noun", "j": "時刻表", "ex": "The bus schedule changes on weekends.", "jx": "バスの時刻表は週末に変わります。"},
+    {"w": "local", "p": "adjective", "j": "地元の", "ex": "We tried some local food for dinner.", "jx": "私たちは夕食に地元の料理を試しました。"},
+    {"w": "abroad", "p": "adverb", "j": "海外に", "ex": "She traveled abroad for the first time.", "jx": "彼女は初めて海外を旅しました。"},
+    {"w": "sightseeing", "p": "noun", "j": "観光", "ex": "We went sightseeing around the old town.", "jx": "私たちは旧市街を観光しました。"},
+    {"w": "souvenir", "p": "noun", "j": "お土産", "ex": "I bought a souvenir for my friend.", "jx": "私は友達へのお土産を買いました。"},
+    {"w": "exchange", "p": "verb", "j": "両替する", "ex": "Where can I exchange money here?", "jx": "ここでお金を両替できる場所はどこですか？"}
+  ]
+}

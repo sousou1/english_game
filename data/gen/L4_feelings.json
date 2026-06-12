@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "feelings",
+  "words": [
+    {"w": "affection", "p": "noun", "j": "愛情", "ex": "She shows great affection for her family.", "jx": "彼女は家族に深い愛情を示す。"},
+    {"w": "resentment", "p": "noun", "j": "恨み", "ex": "He felt deep resentment toward his former friend.", "jx": "彼は元友人に深い恨みを感じた。"},
+    {"w": "compassion", "p": "noun", "j": "思いやり", "ex": "She treated the patient with great compassion.", "jx": "彼女は患者を深い思いやりで接した。"},
+    {"w": "anguish", "p": "noun", "j": "苦悩", "ex": "The news caused him tremendous anguish.", "jx": "その知らせは彼に大きな苦悩をもたらした。"},
+    {"w": "reconcile", "p": "verb", "j": "和解する", "ex": "They finally reconciled after a long argument.", "jx": "長い口論の末、彼らはついに和解した。"},
+    {"w": "empathy", "p": "noun", "j": "共感", "ex": "Good listeners show empathy toward others.", "jx": "聞き上手な人は他者への共感を示す。"},
+    {"w": "contempt", "p": "noun", "j": "軽蔑", "ex": "She looked at him with obvious contempt.", "jx": "彼女は明らかな軽蔑の目で彼を見た。"},
+    {"w": "yearning", "p": "noun", "j": "切望", "ex": "He felt a deep yearning for his hometown.", "jx": "彼は故郷への深い切望を感じた。"},
+    {"w": "intimate", "p": "adjective", "j": "親密な", "ex": "They have an intimate relationship built on trust.", "jx": "彼らは信頼に基づいた親密な関係を持つ。"},
+    {"w": "hostility", "p": "noun", "j": "敵意", "ex": "There was clear hostility between the two groups.", "jx": "2つのグループの間には明らかな敵意があった。"},
+    {"w": "attachment", "p": "noun", "j": "愛着", "ex": "Children form strong attachments to their parents.", "jx": "子供は親に強い愛着を持つ。"},
+    {"w": "melancholy", "p": "noun", "j": "憂鬱", "ex": "A sense of melancholy filled the quiet room.", "jx": "静かな部屋に憂鬱な感覚が漂っていた。"},
+    {"w": "cherish", "p": "verb", "j": "大切にする", "ex": "She cherishes every moment with her children.", "jx": "彼女は子供たちとの時間を大切にする。"},
+    {"w": "grievance", "p": "noun", "j": "不満", "ex": "Employees were encouraged to express their grievances.", "jx": "従業員は不満を表明するよう促された。"},
+    {"w": "rapport", "p": "noun", "j": "信頼関係", "ex": "The teacher quickly built rapport with students.", "jx": "教師はすぐに生徒との信頼関係を築いた。"},
+    {"w": "apprehensive", "p": "adjective", "j": "不安な", "ex": "She felt apprehensive before her first date.", "jx": "彼女は初めてのデートの前に不安を感じた。"},
+    {"w": "console", "p": "verb", "j": "慰める", "ex": "He tried to console his grieving friend.", "jx": "彼は悲しんでいる友人を慰めようとした。"},
+    {"w": "estranged", "p": "adjective", "j": "疎遠になった", "ex": "He became estranged from his family over time.", "jx": "彼は時間とともに家族と疎遠になった。"},
+    {"w": "adore", "p": "verb", "j": "崇拝する", "ex": "The children adore their kind grandmother.", "jx": "子供たちは優しい祖母を崇拝している。"},
+    {"w": "remorse", "p": "noun", "j": "後悔", "ex": "She felt deep remorse for hurting his feelings.", "jx": "彼女は彼の気持ちを傷つけたことに深い後悔を感じた。"},
+    {"w": "mutual", "p": "adjective", "j": "相互の", "ex": "Their relationship is based on mutual respect.", "jx": "彼らの関係は相互の尊重に基づいている。"},
+    {"w": "exasperate", "p": "verb", "j": "いらだたせる", "ex": "His constant complaints exasperate his colleagues.", "jx": "彼の絶えない不満は同僚をいらだたせる。"},
+    {"w": "longing", "p": "noun", "j": "憧れ", "ex": "She had a longing for her childhood home.", "jx": "彼女は幼少期の家への憧れを抱いていた。"},
+    {"w": "vulnerable", "p": "adjective", "j": "傷つきやすい", "ex": "People feel vulnerable after losing someone they love.", "jx": "愛する人を失った後、人は傷つきやすくなる。"},
+    {"w": "bond", "p": "noun", "j": "絆", "ex": "Shared experiences create a strong bond between people.", "jx": "共通の体験は人々の間に強い絆を生む。"}
+  ]
+}

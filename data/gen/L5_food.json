@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "food",
+  "words": [
+    {"w": "masticate", "p": "verb", "j": "咀嚼する", "ex": "Doctors advise patients to masticate food thoroughly.", "jx": "医師は患者に食べ物をよく噛むよう勧める。"},
+    {"w": "gastronomic", "p": "adjective", "j": "美食の", "ex": "The city offers a rich gastronomic experience.", "jx": "その都市は豊かな美食体験を提供している。"},
+    {"w": "emulsify", "p": "verb", "j": "乳化する", "ex": "Lecithin helps emulsify oil and water in sauces.", "jx": "レシチンはソースの油と水の乳化を助ける。"},
+    {"w": "peristalsis", "p": "noun", "j": "蠕動運動", "ex": "Peristalsis moves food through the digestive tract.", "jx": "蠕動運動が食べ物を消化管に送る。"},
+    {"w": "macronutrient", "p": "noun", "j": "主要栄養素", "ex": "Carbohydrates are an essential macronutrient for energy.", "jx": "炭水化物はエネルギーのための必須主要栄養素だ。"},
+    {"w": "umami", "p": "noun", "j": "うま味", "ex": "Aged cheese has a deep umami flavor.", "jx": "熟成チーズには深いうま味がある。"},
+    {"w": "fermentation", "p": "noun", "j": "発酵", "ex": "Fermentation converts sugars into alcohol or acids.", "jx": "発酵は糖をアルコールや酸に変換する。"},
+    {"w": "adipose", "p": "adjective", "j": "脂肪の", "ex": "Excess calories are stored in adipose tissue.", "jx": "余分なカロリーは脂肪組織に蓄えられる。"},
+    {"w": "satiety", "p": "noun", "j": "満腹感", "ex": "Dietary fiber promotes satiety after meals.", "jx": "食物繊維は食後の満腹感を高める。"},
+    {"w": "phytochemical", "p": "noun", "j": "植物化学物質", "ex": "Broccoli contains phytochemicals that may prevent cancer.", "jx": "ブロッコリーにはがんを予防しうる植物化学物質が含まれる。"},
+    {"w": "glycemic", "p": "adjective", "j": "血糖値の", "ex": "White bread has a high glycemic index.", "jx": "白パンは血糖指数が高い。"},
+    {"w": "probiotic", "p": "noun", "j": "プロバイオティクス", "ex": "Yogurt is a well-known source of probiotics.", "jx": "ヨーグルトはよく知られたプロバイオティクスの源だ。"},
+    {"w": "antioxidant", "p": "noun", "j": "抗酸化物質", "ex": "Berries are rich in antioxidants that protect cells.", "jx": "ベリー類は細胞を守る抗酸化物質が豊富だ。"},
+    {"w": "blanch", "p": "verb", "j": "湯通しする", "ex": "Blanch the vegetables before freezing them.", "jx": "野菜を冷凍する前に湯通しする。"},
+    {"w": "deglaze", "p": "verb", "j": "デグラゼする", "ex": "Deglaze the pan with wine to capture the fond.", "jx": "旨みを活かすためワインでパンをデグラゼする。"},
+    {"w": "cholesterol", "p": "noun", "j": "コレステロール", "ex": "High cholesterol increases the risk of heart disease.", "jx": "高コレステロールは心臓病のリスクを高める。"},
+    {"w": "metabolism", "p": "noun", "j": "代謝", "ex": "Regular exercise boosts your metabolism significantly.", "jx": "定期的な運動は代謝を大幅に高める。"},
+    {"w": "lacto-fermented", "p": "adjective", "j": "乳酸発酵した", "ex": "Lacto-fermented pickles contain beneficial bacteria.", "jx": "乳酸発酵したピクルスには有益な菌が含まれる。"},
+    {"w": "catabolism", "p": "noun", "j": "異化作用", "ex": "Catabolism breaks down complex molecules to release energy.", "jx": "異化作用は複雑な分子を分解してエネルギーを放出する。"},
+    {"w": "insulin", "p": "noun", "j": "インスリン", "ex": "Insulin regulates blood sugar levels after eating.", "jx": "インスリンは食後の血糖値を調節する。"},
+    {"w": "rancid", "p": "adjective", "j": "腐敗した", "ex": "Rancid oil has an unpleasant smell and taste.", "jx": "腐敗した油は不快な匂いと味がする。"},
+    {"w": "fortify", "p": "verb", "j": "栄養強化する", "ex": "Many cereals are fortified with vitamins and minerals.", "jx": "多くのシリアルはビタミンやミネラルで栄養強化されている。"},
+    {"w": "aerobic", "p": "adjective", "j": "有酸素の", "ex": "Aerobic exercise improves cardiovascular endurance.", "jx": "有酸素運動は心肺持久力を向上させる。"},
+    {"w": "dehydration", "p": "noun", "j": "脱水症状", "ex": "Athletes must avoid dehydration during intense training.", "jx": "アスリートは激しいトレーニング中に脱水症状を避けなければならない。"},
+    {"w": "microbiome", "p": "noun", "j": "腸内細菌叢", "ex": "A diverse diet supports a healthy gut microbiome.", "jx": "多様な食事は健康な腸内細菌叢を支える。"}
+  ]
+}

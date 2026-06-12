@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "nature",
+  "words": [
+    {"w": "hibernate", "p": "verb", "j": "冬眠する", "ex": "Bears hibernate during the cold winter months.", "jx": "クマは寒い冬の間、冬眠する。"},
+    {"w": "photosynthesis", "p": "noun", "j": "光合成", "ex": "Plants use photosynthesis to convert sunlight into energy.", "jx": "植物は光合成を使って太陽光をエネルギーに変える。"},
+    {"w": "erosion", "p": "noun", "j": "浸食", "ex": "Erosion slowly wore away the rocky coastline.", "jx": "浸食がゆっくりと岩の多い海岸線を削り取った。"},
+    {"w": "dormant", "p": "adjective", "j": "休眠状態の", "ex": "The volcano has been dormant for over a century.", "jx": "その火山は1世紀以上休眠状態にある。"},
+    {"w": "migrate", "p": "verb", "j": "移動する", "ex": "Many birds migrate south to escape the winter cold.", "jx": "多くの鳥は冬の寒さを避けるために南へ移動する。"},
+    {"w": "sediment", "p": "noun", "j": "堆積物", "ex": "Sediment collects at the bottom of the river.", "jx": "堆積物が川の底に積もる。"},
+    {"w": "symbiosis", "p": "noun", "j": "共生", "ex": "Clownfish and sea anemones live in symbiosis.", "jx": "クマノミとイソギンチャクは共生して暮らす。"},
+    {"w": "atmospheric", "p": "adjective", "j": "大気の", "ex": "Atmospheric pressure drops at higher altitudes.", "jx": "大気圧は高度が上がると低下する。"},
+    {"w": "predator", "p": "noun", "j": "捕食者", "ex": "The wolf is a predator that hunts in packs.", "jx": "オオカミは群れで狩りをする捕食者だ。"},
+    {"w": "ecosystem", "p": "noun", "j": "生態系", "ex": "Pollution threatens the balance of the ocean ecosystem.", "jx": "汚染が海の生態系のバランスを脅かしている。"},
+    {"w": "catalyst", "p": "noun", "j": "触媒", "ex": "The enzyme acts as a catalyst in the chemical reaction.", "jx": "その酵素は化学反応における触媒として働く。"},
+    {"w": "deforestation", "p": "noun", "j": "森林伐採", "ex": "Deforestation is destroying the habitats of many species.", "jx": "森林伐採が多くの種の生息地を破壊している。"},
+    {"w": "indigenous", "p": "adjective", "j": "固有の", "ex": "The kangaroo is indigenous to Australia.", "jx": "カンガルーはオーストラリア固有の動物だ。"},
+    {"w": "trajectory", "p": "noun", "j": "軌道", "ex": "Scientists tracked the trajectory of the comet.", "jx": "科学者たちはその彗星の軌道を追跡した。"},
+    {"w": "biodiversity", "p": "noun", "j": "生物多様性", "ex": "Tropical rainforests have remarkably high biodiversity.", "jx": "熱帯雨林は著しく高い生物多様性を持つ。"},
+    {"w": "evaporate", "p": "verb", "j": "蒸発する", "ex": "Water evaporates quickly in hot and dry conditions.", "jx": "水は暑く乾燥した状況では素早く蒸発する。"},
+    {"w": "organism", "p": "noun", "j": "生物", "ex": "Every living organism requires water to survive.", "jx": "すべての生物は生存するために水を必要とする。"},
+    {"w": "turbulence", "p": "noun", "j": "乱気流", "ex": "The aircraft encountered severe turbulence over the mountains.", "jx": "その航空機は山岳地帯の上空で激しい乱気流に遭遇した。"},
+    {"w": "specimen", "p": "noun", "j": "標本", "ex": "The biologist preserved a specimen of the rare insect.", "jx": "その生物学者は希少な昆虫の標本を保存した。"},
+    {"w": "hypothesis", "p": "noun", "j": "仮説", "ex": "The researcher tested her hypothesis through careful experiments.", "jx": "その研究者は慎重な実験を通じて仮説を検証した。"},
+    {"w": "pollinate", "p": "verb", "j": "受粉させる", "ex": "Bees pollinate flowers as they collect nectar.", "jx": "ミツバチは蜜を集めながら花を受粉させる。"},
+    {"w": "gravitational", "p": "adjective", "j": "重力の", "ex": "The gravitational pull of the moon causes ocean tides.", "jx": "月の引力が海の潮汐を引き起こす。"},
+    {"w": "contaminate", "p": "verb", "j": "汚染する", "ex": "Industrial waste can contaminate nearby water sources.", "jx": "産業廃棄物は近くの水源を汚染する可能性がある。"},
+    {"w": "soluble", "p": "adjective", "j": "溶けやすい", "ex": "Salt is soluble in water at room temperature.", "jx": "塩は常温の水に溶けやすい。"},
+    {"w": "magnitude", "p": "noun", "j": "規模", "ex": "The earthquake measured 6.5 in magnitude.", "jx": "その地震はマグニチュード6.5を記録した。"}
+  ]
+}

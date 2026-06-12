@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "travel",
+  "words": [
+    {"w": "trip", "p": "noun", "j": "旅行", "ex": "We had a great trip to the beach.", "jx": "私たちはビーチへの旅行を楽しみました。"},
+    {"w": "bus", "p": "noun", "j": "バス", "ex": "I take the bus to school every day.", "jx": "私は毎日バスで学校に行きます。"},
+    {"w": "train", "p": "noun", "j": "電車", "ex": "The train is fast and clean.", "jx": "その電車は速くて清潔です。"},
+    {"w": "plane", "p": "noun", "j": "飛行機", "ex": "We took a plane to the city.", "jx": "私たちは飛行機でその都市に行きました。"},
+    {"w": "ticket", "p": "noun", "j": "切符", "ex": "I bought a ticket at the station.", "jx": "私は駅で切符を買いました。"},
+    {"w": "hotel", "p": "noun", "j": "ホテル", "ex": "We stayed at a small hotel.", "jx": "私たちは小さなホテルに泊まりました。"},
+    {"w": "map", "p": "noun", "j": "地図", "ex": "Please look at this map.", "jx": "この地図を見てください。"},
+    {"w": "airport", "p": "noun", "j": "空港", "ex": "The airport is very busy today.", "jx": "今日、空港はとても混んでいます。"},
+    {"w": "station", "p": "noun", "j": "駅", "ex": "The train station is near here.", "jx": "電車の駅はこの近くにあります。"},
+    {"w": "road", "p": "noun", "j": "道路", "ex": "This road goes to the park.", "jx": "この道路は公園に続いています。"},
+    {"w": "bag", "p": "noun", "j": "かばん", "ex": "My bag is heavy with books.", "jx": "私のかばんは本で重いです。"},
+    {"w": "passport", "p": "noun", "j": "パスポート", "ex": "Please show me your passport.", "jx": "パスポートを見せてください。"},
+    {"w": "camera", "p": "noun", "j": "カメラ", "ex": "She has a small camera.", "jx": "彼女は小さなカメラを持っています。"},
+    {"w": "city", "p": "noun", "j": "都市", "ex": "This city has many tall buildings.", "jx": "この都市には高いビルがたくさんあります。"},
+    {"w": "country", "p": "noun", "j": "国", "ex": "Japan is a beautiful country.", "jx": "日本は美しい国です。"},
+    {"w": "travel", "p": "verb", "j": "旅行する", "ex": "I want to travel to France.", "jx": "私はフランスに旅行したいです。"},
+    {"w": "arrive", "p": "verb", "j": "到着する", "ex": "We arrive at the hotel at noon.", "jx": "私たちは正午にホテルに到着します。"},
+    {"w": "leave", "p": "verb", "j": "出発する", "ex": "The bus leaves at eight o'clock.", "jx": "バスは8時に出発します。"},
+    {"w": "visit", "p": "verb", "j": "訪れる", "ex": "I want to visit that museum.", "jx": "私はあの博物館を訪れたいです。"},
+    {"w": "walk", "p": "verb", "j": "歩く", "ex": "Let's walk to the park.", "jx": "公園まで歩きましょう。"},
+    {"w": "ride", "p": "verb", "j": "乗る", "ex": "Can I ride this bus to the station?", "jx": "この電車で駅まで乗れますか？"},
+    {"w": "lost", "p": "adjective", "j": "迷った", "ex": "I am lost. Where is the station?", "jx": "道に迷いました。駅はどこですか？"},
+    {"w": "far", "p": "adjective", "j": "遠い", "ex": "The airport is far from here.", "jx": "空港はここから遠いです。"},
+    {"w": "left", "p": "adverb", "j": "左に", "ex": "Turn left at the corner.", "jx": "角を左に曲がってください。"},
+    {"w": "right", "p": "adverb", "j": "右に", "ex": "Go right at the next street.", "jx": "次の通りで右に行ってください。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "business",
+  "words": [
+    {"w": "negotiate", "p": "verb", "j": "交渉する", "ex": "We need to negotiate the terms of the contract.", "jx": "私たちは契約条件を交渉する必要があります。"},
+    {"w": "evaluate", "p": "verb", "j": "評価する", "ex": "The manager will evaluate your performance next month.", "jx": "来月、マネージャーがあなたの業績を評価します。"},
+    {"w": "significant", "p": "adjective", "j": "重要な", "ex": "The company made a significant profit this year.", "jx": "その会社は今年、大きな利益を上げました。"},
+    {"w": "incentive", "p": "noun", "j": "奨励策", "ex": "The bonus was a strong incentive for the sales team.", "jx": "ボーナスは営業チームへの強力な奨励策でした。"},
+    {"w": "revenue", "p": "noun", "j": "収益", "ex": "The company's revenue increased by 20% last quarter.", "jx": "先四半期、会社の収益は20%増加しました。"},
+    {"w": "stakeholder", "p": "noun", "j": "利害関係者", "ex": "All stakeholders were invited to the annual meeting.", "jx": "すべての利害関係者が年次会議に招待されました。"},
+    {"w": "comply", "p": "verb", "j": "従う", "ex": "All staff must comply with the new regulations.", "jx": "全スタッフは新しい規則に従わなければなりません。"},
+    {"w": "fiscal", "p": "adjective", "j": "財政上の", "ex": "The fiscal year ends in March.", "jx": "会計年度は3月に終わります。"},
+    {"w": "liability", "p": "noun", "j": "負債", "ex": "The company reduced its financial liability this year.", "jx": "会社は今年、財務上の負債を削減しました。"},
+    {"w": "outsource", "p": "verb", "j": "外部委託する", "ex": "They decided to outsource their IT support.", "jx": "彼らはITサポートを外部委託することにしました。"},
+    {"w": "merger", "p": "noun", "j": "合併", "ex": "The merger between the two firms was approved.", "jx": "2社間の合併が承認されました。"},
+    {"w": "acquisition", "p": "noun", "j": "買収", "ex": "The acquisition of that startup cost millions.", "jx": "そのスタートアップの買収には数百万ドルかかりました。"},
+    {"w": "delegate", "p": "verb", "j": "委任する", "ex": "A good manager knows how to delegate tasks.", "jx": "優れたマネージャーはタスクの委任の仕方を知っています。"},
+    {"w": "audit", "p": "noun", "j": "監査", "ex": "An audit revealed several accounting errors.", "jx": "監査により、いくつかの会計ミスが発覚しました。"},
+    {"w": "surplus", "p": "noun", "j": "余剰", "ex": "The department had a budget surplus at year end.", "jx": "その部門は年度末に予算の余剰がありました。"},
+    {"w": "recession", "p": "noun", "j": "景気後退", "ex": "Many businesses struggled during the recession.", "jx": "景気後退の間、多くの企業が苦境に立ちました。"},
+    {"w": "portfolio", "p": "noun", "j": "資産構成", "ex": "She manages a diverse investment portfolio.", "jx": "彼女は多様な投資ポートフォリオを管理しています。"},
+    {"w": "procurement", "p": "noun", "j": "調達", "ex": "The procurement team found a cheaper supplier.", "jx": "調達チームはより安価な供給業者を見つけました。"},
+    {"w": "transparent", "p": "adjective", "j": "透明な", "ex": "The company aims to be transparent about its finances.", "jx": "その会社は財務について透明性を持つことを目指しています。"},
+    {"w": "implement", "p": "verb", "j": "実施する", "ex": "We will implement the new policy next quarter.", "jx": "来四半期に新しい方針を実施します。"},
+    {"w": "restructure", "p": "verb", "j": "再編する", "ex": "The firm decided to restructure its operations.", "jx": "その会社は業務を再編することを決めました。"},
+    {"w": "benchmark", "p": "noun", "j": "基準", "ex": "Use industry benchmarks to measure your progress.", "jx": "業界の基準を使って進捗を測定してください。"},
+    {"w": "overhead", "p": "noun", "j": "間接費", "ex": "High overhead costs are hurting our profit margins.", "jx": "高い間接費が利益率を圧迫しています。"},
+    {"w": "turnover", "p": "noun", "j": "離職率", "ex": "High staff turnover is a serious problem here.", "jx": "高い離職率はここでは深刻な問題です。"},
+    {"w": "leverage", "p": "verb", "j": "活用する", "ex": "We can leverage our data to improve sales.", "jx": "データを活用して売上を改善できます。"}
+  ]
+}

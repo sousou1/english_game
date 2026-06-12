@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "food",
+  "words": [
+    {"w": "ingredient", "p": "noun", "j": "材料", "ex": "What ingredients do you need for this recipe?", "jx": "このレシピには何の材料が必要ですか？"},
+    {"w": "nutrition", "p": "noun", "j": "栄養", "ex": "Good nutrition is important for your health.", "jx": "良い栄養は健康のために大切です。"},
+    {"w": "digest", "p": "verb", "j": "消化する", "ex": "It takes time to digest a heavy meal.", "jx": "重い食事を消化するには時間がかかります。"},
+    {"w": "calorie", "p": "noun", "j": "カロリー", "ex": "This dessert contains a lot of calories.", "jx": "このデザートはカロリーがとても高いです。"},
+    {"w": "recipe", "p": "noun", "j": "レシピ", "ex": "She found a new recipe online.", "jx": "彼女はオンラインで新しいレシピを見つけました。"},
+    {"w": "flavor", "p": "noun", "j": "風味", "ex": "This soup has a rich flavor.", "jx": "このスープは豊かな風味があります。"},
+    {"w": "protein", "p": "noun", "j": "タンパク質", "ex": "Meat and eggs are good sources of protein.", "jx": "肉と卵はタンパク質の良い源です。"},
+    {"w": "diet", "p": "noun", "j": "食事制限", "ex": "She is on a diet to lose weight.", "jx": "彼女は体重を減らすために食事制限をしています。"},
+    {"w": "organic", "p": "adjective", "j": "有機の", "ex": "He prefers to buy organic vegetables.", "jx": "彼は有機野菜を買うことを好みます。"},
+    {"w": "portion", "p": "noun", "j": "一人分", "ex": "The restaurant serves large portions.", "jx": "そのレストランは量が多いです。"},
+    {"w": "symptom", "p": "noun", "j": "症状", "ex": "A fever is a common symptom of the flu.", "jx": "発熱は風邪の一般的な症状です。"},
+    {"w": "prescription", "p": "noun", "j": "処方箋", "ex": "The doctor gave me a prescription for medicine.", "jx": "医者が薬の処方箋をくれました。"},
+    {"w": "allergy", "p": "noun", "j": "アレルギー", "ex": "She has an allergy to nuts.", "jx": "彼女はナッツにアレルギーがあります。"},
+    {"w": "surgery", "p": "noun", "j": "手術", "ex": "He recovered quickly after surgery.", "jx": "彼は手術後すぐに回復しました。"},
+    {"w": "physician", "p": "noun", "j": "医師", "ex": "You should see a physician about that pain.", "jx": "その痛みについて医師に診てもらうべきです。"},
+    {"w": "exercise", "p": "verb", "j": "運動する", "ex": "I try to exercise at least three times a week.", "jx": "私は週に少なくとも3回運動するようにしています。"},
+    {"w": "appetite", "p": "noun", "j": "食欲", "ex": "I lost my appetite when I was sick.", "jx": "病気のとき食欲がなくなりました。"},
+    {"w": "preserve", "p": "verb", "j": "保存する", "ex": "Salt is used to preserve food.", "jx": "塩は食品を保存するために使われます。"},
+    {"w": "grilled", "p": "adjective", "j": "焼いた", "ex": "I ordered grilled chicken for dinner.", "jx": "夕食にグリルチキンを注文しました。"},
+    {"w": "beverage", "p": "noun", "j": "飲み物", "ex": "The menu lists many hot beverages.", "jx": "メニューには多くの温かい飲み物が載っています。"},
+    {"w": "recommend", "p": "verb", "j": "勧める", "ex": "Can you recommend a dish from this menu?", "jx": "このメニューの中からお勧めの料理はありますか？"},
+    {"w": "vitamin", "p": "noun", "j": "ビタミン", "ex": "Oranges are rich in vitamin C.", "jx": "オレンジはビタミンCが豊富です。"},
+    {"w": "muscle", "p": "noun", "j": "筋肉", "ex": "Regular exercise helps build muscle.", "jx": "定期的な運動は筋肉をつけるのに役立ちます。"},
+    {"w": "moderate", "p": "adjective", "j": "適度な", "ex": "Moderate exercise is good for your heart.", "jx": "適度な運動は心臓に良いです。"},
+    {"w": "harvest", "p": "verb", "j": "収穫する", "ex": "Farmers harvest wheat in the summer.", "jx": "農家は夏に小麦を収穫します。"}
+  ]
+}

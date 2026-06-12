@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "daily",
+  "words": [
+    {"w": "renovate", "p": "verb", "j": "改装する", "ex": "They plan to renovate the kitchen next year.", "jx": "彼らは来年キッチンを改装する予定だ。"},
+    {"w": "accumulate", "p": "verb", "j": "蓄積する", "ex": "Dust tends to accumulate on shelves quickly.", "jx": "ほこりは棚にすぐたまる傾向がある。"},
+    {"w": "appliance", "p": "noun", "j": "家電製品", "ex": "The old appliance broke down last week.", "jx": "古い家電製品が先週壊れた。"},
+    {"w": "lease", "p": "noun", "j": "賃貸契約", "ex": "She signed a one-year lease for the apartment.", "jx": "彼女はそのアパートの1年間の賃貸契約に署名した。"},
+    {"w": "utilities", "p": "noun", "j": "光熱費", "ex": "Utilities such as electricity are included in the rent.", "jx": "電気などの光熱費は家賃に含まれている。"},
+    {"w": "clutter", "p": "noun", "j": "散らかり", "ex": "He cleared the clutter from his desk before working.", "jx": "彼は仕事の前に机の散らかりを片付けた。"},
+    {"w": "allocate", "p": "verb", "j": "割り当てる", "ex": "She tries to allocate time for exercise each morning.", "jx": "彼女は毎朝運動のための時間を割り当てるようにしている。"},
+    {"w": "dispose", "p": "verb", "j": "処分する", "ex": "Please dispose of old batteries at the store.", "jx": "古い電池はお店で処分してください。"},
+    {"w": "sortout", "p": "phrase", "j": "整理する", "ex": "I need to sort out the clothes in my wardrobe.", "jx": "クローゼットの服を整理する必要がある。"},
+    {"w": "perishable", "p": "adjective", "j": "腐りやすい", "ex": "Keep perishable foods in the refrigerator at all times.", "jx": "腐りやすい食品は常に冷蔵庫に入れておいてください。"},
+    {"w": "budget", "p": "verb", "j": "予算を立てる", "ex": "We need to budget carefully for grocery shopping.", "jx": "食料品の買い物には慎重に予算を立てる必要がある。"},
+    {"w": "defrost", "p": "verb", "j": "解凍する", "ex": "Remember to defrost the chicken before cooking it.", "jx": "調理する前に鶏肉を解凍するのを忘れずに。"},
+    {"w": "ventilate", "p": "verb", "j": "換気する", "ex": "Open the window to ventilate the room properly.", "jx": "部屋をしっかり換気するために窓を開けてください。"},
+    {"w": "durable", "p": "adjective", "j": "耐久性のある", "ex": "Choose durable materials when buying furniture.", "jx": "家具を購入するときは耐久性のある素材を選びなさい。"},
+    {"w": "declutter", "p": "verb", "j": "片付ける", "ex": "She decided to declutter her home over the weekend.", "jx": "彼女は週末に家を片付けることにした。"},
+    {"w": "pantry", "p": "noun", "j": "食品貯蔵室", "ex": "The pantry was stocked with canned goods and dry food.", "jx": "食品貯蔵室には缶詰や乾燥食品が備蓄されていた。"},
+    {"w": "invoice", "p": "noun", "j": "請求書", "ex": "The plumber sent an invoice after finishing the repair.", "jx": "水道工事業者は修理を終えた後に請求書を送った。"},
+    {"w": "upkeep", "p": "noun", "j": "維持管理", "ex": "The upkeep of the garden requires daily effort.", "jx": "庭の維持管理には毎日の努力が必要だ。"},
+    {"w": "sustainable", "p": "adjective", "j": "持続可能な", "ex": "Using reusable bags is a sustainable shopping habit.", "jx": "再利用可能なバッグを使うことは持続可能な買い物習慣だ。"},
+    {"w": "maintenance", "p": "noun", "j": "保守点検", "ex": "Regular maintenance helps extend the life of appliances.", "jx": "定期的な保守点検は家電製品の寿命を延ばすのに役立つ。"},
+    {"w": "tenant", "p": "noun", "j": "借家人", "ex": "The tenant reported a leaking pipe to the landlord.", "jx": "借家人は水道管の水漏れを家主に報告した。"},
+    {"w": "inventory", "p": "noun", "j": "在庫一覧", "ex": "She kept an inventory of items in the kitchen cabinet.", "jx": "彼女はキッチンの棚にある物の在庫一覧を管理していた。"},
+    {"w": "immaculate", "p": "adjective", "j": "清潔な", "ex": "She keeps her living room in immaculate condition.", "jx": "彼女はリビングルームを清潔な状態に保っている。"},
+    {"w": "makeshift", "p": "adjective", "j": "間に合わせの", "ex": "He used a makeshift shelf until the new one arrived.", "jx": "新しい棚が届くまで彼は間に合わせの棚を使った。"},
+    {"w": "prioritize", "p": "verb", "j": "優先する", "ex": "Learn to prioritize daily tasks to save time.", "jx": "時間を節約するために日々のタスクを優先する方法を学ぼう。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 5,
+  "field": "business",
+  "words": [
+    {"w": "arbitrage", "p": "noun", "j": "裁定取引", "ex": "Traders use arbitrage to profit from price differences.", "jx": "トレーダーは価格差を利用して利益を得るために裁定取引を行う。"},
+    {"w": "liquidate", "p": "verb", "j": "清算する", "ex": "The company decided to liquidate its assets to pay debts.", "jx": "その会社は負債を返済するために資産を清算することを決めた。"},
+    {"w": "procurement", "p": "noun", "j": "調達", "ex": "The procurement team negotiated better terms with suppliers.", "jx": "調達チームはサプライヤーとより良い条件を交渉した。"},
+    {"w": "fiduciary", "p": "adjective", "j": "受託責任の", "ex": "Directors have a fiduciary duty to act in shareholders' interests.", "jx": "取締役は株主の利益のために行動する受託責任を負っている。"},
+    {"w": "amortize", "p": "verb", "j": "償却する", "ex": "The firm will amortize the loan over ten years.", "jx": "その会社はローンを10年かけて償却する予定だ。"},
+    {"w": "remunerative", "p": "adjective", "j": "報酬の高い", "ex": "She accepted a highly remunerative position at the bank.", "jx": "彼女は銀行の報酬の高いポジションを受け入れた。"},
+    {"w": "insolvency", "p": "noun", "j": "支払い不能", "ex": "The firm filed for insolvency after losing major contracts.", "jx": "その会社は主要な契約を失った後、支払い不能を申請した。"},
+    {"w": "leverage", "p": "noun", "j": "財務レバレッジ", "ex": "High leverage amplifies both gains and losses.", "jx": "高いレバレッジは利益と損失の両方を増幅させる。"},
+    {"w": "stipulate", "p": "verb", "j": "規定する", "ex": "The contract stipulates a penalty for late delivery.", "jx": "契約は遅延納品に対するペナルティを規定している。"},
+    {"w": "incumbent", "p": "adjective", "j": "現職の", "ex": "The incumbent CEO announced plans to retire next year.", "jx": "現職のCEOは来年退任する計画を発表した。"},
+    {"w": "divestiture", "p": "noun", "j": "資産売却", "ex": "The divestiture of non-core assets raised significant capital.", "jx": "非中核資産の売却により多額の資金が調達された。"},
+    {"w": "indemnify", "p": "verb", "j": "補償する", "ex": "The insurer agreed to indemnify the client for all losses.", "jx": "保険会社はすべての損失についてクライアントを補償することに合意した。"},
+    {"w": "collateral", "p": "noun", "j": "担保", "ex": "The bank required collateral before approving the loan.", "jx": "銀行はローンを承認する前に担保を要求した。"},
+    {"w": "solvent", "p": "adjective", "j": "支払い能力のある", "ex": "Despite the downturn, the company remained solvent.", "jx": "不況にもかかわらず、その会社は支払い能力を維持した。"},
+    {"w": "hedge", "p": "verb", "j": "リスクを回避する", "ex": "Investors hedge against currency risk by diversifying portfolios.", "jx": "投資家はポートフォリオを分散させることで為替リスクを回避する。"},
+    {"w": "rescind", "p": "verb", "j": "取り消す", "ex": "The board voted to rescind the merger agreement.", "jx": "取締役会は合併契約を取り消すことを決議した。"},
+    {"w": "encumbrance", "p": "noun", "j": "担保負担", "ex": "The property was sold free of any encumbrance.", "jx": "その不動産はいかなる担保負担もなく売却された。"},
+    {"w": "repatriate", "p": "verb", "j": "本国送還する", "ex": "The multinational repatriated profits to its home country.", "jx": "その多国籍企業は利益を本国に送還した。"},
+    {"w": "moratorium", "p": "noun", "j": "支払い猶予", "ex": "The lender granted a moratorium on debt repayment.", "jx": "貸し手は債務返済の支払い猶予を与えた。"},
+    {"w": "accrual", "p": "noun", "j": "発生主義計上", "ex": "Accrual accounting records revenue when it is earned.", "jx": "発生主義会計は収益を稼得した時点で記録する。"},
+    {"w": "underwrite", "p": "verb", "j": "引き受ける", "ex": "Three banks agreed to underwrite the bond issue.", "jx": "3つの銀行が債券発行を引き受けることに合意した。"},
+    {"w": "arbitrate", "p": "verb", "j": "仲裁する", "ex": "A neutral panel was appointed to arbitrate the dispute.", "jx": "紛争を仲裁するために中立的なパネルが任命された。"},
+    {"w": "attrition", "p": "noun", "j": "自然減", "ex": "Staff numbers fell through attrition rather than layoffs.", "jx": "スタッフ数はレイオフではなく自然減によって減少した。"},
+    {"w": "write off", "p": "phrase", "j": "損金処理する", "ex": "The company decided to write off the bad debt.", "jx": "その会社は不良債権を損金処理することを決めた。"},
+    {"w": "scale up", "p": "phrase", "j": "拡大する", "ex": "They plan to scale up production to meet demand.", "jx": "彼らは需要に応えるために生産を拡大する計画だ。"}
+  ]
+}

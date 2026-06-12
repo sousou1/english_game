@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "feelings",
+  "words": [
+    {"w": "grateful", "p": "adjective", "j": "感謝している", "ex": "She felt grateful for her friend's help.", "jx": "彼女は友人の助けに感謝した。"},
+    {"w": "anxious", "p": "adjective", "j": "不安な", "ex": "He was anxious about the exam results.", "jx": "彼は試験の結果が不安だった。"},
+    {"w": "jealous", "p": "adjective", "j": "嫉妬している", "ex": "She felt jealous of her sister's success.", "jx": "彼女は姉の成功を妬んだ。"},
+    {"w": "embarrassed", "p": "adjective", "j": "恥ずかしい", "ex": "He was embarrassed by his mistake.", "jx": "彼は自分の失敗が恥ずかしかった。"},
+    {"w": "disappointed", "p": "adjective", "j": "がっかりした", "ex": "She was disappointed with the result.", "jx": "彼女は結果にがっかりした。"},
+    {"w": "comfort", "p": "verb", "j": "慰める", "ex": "He tried to comfort his crying friend.", "jx": "彼は泣いている友人を慰めようとした。"},
+    {"w": "trust", "p": "verb", "j": "信頼する", "ex": "I trust my best friend completely.", "jx": "私は親友を完全に信頼している。"},
+    {"w": "admire", "p": "verb", "j": "尊敬する", "ex": "She admires her mother's kindness.", "jx": "彼女は母親の優しさを尊敬している。"},
+    {"w": "forgive", "p": "verb", "j": "許す", "ex": "He found it hard to forgive her.", "jx": "彼は彼女を許すのが難しかった。"},
+    {"w": "argue", "p": "verb", "j": "口論する", "ex": "They sometimes argue about small things.", "jx": "彼らは些細なことで口論することがある。"},
+    {"w": "affection", "p": "noun", "j": "愛情", "ex": "She showed great affection for her children.", "jx": "彼女は子どもたちに大きな愛情を示した。"},
+    {"w": "loneliness", "p": "noun", "j": "孤独感", "ex": "Moving to a new city brought feelings of loneliness.", "jx": "新しい街への引っ越しは孤独感をもたらした。"},
+    {"w": "sympathy", "p": "noun", "j": "同情", "ex": "He expressed sympathy for her loss.", "jx": "彼は彼女の悲しみに同情を示した。"},
+    {"w": "confidence", "p": "noun", "j": "自信", "ex": "She spoke with great confidence.", "jx": "彼女は大きな自信を持って話した。"},
+    {"w": "patience", "p": "noun", "j": "忍耐", "ex": "Teaching young children requires a lot of patience.", "jx": "幼い子どもを教えるには多くの忍耐が必要だ。"},
+    {"w": "courage", "p": "noun", "j": "勇気", "ex": "It takes courage to say sorry.", "jx": "謝るには勇気が必要だ。"},
+    {"w": "pride", "p": "noun", "j": "誇り", "ex": "His parents felt pride in his achievement.", "jx": "両親は彼の成果を誇りに思った。"},
+    {"w": "relief", "p": "noun", "j": "安堵", "ex": "She felt relief when the test was over.", "jx": "試験が終わって彼女は安堵した。"},
+    {"w": "mood", "p": "noun", "j": "気分", "ex": "Music can change your mood quickly.", "jx": "音楽はあなたの気分をすぐに変えることができる。"},
+    {"w": "generous", "p": "adjective", "j": "寛大な", "ex": "He is generous with his time and money.", "jx": "彼は時間とお金に寛大だ。"},
+    {"w": "sensitive", "p": "adjective", "j": "敏感な", "ex": "She is sensitive to other people's feelings.", "jx": "彼女は他人の気持ちに敏感だ。"},
+    {"w": "cheerful", "p": "adjective", "j": "明るい", "ex": "Her cheerful smile made everyone happy.", "jx": "彼女の明るい笑顔は皆を幸せにした。"},
+    {"w": "sincere", "p": "adjective", "j": "誠実な", "ex": "He gave a sincere apology to his friend.", "jx": "彼は友人に誠実な謝罪をした。"},
+    {"w": "relationship", "p": "noun", "j": "関係", "ex": "They have a strong relationship built on trust.", "jx": "彼らは信頼に基づいた強い関係を持っている。"},
+    {"w": "support", "p": "verb", "j": "支える", "ex": "Good friends support each other through hard times.", "jx": "良い友人は辛い時期にお互いを支え合う。"}
+  ]
+}

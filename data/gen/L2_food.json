@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "food",
+  "words": [
+    {"w": "breakfast", "p": "noun", "j": "朝食", "ex": "She eats breakfast at seven every morning.", "jx": "彼女は毎朝7時に朝食を食べます。"},
+    {"w": "vegetable", "p": "noun", "j": "野菜", "ex": "You should eat more vegetables every day.", "jx": "毎日もっと野菜を食べるべきです。"},
+    {"w": "ingredient", "p": "noun", "j": "材料", "ex": "We need fresh ingredients for this recipe.", "jx": "このレシピには新鮮な材料が必要です。"},
+    {"w": "recipe", "p": "noun", "j": "レシピ", "ex": "She followed a simple recipe for soup.", "jx": "彼女はスープの簡単なレシピに従いました。"},
+    {"w": "restaurant", "p": "noun", "j": "レストラン", "ex": "Let's go to that new restaurant downtown.", "jx": "街の中心にある新しいレストランに行きましょう。"},
+    {"w": "menu", "p": "noun", "j": "メニュー", "ex": "The waiter brought us the menu right away.", "jx": "ウェイターはすぐにメニューを持ってきました。"},
+    {"w": "order", "p": "verb", "j": "注文する", "ex": "I would like to order the pasta, please.", "jx": "パスタを注文したいのですが。"},
+    {"w": "delicious", "p": "adjective", "j": "おいしい", "ex": "This homemade cake is absolutely delicious.", "jx": "この手作りケーキはとてもおいしいです。"},
+    {"w": "fresh", "p": "adjective", "j": "新鮮な", "ex": "We bought fresh fish at the market.", "jx": "私たちは市場で新鮮な魚を買いました。"},
+    {"w": "boil", "p": "verb", "j": "ゆでる", "ex": "Please boil the eggs for ten minutes.", "jx": "卵を10分間ゆでてください。"},
+    {"w": "fry", "p": "verb", "j": "揚げる", "ex": "He likes to fry potatoes for dinner.", "jx": "彼は夕食にじゃがいもを揚げるのが好きです。"},
+    {"w": "diet", "p": "noun", "j": "食事制限", "ex": "She is on a diet to lose weight.", "jx": "彼女は体重を減らすためにダイエット中です。"},
+    {"w": "exercise", "p": "verb", "j": "運動する", "ex": "It is important to exercise three times a week.", "jx": "週に3回運動することが大切です。"},
+    {"w": "healthy", "p": "adjective", "j": "健康的な", "ex": "Eating salad every day is very healthy.", "jx": "毎日サラダを食べることはとても健康的です。"},
+    {"w": "hunger", "p": "noun", "j": "空腹", "ex": "She felt hunger after missing lunch.", "jx": "昼食を抜いた後、彼女は空腹を感じました。"},
+    {"w": "thirsty", "p": "adjective", "j": "のどが渇いた", "ex": "I am very thirsty after the long walk.", "jx": "長い散歩の後でとてものどが渇いています。"},
+    {"w": "meal", "p": "noun", "j": "食事", "ex": "We had a big meal with the whole family.", "jx": "私たちは家族全員で大きな食事をしました。"},
+    {"w": "doctor", "p": "noun", "j": "医師", "ex": "The doctor told me to rest for a week.", "jx": "医師は私に1週間休むよう言いました。"},
+    {"w": "medicine", "p": "noun", "j": "薬", "ex": "Take this medicine twice a day after meals.", "jx": "この薬を食後に1日2回飲んでください。"},
+    {"w": "stomach", "p": "noun", "j": "胃", "ex": "My stomach hurts after eating too much.", "jx": "食べすぎた後で胃が痛いです。"},
+    {"w": "fever", "p": "noun", "j": "熱", "ex": "He stayed home because he had a fever.", "jx": "彼は熱があったので家にいました。"},
+    {"w": "calorie", "p": "noun", "j": "カロリー", "ex": "This drink has only fifty calories.", "jx": "この飲み物はわずか50カロリーです。"},
+    {"w": "protein", "p": "noun", "j": "タンパク質", "ex": "Chicken and beans are rich in protein.", "jx": "鶏肉や豆はタンパク質が豊富です。"},
+    {"w": "allergy", "p": "noun", "j": "アレルギー", "ex": "She has an allergy to peanuts.", "jx": "彼女はピーナッツにアレルギーがあります。"},
+    {"w": "serve", "p": "verb", "j": "提供する", "ex": "The cafe serves light meals all day.", "jx": "そのカフェは一日中軽食を提供しています。"}
+  ]
+}

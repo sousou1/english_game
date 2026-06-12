@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "school",
+  "words": [
+    {"w": "curriculum", "p": "noun", "j": "カリキュラム", "ex": "The school revised its curriculum last year.", "jx": "その学校は昨年カリキュラムを改訂した。"},
+    {"w": "dissertation", "p": "noun", "j": "論文", "ex": "She spent two years writing her dissertation.", "jx": "彼女は論文を書くのに2年かけた。"},
+    {"w": "comprehend", "p": "verb", "j": "理解する", "ex": "It is hard to comprehend such a complex theory.", "jx": "そのような複雑な理論を理解するのは難しい。"},
+    {"w": "elaborate", "p": "verb", "j": "詳述する", "ex": "Could you elaborate on your argument?", "jx": "あなたの主張をもっと詳しく説明してもらえますか？"},
+    {"w": "scholarly", "p": "adjective", "j": "学術的な", "ex": "He published a scholarly article on ancient history.", "jx": "彼は古代史に関する学術論文を発表した。"},
+    {"w": "manuscript", "p": "noun", "j": "原稿", "ex": "The author submitted the manuscript to the editor.", "jx": "著者は原稿を編集者に提出した。"},
+    {"w": "critique", "p": "noun", "j": "批評", "ex": "The professor gave a detailed critique of the essay.", "jx": "教授はそのエッセイについて詳細な批評を行った。"},
+    {"w": "hypothesis", "p": "noun", "j": "仮説", "ex": "The researcher tested her hypothesis carefully.", "jx": "研究者は自分の仮説を慎重に検証した。"},
+    {"w": "pedagogy", "p": "noun", "j": "教授法", "ex": "Modern pedagogy emphasizes student-centered learning.", "jx": "現代の教授法は学習者中心の学びを重視する。"},
+    {"w": "annotate", "p": "verb", "j": "注釈をつける", "ex": "Students were asked to annotate the poem.", "jx": "生徒たちはその詩に注釈をつけるよう求められた。"},
+    {"w": "literacy", "p": "noun", "j": "読み書き能力", "ex": "Digital literacy is essential in today's world.", "jx": "今日の世界ではデジタルリテラシーが不可欠だ。"},
+    {"w": "inference", "p": "noun", "j": "推論", "ex": "Draw your inference from the evidence provided.", "jx": "提示された証拠から推論を導き出しなさい。"},
+    {"w": "aesthetic", "p": "adjective", "j": "審美的な", "ex": "The painting has great aesthetic value.", "jx": "その絵画は高い審美的価値を持つ。"},
+    {"w": "chronicle", "p": "noun", "j": "年代記", "ex": "The book is a chronicle of medieval events.", "jx": "その本は中世の出来事の年代記だ。"},
+    {"w": "rhetoric", "p": "noun", "j": "修辞法", "ex": "His speech was full of powerful rhetoric.", "jx": "彼のスピーチは力強い修辞法に満ちていた。"},
+    {"w": "synthesis", "p": "noun", "j": "統合", "ex": "The essay requires a synthesis of multiple sources.", "jx": "そのエッセイは複数の情報源の統合を必要とする。"},
+    {"w": "empirical", "p": "adjective", "j": "実証的な", "ex": "The study relies on empirical data.", "jx": "その研究は実証的なデータに基づいている。"},
+    {"w": "articulate", "p": "verb", "j": "明確に述べる", "ex": "She could articulate her ideas very clearly.", "jx": "彼女は自分の考えを非常に明確に述べることができた。"},
+    {"w": "obsolete", "p": "adjective", "j": "時代遅れな", "ex": "This teaching method has become obsolete.", "jx": "この教授法は時代遅れになってしまった。"},
+    {"w": "symposium", "p": "noun", "j": "学術討論会", "ex": "Experts gathered for an international symposium.", "jx": "専門家たちが国際学術討論会に集まった。"},
+    {"w": "deduce", "p": "verb", "j": "推論する", "ex": "Can you deduce the meaning from context?", "jx": "文脈から意味を推論できますか？"},
+    {"w": "heritage", "p": "noun", "j": "文化遺産", "ex": "We must protect our cultural heritage.", "jx": "私たちは文化遺産を守らなければならない。"},
+    {"w": "paradigm", "p": "noun", "j": "典型的な例", "ex": "This discovery shifted the scientific paradigm.", "jx": "この発見は科学的な典型例を変えた。"},
+    {"w": "look up", "p": "phrase", "j": "調べる", "ex": "Look up the word in the dictionary.", "jx": "その単語を辞書で調べなさい。"},
+    {"w": "account for", "p": "phrase", "j": "説明する", "ex": "How do you account for this historical change?", "jx": "この歴史的変化をどのように説明しますか？"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "food",
+  "words": [
+    {"w": "nourish", "p": "verb", "j": "栄養を与える", "ex": "Fresh vegetables nourish the body effectively.", "jx": "新鮮な野菜は体に効果的に栄養を与えます。"},
+    {"w": "ferment", "p": "verb", "j": "発酵させる", "ex": "They ferment soybeans to make miso.", "jx": "彼らは大豆を発酵させて味噌を作ります。"},
+    {"w": "marinate", "p": "verb", "j": "マリネにする", "ex": "Marinate the chicken in lemon juice overnight.", "jx": "鶏肉をレモン汁に一晩漬け込んでください。"},
+    {"w": "cuisine", "p": "noun", "j": "料理(様式)", "ex": "French cuisine is known worldwide for its elegance.", "jx": "フランス料理はその優雅さで世界的に有名です。"},
+    {"w": "nutritious", "p": "adjective", "j": "栄養価の高い", "ex": "Spinach is a highly nutritious leafy vegetable.", "jx": "ほうれん草は非常に栄養価の高い葉物野菜です。"},
+    {"w": "cholesterol", "p": "noun", "j": "コレステロール", "ex": "High cholesterol levels increase the risk of heart disease.", "jx": "コレステロール値が高いと心臓病のリスクが高まります。"},
+    {"w": "metabolism", "p": "noun", "j": "代謝", "ex": "Regular exercise boosts your metabolism significantly.", "jx": "定期的な運動は代謝を大幅に高めます。"},
+    {"w": "deficiency", "p": "noun", "j": "欠乏症", "ex": "A vitamin D deficiency can weaken your bones.", "jx": "ビタミンDの欠乏は骨を弱くする可能性があります。"},
+    {"w": "saturated", "p": "adjective", "j": "飽和した", "ex": "Butter contains high amounts of saturated fat.", "jx": "バターには飽和脂肪が多く含まれています。"},
+    {"w": "dietary", "p": "adjective", "j": "食事の", "ex": "She follows strict dietary guidelines for her condition.", "jx": "彼女は自分の状態に合わせた厳しい食事指針に従っています。"},
+    {"w": "pasteurize", "p": "verb", "j": "殺菌処理する", "ex": "Factories pasteurize milk to eliminate harmful bacteria.", "jx": "工場では有害な細菌を除去するために牛乳を殺菌処理します。"},
+    {"w": "garnish", "p": "verb", "j": "飾り付けする", "ex": "The chef garnished the dish with fresh herbs.", "jx": "シェフは料理を新鮮なハーブで飾り付けました。"},
+    {"w": "simmer", "p": "verb", "j": "とろ火で煮る", "ex": "Let the soup simmer for thirty minutes.", "jx": "スープをとろ火で30分煮てください。"},
+    {"w": "aperitif", "p": "noun", "j": "食前酒", "ex": "They enjoyed an aperitif before the main course.", "jx": "彼らはメインコースの前に食前酒を楽しみました。"},
+    {"w": "sustainable", "p": "adjective", "j": "持続可能な", "ex": "Sustainable farming protects the environment for future generations.", "jx": "持続可能な農業は将来の世代のために環境を守ります。"},
+    {"w": "probiotic", "p": "noun", "j": "プロバイオティクス", "ex": "Yogurt is a natural source of beneficial probiotics.", "jx": "ヨーグルトは有益なプロバイオティクスの天然供給源です。"},
+    {"w": "contaminate", "p": "verb", "j": "汚染する", "ex": "Improper storage can contaminate food with bacteria.", "jx": "不適切な保存は食品を細菌で汚染する可能性があります。"},
+    {"w": "organic", "p": "adjective", "j": "有機栽培の", "ex": "Organic produce is grown without synthetic pesticides.", "jx": "有機農産物は合成農薬を使わずに栽培されます。"},
+    {"w": "cardiovascular", "p": "adjective", "j": "心臓血管の", "ex": "Swimming provides excellent cardiovascular exercise.", "jx": "水泳は優れた心臓血管系の運動を提供します。"},
+    {"w": "inflammation", "p": "noun", "j": "炎症", "ex": "Chronic inflammation is linked to many serious diseases.", "jx": "慢性炎症は多くの重篤な疾患と関連しています。"},
+    {"w": "antioxidant", "p": "noun", "j": "抗酸化物質", "ex": "Blueberries are rich in powerful antioxidants.", "jx": "ブルーベリーには強力な抗酸化物質が豊富に含まれています。"},
+    {"w": "diagnosis", "p": "noun", "j": "診断", "ex": "Early diagnosis of diabetes improves treatment outcomes.", "jx": "糖尿病の早期診断は治療結果を改善します。"},
+    {"w": "appetite", "p": "noun", "j": "食欲", "ex": "Stress can significantly reduce your appetite.", "jx": "ストレスは食欲を大幅に低下させる可能性があります。"},
+    {"w": "supplement", "p": "noun", "j": "栄養補助食品", "ex": "Many athletes take protein supplements after workouts.", "jx": "多くのアスリートはトレーニング後にプロテインサプリメントを摂取します。"},
+    {"w": "rehabilitation", "p": "noun", "j": "リハビリテーション", "ex": "Physical rehabilitation helped him recover from the injury.", "jx": "理学療法によるリハビリテーションが彼の怪我からの回復を助けました。"}
+  ]
+}

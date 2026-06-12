@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "nature",
+  "words": [
+    {"w": "forest", "p": "noun", "j": "森", "ex": "Many animals live in the forest.", "jx": "多くの動物が森の中に住んでいます。"},
+    {"w": "river", "p": "noun", "j": "川", "ex": "We swam in the cold river.", "jx": "私たちは冷たい川で泳ぎました。"},
+    {"w": "cloud", "p": "noun", "j": "雲", "ex": "Dark clouds appeared in the sky.", "jx": "暗い雲が空に現れました。"},
+    {"w": "seed", "p": "noun", "j": "種", "ex": "She planted a seed in the garden.", "jx": "彼女は庭に種を植えました。"},
+    {"w": "leaf", "p": "noun", "j": "葉", "ex": "A yellow leaf fell from the tree.", "jx": "黄色い葉が木から落ちました。"},
+    {"w": "branch", "p": "noun", "j": "枝", "ex": "The bird sat on a branch.", "jx": "鳥が枝の上に座っていました。"},
+    {"w": "soil", "p": "noun", "j": "土壌", "ex": "Plants grow well in rich soil.", "jx": "植物は栄養豊かな土壌でよく育ちます。"},
+    {"w": "wave", "p": "noun", "j": "波", "ex": "Big waves hit the beach today.", "jx": "今日は大きな波が浜辺に打ち寄せました。"},
+    {"w": "insect", "p": "noun", "j": "昆虫", "ex": "This insect has six legs.", "jx": "この昆虫には6本の足があります。"},
+    {"w": "flower", "p": "noun", "j": "花", "ex": "The flower smells very sweet.", "jx": "その花はとてもいい香りがします。"},
+    {"w": "thunder", "p": "noun", "j": "雷", "ex": "We heard loud thunder last night.", "jx": "昨夜、大きな雷の音が聞こえました。"},
+    {"w": "planet", "p": "noun", "j": "惑星", "ex": "Mars is the fourth planet from the sun.", "jx": "火星は太陽から4番目の惑星です。"},
+    {"w": "fossil", "p": "noun", "j": "化石", "ex": "They found a dinosaur fossil in the rock.", "jx": "彼らは岩の中に恐竜の化石を見つけました。"},
+    {"w": "mineral", "p": "noun", "j": "鉱物", "ex": "Gold is a valuable mineral.", "jx": "金は貴重な鉱物です。"},
+    {"w": "experiment", "p": "noun", "j": "実験", "ex": "We did a simple experiment in class.", "jx": "私たちは授業で簡単な実験をしました。"},
+    {"w": "oxygen", "p": "noun", "j": "酸素", "ex": "Humans need oxygen to breathe.", "jx": "人間は呼吸するために酸素が必要です。"},
+    {"w": "volcano", "p": "noun", "j": "火山", "ex": "The volcano erupted last year.", "jx": "その火山は昨年噴火しました。"},
+    {"w": "desert", "p": "noun", "j": "砂漠", "ex": "It rarely rains in the desert.", "jx": "砂漠ではほとんど雨が降りません。"},
+    {"w": "migrate", "p": "verb", "j": "移動する", "ex": "Birds migrate south every winter.", "jx": "鳥は毎年冬に南へ移動します。"},
+    {"w": "melt", "p": "verb", "j": "溶ける", "ex": "The ice melts quickly in the sun.", "jx": "氷は太陽の下ですぐに溶けます。"},
+    {"w": "recycle", "p": "verb", "j": "リサイクルする", "ex": "We should recycle paper and plastic.", "jx": "紙とプラスチックをリサイクルすべきです。"},
+    {"w": "pollute", "p": "verb", "j": "汚染する", "ex": "Factories sometimes pollute the river.", "jx": "工場が川を汚染することがあります。"},
+    {"w": "frozen", "p": "adjective", "j": "凍った", "ex": "The frozen lake was beautiful.", "jx": "凍った湖はとても美しかったです。"},
+    {"w": "wild", "p": "adjective", "j": "野生の", "ex": "We saw a wild deer in the field.", "jx": "私たちは野原で野生のシカを見ました。"},
+    {"w": "extinct", "p": "adjective", "j": "絶滅した", "ex": "Dinosaurs became extinct long ago.", "jx": "恐竜はずっと昔に絶滅しました。"}
+  ]
+}

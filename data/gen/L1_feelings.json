@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "feelings",
+  "words": [
+    {"w": "happy", "p": "adjective", "j": "うれしい", "ex": "I am happy today.", "jx": "私は今日うれしいです。"},
+    {"w": "sad", "p": "adjective", "j": "悲しい", "ex": "She is sad about the news.", "jx": "彼女はそのニュースを悲しんでいます。"},
+    {"w": "angry", "p": "adjective", "j": "怒っている", "ex": "He is angry at me.", "jx": "彼は私に怒っています。"},
+    {"w": "scared", "p": "adjective", "j": "怖い", "ex": "I am scared of the dark.", "jx": "私は暗闇が怖いです。"},
+    {"w": "love", "p": "verb", "j": "愛する", "ex": "I love my family very much.", "jx": "私は家族をとても愛しています。"},
+    {"w": "like", "p": "verb", "j": "好きである", "ex": "Do you like your friend?", "jx": "あなたの友達のことが好きですか？"},
+    {"w": "cry", "p": "verb", "j": "泣く", "ex": "The baby started to cry.", "jx": "赤ちゃんが泣き始めました。"},
+    {"w": "smile", "p": "verb", "j": "ほほえむ", "ex": "She smiled at me.", "jx": "彼女は私にほほえみました。"},
+    {"w": "friend", "p": "noun", "j": "友達", "ex": "He is my best friend.", "jx": "彼は私の親友です。"},
+    {"w": "family", "p": "noun", "j": "家族", "ex": "My family is very kind.", "jx": "私の家族はとても親切です。"},
+    {"w": "kind", "p": "adjective", "j": "親切な", "ex": "She is kind to everyone.", "jx": "彼女はみんなに親切です。"},
+    {"w": "funny", "p": "adjective", "j": "おかしい", "ex": "That story is very funny.", "jx": "その話はとてもおかしいです。"},
+    {"w": "shy", "p": "adjective", "j": "恥ずかしがりな", "ex": "He is shy in class.", "jx": "彼はクラスで恥ずかしがりです。"},
+    {"w": "brave", "p": "adjective", "j": "勇気のある", "ex": "She is a brave girl.", "jx": "彼女は勇気のある女の子です。"},
+    {"w": "worry", "p": "verb", "j": "心配する", "ex": "Don't worry about me.", "jx": "私のことは心配しないでください。"},
+    {"w": "hope", "p": "verb", "j": "望む", "ex": "I hope you feel better.", "jx": "あなたが良くなることを望んでいます。"},
+    {"w": "lonely", "p": "adjective", "j": "孤独な", "ex": "I feel lonely today.", "jx": "私は今日孤独を感じています。"},
+    {"w": "excited", "p": "adjective", "j": "わくわくした", "ex": "She is excited about the trip.", "jx": "彼女は旅行にわくわくしています。"},
+    {"w": "thank", "p": "verb", "j": "感謝する", "ex": "I thank you for your help.", "jx": "助けてくれてありがとうございます。"},
+    {"w": "sorry", "p": "adjective", "j": "申し訳ない", "ex": "I am sorry for that.", "jx": "それについて申し訳なく思います。"},
+    {"w": "hug", "p": "verb", "j": "抱きしめる", "ex": "She hugged her mother.", "jx": "彼女はお母さんを抱きしめました。"},
+    {"w": "trust", "p": "verb", "j": "信頼する", "ex": "I trust my best friend.", "jx": "私は親友を信頼しています。"},
+    {"w": "hate", "p": "verb", "j": "嫌う", "ex": "I hate being alone.", "jx": "私は一人でいることが嫌いです。"},
+    {"w": "tired", "p": "adjective", "j": "疲れた", "ex": "I am tired after school.", "jx": "私は放課後に疲れています。"},
+    {"w": "proud", "p": "adjective", "j": "誇りに思う", "ex": "I am proud of you.", "jx": "私はあなたを誇りに思います。"}
+  ]
+}

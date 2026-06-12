@@ -1,0 +1,31 @@
+{
+  "level": 4,
+  "field": "society",
+  "words": [
+    {"w": "legislation", "p": "noun", "j": "法律制定", "ex": "New legislation was passed to protect workers.", "jx": "労働者を守るための新しい法律が制定された。"},
+    {"w": "controversy", "p": "noun", "j": "論争", "ex": "The new policy caused a lot of controversy.", "jx": "新しい政策は多くの論争を引き起こした。"},
+    {"w": "advocate", "p": "verb", "j": "主張する", "ex": "She advocates for stronger environmental laws.", "jx": "彼女はより厳しい環境法を主張している。"},
+    {"w": "constitute", "p": "verb", "j": "構成する", "ex": "Women constitute half of the population.", "jx": "女性は人口の半数を構成している。"},
+    {"w": "diplomatic", "p": "adjective", "j": "外交的な", "ex": "Both countries sought a diplomatic solution.", "jx": "両国は外交的な解決策を模索した。"},
+    {"w": "credibility", "p": "noun", "j": "信頼性", "ex": "The scandal damaged the politician's credibility.", "jx": "スキャンダルはその政治家の信頼性を傷つけた。"},
+    {"w": "sanction", "p": "noun", "j": "制裁", "ex": "Economic sanctions were imposed on the country.", "jx": "その国に経済制裁が課された。"},
+    {"w": "prosecute", "p": "verb", "j": "起訴する", "ex": "The government decided to prosecute the suspect.", "jx": "政府はその容疑者を起訴することにした。"},
+    {"w": "sovereignty", "p": "noun", "j": "主権", "ex": "The treaty respected each nation's sovereignty.", "jx": "その条約は各国の主権を尊重した。"},
+    {"w": "referendum", "p": "noun", "j": "国民投票", "ex": "The government held a referendum on the issue.", "jx": "政府はその問題について国民投票を実施した。"},
+    {"w": "bias", "p": "noun", "j": "偏見", "ex": "Journalists should report without personal bias.", "jx": "ジャーナリストは個人的な偏見なく報道すべきだ。"},
+    {"w": "corruption", "p": "noun", "j": "腐敗", "ex": "Corruption among officials is a serious problem.", "jx": "官僚の腐敗は深刻な問題だ。"},
+    {"w": "abolish", "p": "verb", "j": "廃止する", "ex": "The law was abolished after years of debate.", "jx": "その法律は長年の議論の末に廃止された。"},
+    {"w": "coalition", "p": "noun", "j": "連立", "ex": "The two parties formed a coalition government.", "jx": "2つの政党が連立政権を組んだ。"},
+    {"w": "accountability", "p": "noun", "j": "説明責任", "ex": "Citizens demand accountability from their leaders.", "jx": "市民はリーダーに説明責任を求めている。"},
+    {"w": "mediator", "p": "noun", "j": "調停者", "ex": "A mediator was brought in to resolve the dispute.", "jx": "紛争を解決するために調停者が呼ばれた。"},
+    {"w": "ideology", "p": "noun", "j": "イデオロギー", "ex": "Their ideology influenced many political decisions.", "jx": "彼らのイデオロギーは多くの政治的決定に影響を与えた。"},
+    {"w": "censorship", "p": "noun", "j": "検閲", "ex": "Censorship of the press is opposed by journalists.", "jx": "報道の検閲はジャーナリストたちに反対されている。"},
+    {"w": "integration", "p": "noun", "j": "統合", "ex": "Social integration helps immigrants settle in.", "jx": "社会統合は移民が定着するのを助ける。"},
+    {"w": "impeach", "p": "verb", "j": "弾劾する", "ex": "Congress voted to impeach the president.", "jx": "議会は大統領を弾劾することに投票した。"},
+    {"w": "migrate", "p": "verb", "j": "移住する", "ex": "Many families migrate to cities for better jobs.", "jx": "多くの家族がより良い仕事を求めて都市に移住する。"},
+    {"w": "allegation", "p": "noun", "j": "申し立て", "ex": "The allegation against the official was investigated.", "jx": "その官僚への申し立ては調査された。"},
+    {"w": "suppress", "p": "verb", "j": "抑圧する", "ex": "The regime tried to suppress the protest movement.", "jx": "その政権は抗議運動を抑圧しようとした。"},
+    {"w": "demographic", "p": "adjective", "j": "人口統計の", "ex": "Demographic changes are reshaping the electorate.", "jx": "人口統計の変化が有権者層を変えつつある。"},
+    {"w": "cover up", "p": "phrase", "j": "隠蔽する", "ex": "Officials tried to cover up the financial scandal.", "jx": "当局者たちはその財政スキャンダルを隠蔽しようとした。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "nature",
+  "words": [
+    {"w": "atmosphere", "p": "noun", "j": "大気", "ex": "The atmosphere protects us from the sun.", "jx": "大気は私たちを太陽から守る。"},
+    {"w": "organism", "p": "noun", "j": "生物", "ex": "Every organism needs water to survive.", "jx": "すべての生物は生存に水が必要だ。"},
+    {"w": "habitat", "p": "noun", "j": "生息地", "ex": "The forest is a habitat for many animals.", "jx": "森は多くの動物の生息地だ。"},
+    {"w": "species", "p": "noun", "j": "種", "ex": "Some species are in danger of extinction.", "jx": "一部の種は絶滅の危機にある。"},
+    {"w": "extinct", "p": "adjective", "j": "絶滅した", "ex": "Dinosaurs became extinct long ago.", "jx": "恐竜はずっと昔に絶滅した。"},
+    {"w": "ecosystem", "p": "noun", "j": "生態系", "ex": "Humans affect the ocean ecosystem.", "jx": "人間は海洋の生態系に影響を与える。"},
+    {"w": "pollute", "p": "verb", "j": "汚染する", "ex": "Factories can pollute nearby rivers.", "jx": "工場は近くの川を汚染することがある。"},
+    {"w": "climate", "p": "noun", "j": "気候", "ex": "The climate here is warm and humid.", "jx": "ここの気候は温暖で湿度が高い。"},
+    {"w": "evaporate", "p": "verb", "j": "蒸発する", "ex": "Water evaporates quickly in the heat.", "jx": "水は暑い中で素早く蒸発する。"},
+    {"w": "gravity", "p": "noun", "j": "重力", "ex": "Gravity keeps the moon in orbit.", "jx": "重力は月を軌道上に保つ。"},
+    {"w": "solar", "p": "adjective", "j": "太陽の", "ex": "Solar energy comes from the sun.", "jx": "太陽エネルギーは太陽から得られる。"},
+    {"w": "mineral", "p": "noun", "j": "鉱物", "ex": "This rock contains several minerals.", "jx": "この岩石にはいくつかの鉱物が含まれる。"},
+    {"w": "photosynthesis", "p": "noun", "j": "光合成", "ex": "Plants use sunlight for photosynthesis.", "jx": "植物は光合成に日光を使う。"},
+    {"w": "migrate", "p": "verb", "j": "移動する", "ex": "Many birds migrate south in winter.", "jx": "多くの鳥は冬に南へ移動する。"},
+    {"w": "predator", "p": "noun", "j": "捕食者", "ex": "The wolf is a predator in this region.", "jx": "オオカミはこの地域の捕食者だ。"},
+    {"w": "reproduce", "p": "verb", "j": "繁殖する", "ex": "These fish reproduce in spring.", "jx": "これらの魚は春に繁殖する。"},
+    {"w": "erosion", "p": "noun", "j": "侵食", "ex": "Erosion wore away the cliff over time.", "jx": "侵食により長い年月で崖が削られた。"},
+    {"w": "drought", "p": "noun", "j": "干ばつ", "ex": "The region suffered a long drought.", "jx": "その地域は長い干ばつに苦しんだ。"},
+    {"w": "observe", "p": "verb", "j": "観察する", "ex": "Scientists observe the stars at night.", "jx": "科学者たちは夜に星を観察する。"},
+    {"w": "chemical", "p": "adjective", "j": "化学的な", "ex": "Water is formed by a chemical reaction.", "jx": "水は化学反応によって生成される。"},
+    {"w": "molecule", "p": "noun", "j": "分子", "ex": "A water molecule contains two hydrogen atoms.", "jx": "水分子は2つの水素原子を含む。"},
+    {"w": "recycle", "p": "verb", "j": "再利用する", "ex": "We should recycle paper and plastic.", "jx": "私たちは紙やプラスチックを再利用すべきだ。"},
+    {"w": "tsunami", "p": "noun", "j": "津波", "ex": "A tsunami can destroy coastal towns.", "jx": "津波は沿岸の町を破壊することがある。"},
+    {"w": "absorb", "p": "verb", "j": "吸収する", "ex": "Dark colors absorb more heat from the sun.", "jx": "暗い色は太陽からの熱をより多く吸収する。"},
+    {"w": "volcanic", "p": "adjective", "j": "火山の", "ex": "Volcanic ash covered the nearby fields.", "jx": "火山灰が近くの畑を覆った。"}
+  ]
+}

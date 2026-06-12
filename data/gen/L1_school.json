@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "school",
+  "words": [
+    {"w": "school", "p": "noun", "j": "学校", "ex": "I go to school every day.", "jx": "私は毎日学校へ行きます。"},
+    {"w": "class", "p": "noun", "j": "授業", "ex": "Our class starts at eight.", "jx": "私たちの授業は8時に始まります。"},
+    {"w": "teacher", "p": "noun", "j": "先生", "ex": "My teacher is very kind.", "jx": "私の先生はとても親切です。"},
+    {"w": "student", "p": "noun", "j": "生徒", "ex": "She is a good student.", "jx": "彼女は優秀な生徒です。"},
+    {"w": "book", "p": "noun", "j": "本", "ex": "I read a book last night.", "jx": "私は昨夜本を読みました。"},
+    {"w": "pencil", "p": "noun", "j": "鉛筆", "ex": "Please use a pencil here.", "jx": "ここでは鉛筆を使ってください。"},
+    {"w": "desk", "p": "noun", "j": "机", "ex": "Put your bag on the desk.", "jx": "かばんを机の上に置いてください。"},
+    {"w": "lesson", "p": "noun", "j": "レッスン", "ex": "Today's lesson is about animals.", "jx": "今日のレッスンは動物についてです。"},
+    {"w": "test", "p": "noun", "j": "テスト", "ex": "We have a test tomorrow.", "jx": "明日テストがあります。"},
+    {"w": "study", "p": "verb", "j": "勉強する", "ex": "I study English every evening.", "jx": "私は毎晩英語を勉強します。"},
+    {"w": "learn", "p": "verb", "j": "学ぶ", "ex": "We learn new words in class.", "jx": "私たちは授業で新しい単語を学びます。"},
+    {"w": "read", "p": "verb", "j": "読む", "ex": "Can you read this sentence?", "jx": "この文を読めますか？"},
+    {"w": "write", "p": "verb", "j": "書く", "ex": "Please write your name here.", "jx": "ここにあなたの名前を書いてください。"},
+    {"w": "answer", "p": "verb", "j": "答える", "ex": "Please answer the question.", "jx": "質問に答えてください。"},
+    {"w": "ask", "p": "verb", "j": "質問する", "ex": "You can ask your teacher.", "jx": "先生に質問していいですよ。"},
+    {"w": "know", "p": "verb", "j": "知っている", "ex": "Do you know the answer?", "jx": "答えを知っていますか？"},
+    {"w": "homework", "p": "noun", "j": "宿題", "ex": "I finished my homework early.", "jx": "私は早めに宿題を終えました。"},
+    {"w": "notebook", "p": "noun", "j": "ノート", "ex": "Open your notebook to page five.", "jx": "ノートの5ページを開いてください。"},
+    {"w": "library", "p": "noun", "j": "図書館", "ex": "I borrow books from the library.", "jx": "私は図書館から本を借ります。"},
+    {"w": "history", "p": "noun", "j": "歴史", "ex": "History is my favorite subject.", "jx": "歴史は私の好きな教科です。"},
+    {"w": "art", "p": "noun", "j": "美術", "ex": "She draws pictures in art class.", "jx": "彼女は美術の授業で絵を描きます。"},
+    {"w": "music", "p": "noun", "j": "音楽", "ex": "We sing songs in music class.", "jx": "私たちは音楽の授業で歌を歌います。"},
+    {"w": "subject", "p": "noun", "j": "教科", "ex": "Math is a difficult subject.", "jx": "数学は難しい教科です。"},
+    {"w": "question", "p": "noun", "j": "質問", "ex": "I have a question for you.", "jx": "あなたに質問があります。"},
+    {"w": "correct", "p": "adjective", "j": "正しい", "ex": "Your answer is correct.", "jx": "あなたの答えは正しいです。"}
+  ]
+}

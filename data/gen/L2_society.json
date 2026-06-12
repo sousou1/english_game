@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "society",
+  "words": [
+    {"w": "vote", "p": "verb", "j": "投票する", "ex": "People vote for their leader every four years.", "jx": "人々は4年ごとにリーダーに投票します。"},
+    {"w": "election", "p": "noun", "j": "選挙", "ex": "The election results came out this morning.", "jx": "選挙結果が今朝発表されました。"},
+    {"w": "law", "p": "noun", "j": "法律", "ex": "Everyone must follow the law.", "jx": "誰もが法律に従わなければなりません。"},
+    {"w": "crime", "p": "noun", "j": "犯罪", "ex": "The police work to stop crime in the city.", "jx": "警察は市内の犯罪を止めるために働いています。"},
+    {"w": "government", "p": "noun", "j": "政府", "ex": "The government announced a new plan today.", "jx": "政府は今日新しい計画を発表しました。"},
+    {"w": "leader", "p": "noun", "j": "指導者", "ex": "She became the leader of the group.", "jx": "彼女はグループのリーダーになりました。"},
+    {"w": "news", "p": "noun", "j": "ニュース", "ex": "I watch the news every evening.", "jx": "私は毎晩ニュースを見ます。"},
+    {"w": "report", "p": "verb", "j": "報告する", "ex": "The journalist will report on the event.", "jx": "そのジャーナリストはその出来事を報告するでしょう。"},
+    {"w": "media", "p": "noun", "j": "メディア", "ex": "The media covered the story all week.", "jx": "メディアは一週間中その話題を取り上げました。"},
+    {"w": "protest", "p": "noun", "j": "抗議", "ex": "A large protest took place in the capital.", "jx": "首都で大規模な抗議が行われました。"},
+    {"w": "policy", "p": "noun", "j": "政策", "ex": "The new policy will help poor families.", "jx": "新しい政策は貧しい家庭を助けるでしょう。"},
+    {"w": "citizen", "p": "noun", "j": "市民", "ex": "Every citizen has the right to vote.", "jx": "すべての市民は投票する権利を持っています。"},
+    {"w": "court", "p": "noun", "j": "裁判所", "ex": "The case went to court last month.", "jx": "その事件は先月裁判所に持ち込まれました。"},
+    {"w": "freedom", "p": "noun", "j": "自由", "ex": "Freedom of speech is important in a democracy.", "jx": "言論の自由は民主主義において重要です。"},
+    {"w": "society", "p": "noun", "j": "社会", "ex": "We all have a role to play in society.", "jx": "私たちは皆、社会において果たすべき役割があります。"},
+    {"w": "culture", "p": "noun", "j": "文化", "ex": "Japan has a rich culture and history.", "jx": "日本は豊かな文化と歴史を持っています。"},
+    {"w": "international", "p": "adjective", "j": "国際的な", "ex": "They signed an international agreement.", "jx": "彼らは国際的な協定に署名しました。"},
+    {"w": "peace", "p": "noun", "j": "平和", "ex": "Both countries want to live in peace.", "jx": "両国は平和のうちに暮らすことを望んでいます。"},
+    {"w": "arrest", "p": "verb", "j": "逮捕する", "ex": "The police arrested the suspect yesterday.", "jx": "警察は昨日容疑者を逮捕しました。"},
+    {"w": "official", "p": "noun", "j": "公務員", "ex": "A government official spoke at the meeting.", "jx": "政府の公務員が会議で発言しました。"},
+    {"w": "local", "p": "adjective", "j": "地域の", "ex": "The local council met to discuss the issue.", "jx": "地域議会はその問題を話し合うために集まりました。"},
+    {"w": "fair", "p": "adjective", "j": "公平な", "ex": "Everyone deserves a fair trial.", "jx": "誰もが公平な裁判を受ける権利があります。"},
+    {"w": "interview", "p": "noun", "j": "インタビュー", "ex": "The reporter did an interview with the mayor.", "jx": "記者は市長にインタビューを行いました。"},
+    {"w": "event", "p": "noun", "j": "出来事", "ex": "The news reported on the major event.", "jx": "ニュースはその重大な出来事を報道しました。"},
+    {"w": "public", "p": "adjective", "j": "公共の", "ex": "The park is a public place for everyone.", "jx": "その公園はみんなのための公共の場所です。"}
+  ]
+}

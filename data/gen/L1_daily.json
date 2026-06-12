@@ -1,0 +1,31 @@
+{
+  "level": 1,
+  "field": "daily",
+  "words": [
+    {"w": "wash", "p": "verb", "j": "洗う", "ex": "I wash my hands before dinner.", "jx": "私は夕食の前に手を洗います。"},
+    {"w": "clean", "p": "verb", "j": "掃除する", "ex": "She cleans her room every Saturday.", "jx": "彼女は毎週土曜日に部屋を掃除します。"},
+    {"w": "cook", "p": "verb", "j": "料理する", "ex": "My dad cooks dinner at home.", "jx": "私の父は家で夕食を料理します。"},
+    {"w": "shop", "p": "verb", "j": "買い物する", "ex": "We shop at the supermarket on Sunday.", "jx": "私たちは日曜日にスーパーで買い物をします。"},
+    {"w": "sleep", "p": "verb", "j": "眠る", "ex": "I sleep eight hours every night.", "jx": "私は毎晩8時間眠ります。"},
+    {"w": "wake", "p": "verb", "j": "目覚める", "ex": "I wake up at seven every morning.", "jx": "私は毎朝7時に目覚めます。"},
+    {"w": "breakfast", "p": "noun", "j": "朝食", "ex": "I eat breakfast at eight o'clock.", "jx": "私は8時に朝食を食べます。"},
+    {"w": "dinner", "p": "noun", "j": "夕食", "ex": "Our family eats dinner together.", "jx": "私たちの家族は一緒に夕食を食べます。"},
+    {"w": "kitchen", "p": "noun", "j": "台所", "ex": "My mother is in the kitchen.", "jx": "私の母は台所にいます。"},
+    {"w": "bedroom", "p": "noun", "j": "寝室", "ex": "There is a bed in my bedroom.", "jx": "私の寝室にはベッドがあります。"},
+    {"w": "bathroom", "p": "noun", "j": "浴室", "ex": "The bathroom is next to my room.", "jx": "浴室は私の部屋の隣にあります。"},
+    {"w": "door", "p": "noun", "j": "ドア", "ex": "Please close the door.", "jx": "ドアを閉めてください。"},
+    {"w": "window", "p": "noun", "j": "窓", "ex": "I open the window in the morning.", "jx": "私は朝に窓を開けます。"},
+    {"w": "clock", "p": "noun", "j": "時計", "ex": "The clock on the wall shows three.", "jx": "壁の時計は3時を示しています。"},
+    {"w": "bag", "p": "noun", "j": "かばん", "ex": "I put my books in my bag.", "jx": "私は本をかばんに入れます。"},
+    {"w": "key", "p": "noun", "j": "鍵", "ex": "I have a key to my house.", "jx": "私は家の鍵を持っています。"},
+    {"w": "money", "p": "noun", "j": "お金", "ex": "I need money to buy food.", "jx": "食べ物を買うにはお金が必要です。"},
+    {"w": "price", "p": "noun", "j": "値段", "ex": "The price of this shirt is low.", "jx": "このシャツの値段は安いです。"},
+    {"w": "busy", "p": "adjective", "j": "忙しい", "ex": "My mother is busy every morning.", "jx": "私の母は毎朝忙しいです。"},
+    {"w": "early", "p": "adverb", "j": "早く", "ex": "I get up early on weekdays.", "jx": "私は平日は早く起きます。"},
+    {"w": "late", "p": "adjective", "j": "遅い", "ex": "I was late for school today.", "jx": "今日私は学校に遅刻しました。"},
+    {"w": "always", "p": "adverb", "j": "いつも", "ex": "She always brushes her teeth at night.", "jx": "彼女はいつも夜に歯を磨きます。"},
+    {"w": "sometimes", "p": "adverb", "j": "ときどき", "ex": "I sometimes help with the dishes.", "jx": "私はときどき食器洗いを手伝います。"},
+    {"w": "today", "p": "adverb", "j": "今日", "ex": "What are you doing today?", "jx": "今日は何をしますか？"},
+    {"w": "towel", "p": "noun", "j": "タオル", "ex": "I dry my face with a towel.", "jx": "私はタオルで顔を拭きます。"}
+  ]
+}

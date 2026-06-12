@@ -1,0 +1,31 @@
+{
+  "level": 2,
+  "field": "feelings",
+  "words": [
+    {"w": "happy", "p": "adjective", "j": "幸せな", "ex": "She feels happy when she sees her friends.", "jx": "彼女は友達に会うと幸せを感じます。"},
+    {"w": "angry", "p": "adjective", "j": "怒った", "ex": "He was angry because he missed the bus.", "jx": "彼はバスに乗り遅れて怒っていました。"},
+    {"w": "sad", "p": "adjective", "j": "悲しい", "ex": "She felt sad when her dog got lost.", "jx": "犬が迷子になって彼女は悲しくなりました。"},
+    {"w": "nervous", "p": "adjective", "j": "緊張した", "ex": "I felt nervous before the big test.", "jx": "大切なテストの前に緊張しました。"},
+    {"w": "excited", "p": "adjective", "j": "わくわくした", "ex": "The children were excited about the trip.", "jx": "子供たちは旅行にわくわくしていました。"},
+    {"w": "lonely", "p": "adjective", "j": "孤独な", "ex": "He felt lonely after moving to a new city.", "jx": "新しい街に引っ越してから彼は孤独を感じました。"},
+    {"w": "proud", "p": "adjective", "j": "誇りに思う", "ex": "Her parents were proud of her good grades.", "jx": "両親は彼女の良い成績を誇りに思いました。"},
+    {"w": "jealous", "p": "adjective", "j": "嫉妬した", "ex": "He was jealous of his brother's new bike.", "jx": "彼は弟の新しい自転車を羨ましく思いました。"},
+    {"w": "embarrassed", "p": "adjective", "j": "恥ずかしい", "ex": "She was embarrassed when she forgot her lines.", "jx": "セリフを忘れて彼女は恥ずかしくなりました。"},
+    {"w": "surprised", "p": "adjective", "j": "驚いた", "ex": "We were surprised by the sudden rain.", "jx": "突然の雨に私たちは驚きました。"},
+    {"w": "friendship", "p": "noun", "j": "友情", "ex": "Their friendship started in elementary school.", "jx": "彼らの友情は小学校で始まりました。"},
+    {"w": "trust", "p": "noun", "j": "信頼", "ex": "Trust is important in any relationship.", "jx": "どんな関係においても信頼は大切です。"},
+    {"w": "argue", "p": "verb", "j": "言い争う", "ex": "They argue about small things sometimes.", "jx": "彼らは時々些細なことで言い争います。"},
+    {"w": "forgive", "p": "verb", "j": "許す", "ex": "She decided to forgive her friend's mistake.", "jx": "彼女は友人の失敗を許すことにしました。"},
+    {"w": "comfort", "p": "verb", "j": "慰める", "ex": "He tried to comfort her when she cried.", "jx": "彼女が泣いたとき、彼は慰めようとしました。"},
+    {"w": "apologize", "p": "verb", "j": "謝る", "ex": "You should apologize for being rude.", "jx": "失礼なことをしたら謝るべきです。"},
+    {"w": "support", "p": "verb", "j": "支える", "ex": "Good friends always support each other.", "jx": "良い友達はいつもお互いを支え合います。"},
+    {"w": "miss", "p": "verb", "j": "恋しく思う", "ex": "I miss my family when I travel abroad.", "jx": "海外旅行をすると家族が恋しくなります。"},
+    {"w": "relationship", "p": "noun", "j": "関係", "ex": "They have a close relationship with each other.", "jx": "彼らはお互いに親密な関係です。"},
+    {"w": "emotion", "p": "noun", "j": "感情", "ex": "It is okay to show your emotions.", "jx": "感情を表に出しても大丈夫です。"},
+    {"w": "kind", "p": "adjective", "j": "親切な", "ex": "She is always kind to new students.", "jx": "彼女はいつも新入生に親切にしています。"},
+    {"w": "polite", "p": "adjective", "j": "礼儀正しい", "ex": "He is polite to everyone he meets.", "jx": "彼は会う人みんなに礼儀正しいです。"},
+    {"w": "honest", "p": "adjective", "j": "正直な", "ex": "Be honest with your friends about your feelings.", "jx": "自分の気持ちについて友達に正直でいましょう。"},
+    {"w": "care", "p": "verb", "j": "気にかける", "ex": "She really cares about her family.", "jx": "彼女は本当に家族のことを大切に思っています。"},
+    {"w": "affection", "p": "noun", "j": "愛情", "ex": "He shows affection by giving small gifts.", "jx": "彼は小さな贈り物をすることで愛情を示します。"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "society",
+  "words": [
+    {"w": "election", "p": "noun", "j": "選挙", "ex": "The election results surprised many people.", "jx": "選挙結果は多くの人を驚かせました。"},
+    {"w": "policy", "p": "noun", "j": "政策", "ex": "The government announced a new education policy.", "jx": "政府は新しい教育政策を発表しました。"},
+    {"w": "protest", "p": "noun", "j": "抗議", "ex": "Thousands of people joined the protest.", "jx": "何千人もの人々が抗議に参加しました。"},
+    {"w": "democracy", "p": "noun", "j": "民主主義", "ex": "Democracy gives citizens the right to vote.", "jx": "民主主義は市民に投票する権利を与えます。"},
+    {"w": "justice", "p": "noun", "j": "正義", "ex": "They fought for justice in the courts.", "jx": "彼らは法廷で正義のために戦いました。"},
+    {"w": "criminal", "p": "noun", "j": "犯罪者", "ex": "The criminal was arrested by the police.", "jx": "犯罪者は警察に逮捕されました。"},
+    {"w": "legal", "p": "adjective", "j": "合法な", "ex": "You need legal advice before signing the contract.", "jx": "契約に署名する前に法的な助言が必要です。"},
+    {"w": "campaign", "p": "noun", "j": "運動・選挙活動", "ex": "The campaign focused on health care issues.", "jx": "その運動は医療問題に焦点を当てていました。"},
+    {"w": "refugee", "p": "noun", "j": "難民", "ex": "The country accepted thousands of refugees.", "jx": "その国は何千人もの難民を受け入れました。"},
+    {"w": "conflict", "p": "noun", "j": "紛争", "ex": "The conflict between the two nations lasted for years.", "jx": "二国間の紛争は何年も続きました。"},
+    {"w": "journalist", "p": "noun", "j": "ジャーナリスト", "ex": "The journalist reported on the political scandal.", "jx": "ジャーナリストは政治スキャンダルについて報道しました。"},
+    {"w": "broadcast", "p": "verb", "j": "放送する", "ex": "The news was broadcast live on television.", "jx": "そのニュースはテレビで生放送されました。"},
+    {"w": "vote", "p": "verb", "j": "投票する", "ex": "Citizens have the right to vote in elections.", "jx": "市民は選挙で投票する権利を持っています。"},
+    {"w": "accuse", "p": "verb", "j": "告発する", "ex": "He was accused of stealing money from the company.", "jx": "彼は会社からお金を盗んだと告発されました。"},
+    {"w": "evidence", "p": "noun", "j": "証拠", "ex": "The police found strong evidence at the scene.", "jx": "警察は現場で有力な証拠を見つけました。"},
+    {"w": "minority", "p": "noun", "j": "少数派", "ex": "The law protects the rights of minorities.", "jx": "法律は少数派の権利を守っています。"},
+    {"w": "negotiate", "p": "verb", "j": "交渉する", "ex": "The leaders agreed to negotiate a peace deal.", "jx": "指導者たちは平和協定の交渉に合意しました。"},
+    {"w": "authority", "p": "noun", "j": "当局", "ex": "The local authority responded quickly to the crisis.", "jx": "地方当局は危機に素早く対応しました。"},
+    {"w": "poverty", "p": "noun", "j": "貧困", "ex": "Many families in the region live in poverty.", "jx": "その地域の多くの家族が貧困の中で生活しています。"},
+    {"w": "diplomat", "p": "noun", "j": "外交官", "ex": "The diplomat met with foreign leaders in Paris.", "jx": "外交官はパリで外国の指導者たちと会いました。"},
+    {"w": "senate", "p": "noun", "j": "上院", "ex": "The bill was passed by the senate.", "jx": "その法案は上院で可決されました。"},
+    {"w": "corrupt", "p": "adjective", "j": "腐敗した", "ex": "The corrupt official was removed from office.", "jx": "腐敗した官僚は職を解かれました。"},
+    {"w": "treaty", "p": "noun", "j": "条約", "ex": "Both countries signed a peace treaty.", "jx": "両国は平和条約に署名しました。"},
+    {"w": "censorship", "p": "noun", "j": "検閲", "ex": "Censorship of the press is banned in many countries.", "jx": "多くの国でメディアの検閲は禁止されています。"},
+    {"w": "inequality", "p": "noun", "j": "不平等", "ex": "Social inequality remains a serious issue.", "jx": "社会的不平等は依然として深刻な問題です。"}
+  ]
+}

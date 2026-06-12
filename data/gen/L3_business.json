@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "business",
+  "words": [
+    {"w": "negotiate", "p": "verb", "j": "交渉する", "ex": "We need to negotiate the price with the supplier.", "jx": "私たちは仕入れ先と価格を交渉する必要があります。"},
+    {"w": "contract", "p": "noun", "j": "契約書", "ex": "Please sign the contract before Friday.", "jx": "金曜日までに契約書にサインしてください。"},
+    {"w": "budget", "p": "noun", "j": "予算", "ex": "The project is within the budget this year.", "jx": "そのプロジェクトは今年の予算内に収まっています。"},
+    {"w": "profit", "p": "noun", "j": "利益", "ex": "The company made a large profit last quarter.", "jx": "その会社は前四半期に大きな利益を上げました。"},
+    {"w": "invest", "p": "verb", "j": "投資する", "ex": "She decided to invest in a new business.", "jx": "彼女は新しいビジネスに投資することにしました。"},
+    {"w": "colleague", "p": "noun", "j": "同僚", "ex": "My colleague helped me finish the report.", "jx": "同僚が報告書を仕上げるのを手伝ってくれました。"},
+    {"w": "deadline", "p": "noun", "j": "締め切り", "ex": "We must meet the deadline for this project.", "jx": "このプロジェクトの締め切りを守らなければなりません。"},
+    {"w": "promote", "p": "verb", "j": "昇進させる", "ex": "She was promoted to senior manager last month.", "jx": "彼女は先月シニアマネージャーに昇進しました。"},
+    {"w": "revenue", "p": "noun", "j": "収益", "ex": "The company's revenue grew by ten percent.", "jx": "その会社の収益は10パーセント増加しました。"},
+    {"w": "client", "p": "noun", "j": "顧客", "ex": "We met with an important client this morning.", "jx": "今朝、重要な顧客と面会しました。"},
+    {"w": "proposal", "p": "noun", "j": "提案書", "ex": "He submitted a proposal for the new project.", "jx": "彼は新しいプロジェクトの提案書を提出しました。"},
+    {"w": "hire", "p": "verb", "j": "雇う", "ex": "The company plans to hire more engineers.", "jx": "その会社はエンジニアをさらに雇う予定です。"},
+    {"w": "agenda", "p": "noun", "j": "議題", "ex": "Please check the agenda before the meeting.", "jx": "会議の前に議題を確認してください。"},
+    {"w": "expense", "p": "noun", "j": "経費", "ex": "Travel expenses must be approved by the manager.", "jx": "出張経費はマネージャーの承認が必要です。"},
+    {"w": "launch", "p": "verb", "j": "発売する", "ex": "They plan to launch a new product next spring.", "jx": "彼らは来春に新製品を発売する予定です。"},
+    {"w": "merger", "p": "noun", "j": "合併", "ex": "The merger was announced at a press conference.", "jx": "合併は記者会見で発表されました。"},
+    {"w": "headquarters", "p": "noun", "j": "本社", "ex": "The headquarters is located in Tokyo.", "jx": "本社は東京にあります。"},
+    {"w": "performance", "p": "noun", "j": "業績", "ex": "Her performance at work has been excellent.", "jx": "職場での彼女の業績は素晴らしいです。"},
+    {"w": "strategy", "p": "noun", "j": "戦略", "ex": "We need a clear strategy to grow the business.", "jx": "ビジネスを成長させるための明確な戦略が必要です。"},
+    {"w": "annual", "p": "adjective", "j": "年次の", "ex": "The annual report will be ready next week.", "jx": "年次報告書は来週完成します。"},
+    {"w": "department", "p": "noun", "j": "部署", "ex": "She transferred to the marketing department.", "jx": "彼女はマーケティング部署に異動しました。"},
+    {"w": "resign", "p": "verb", "j": "辞職する", "ex": "He decided to resign from his position.", "jx": "彼は自分の役職から辞職することにしました。"},
+    {"w": "productive", "p": "adjective", "j": "生産的な", "ex": "We had a very productive meeting today.", "jx": "今日はとても生産的な会議でした。"},
+    {"w": "supply", "p": "verb", "j": "供給する", "ex": "This factory supplies parts to car makers.", "jx": "この工場は自動車メーカーに部品を供給しています。"},
+    {"w": "shareholder", "p": "noun", "j": "株主", "ex": "Shareholders voted on the new business plan.", "jx": "株主たちは新しいビジネス計画に投票しました。"}
+  ]
+}

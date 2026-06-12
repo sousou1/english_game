@@ -1,0 +1,31 @@
+{
+  "level": 3,
+  "field": "travel",
+  "words": [
+    {"w": "departure", "p": "noun", "j": "出発", "ex": "The departure time is 9 a.m.", "jx": "出発時刻は午前9時です。"},
+    {"w": "destination", "p": "noun", "j": "目的地", "ex": "What is your final destination?", "jx": "最終目的地はどこですか？"},
+    {"w": "reservation", "p": "noun", "j": "予約", "ex": "I made a reservation at the hotel.", "jx": "私はそのホテルに予約をしました。"},
+    {"w": "passenger", "p": "noun", "j": "乗客", "ex": "All passengers must show their tickets.", "jx": "乗客全員がチケットを提示しなければなりません。"},
+    {"w": "luggage", "p": "noun", "j": "荷物", "ex": "Please keep your luggage with you.", "jx": "荷物は手元に置いておいてください。"},
+    {"w": "customs", "p": "noun", "j": "税関", "ex": "We passed through customs quickly.", "jx": "私たちはすぐに税関を通過しました。"},
+    {"w": "boarding", "p": "noun", "j": "搭乗", "ex": "Boarding begins thirty minutes before departure.", "jx": "搭乗は出発の30分前に始まります。"},
+    {"w": "terminal", "p": "noun", "j": "ターミナル", "ex": "The bus stops at the airport terminal.", "jx": "そのバスは空港ターミナルに止まります。"},
+    {"w": "itinerary", "p": "noun", "j": "旅程", "ex": "She planned the itinerary for the trip.", "jx": "彼女は旅行の旅程を計画しました。"},
+    {"w": "accommodation", "p": "noun", "j": "宿泊施設", "ex": "We need to find accommodation for tonight.", "jx": "今夜の宿泊施設を見つける必要があります。"},
+    {"w": "visa", "p": "noun", "j": "ビザ", "ex": "You need a visa to enter that country.", "jx": "その国に入るにはビザが必要です。"},
+    {"w": "fare", "p": "noun", "j": "運賃", "ex": "The train fare is five dollars.", "jx": "電車の運賃は5ドルです。"},
+    {"w": "route", "p": "noun", "j": "経路", "ex": "Which route should we take to the station?", "jx": "駅へはどの経路を取るべきですか？"},
+    {"w": "platform", "p": "noun", "j": "ホーム", "ex": "The train leaves from platform three.", "jx": "電車は3番ホームから出発します。"},
+    {"w": "scenery", "p": "noun", "j": "景色", "ex": "The mountain scenery was beautiful.", "jx": "山の景色は美しかったです。"},
+    {"w": "souvenir", "p": "noun", "j": "お土産", "ex": "He bought a souvenir for his family.", "jx": "彼は家族へのお土産を買いました。"},
+    {"w": "guidebook", "p": "noun", "j": "ガイドブック", "ex": "She read the guidebook before the trip.", "jx": "彼女は旅行前にガイドブックを読みました。"},
+    {"w": "exchange", "p": "verb", "j": "両替する", "ex": "I need to exchange money at the bank.", "jx": "銀行でお金を両替する必要があります。"},
+    {"w": "transfer", "p": "verb", "j": "乗り換える", "ex": "You need to transfer at the next station.", "jx": "次の駅で乗り換える必要があります。"},
+    {"w": "navigate", "p": "verb", "j": "道を進む", "ex": "It is easy to navigate with a smartphone.", "jx": "スマートフォンがあれば道を進むのは簡単です。"},
+    {"w": "check", "p": "verb", "j": "チェックする", "ex": "Please check in at the front desk.", "jx": "フロントでチェックインしてください。"},
+    {"w": "international", "p": "adjective", "j": "国際的な", "ex": "We flew on an international flight.", "jx": "私たちは国際線に乗りました。"},
+    {"w": "direct", "p": "adjective", "j": "直行の", "ex": "Is there a direct train to the city?", "jx": "その都市への直行電車はありますか？"},
+    {"w": "local", "p": "adjective", "j": "地元の", "ex": "We tried the local food there.", "jx": "私たちはそこで地元の食べ物を試しました。"},
+    {"w": "abroad", "p": "adverb", "j": "海外へ", "ex": "She studied abroad for one year.", "jx": "彼女は1年間海外で勉強しました。"}
+  ]
+}
