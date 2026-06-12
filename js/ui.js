@@ -14,6 +14,7 @@ let mikiri = false;
 let tShown = 0;
 let revealTimer = 0;
 let ptr = null;
+let feedbackTimer = 0;
 
 const $ = (s) => document.querySelector(s);
 const screen = () => $('#screen');
@@ -24,7 +25,8 @@ function esc(s) {
 
 export function initUI(appRef) {
   app = appRef;
-  document.body.addEventListener('pointerdown', () => initAudio(), { once: true });
+  // 毎タップで呼ぶ: iOSがAudioContextをsuspend/interruptedにした後の復帰を兼ねる
+  document.body.addEventListener('pointerdown', () => initAudio());
   goHome();
 }
 
@@ -40,6 +42,10 @@ export function toast(msg, ms = 1800) {
 // ---------- ホーム ----------
 export function goHome() {
   run = null;
+  cur = null;
+  phase = 'idle';
+  clearTimeout(revealTimer);
+  clearTimeout(feedbackTimer);
   const p = app.profile;
   const now = Date.now();
   const today = todayKey();
@@ -96,11 +102,15 @@ function openChest(idx) {
   const p = app.profile;
   const chest = p.chests[idx];
   if (!chest) return;
-  p.chests.splice(idx, 1);
   const s = p.settings;
   const unseen = (e) => !p.cards[e.w] || !p.cards[e.w].reps;
   let pool = app.words.filter((e) => unseen(e) && s.levels.includes(e.l) && s.fields.includes(e.f) && !(p.pendingNew || []).includes(e.w));
-  if (!pool.length) pool = app.words.filter((e) => unseen(e) && !(p.pendingNew || []).includes(e.w));
+  if (!pool.length) {
+    // 設定範囲を学び尽くした: 黙って範囲外を出さず、宝箱は温存して知らせる
+    toast('🎉 設定中のレベル・分野は学び尽くした!設定を広げると宝箱が開けられる');
+    return;
+  }
+  p.chests.splice(idx, 1);
   pool = pool.map((e) => ({ e, k: e.l + Math.random() * 1.2 })).sort((a, b) => a.k - b.k).map((x) => x.e);
   const got = pool.slice(0, chest.n);
   p.pendingNew = [...(p.pendingNew || []), ...got.map((e) => e.w)];
@@ -227,7 +237,8 @@ function renderStudy(item) {
     if (a.dataset.act === 'speak') speak(e.w, app.profile.settings.rate);
     if (a.dataset.act === 'forge') { $('#stage').onclick = null; handleStep(run.advance()); }
   };
-  if (app.profile.settings.autoSpeak) speak(e.w, app.profile.settings.rate);
+  // 新出語の発音は最初に必ず聴かせる(後のリスニング出題への布石)
+  if (app.profile.settings.autoSpeak || app.profile.settings.listen) speak(e.w, app.profile.settings.rate);
 }
 
 // 想起の間: 選択肢が出る前の2.2秒。↑見切り ↓パス
@@ -246,13 +257,13 @@ function renderPrompt(item) {
     <div class="q-type">${typeLabel(q.type)}</div>
     <div class="prompt-area">
       ${isListen
-        ? `<button class="replay" data-act="replay">🔊</button>`
+        ? `<button class="replay" data-act="replay">🔊</button><div class="peek-slot" id="peekSlot"><button class="text-btn" data-act="peek">👁 文字を見る(報酬減)</button></div>`
         : `<div class="prompt ${q.type === 'cloze' ? 'cloze' : ''} ${q.type === 'j2e' ? 'ja-prompt' : ''}">${esc(q.prompt)}</div>`}
       ${q.sub ? `<div class="q-sub">${esc(q.sub)}</div>` : ''}
     </div>
     <div class="think-bar"><div class="think-fill" id="thinkFill"></div></div>
     <div class="gesture-hints">
-      <button class="hint-btn" data-act="mikiri">⚡ 見切り <small>↑スワイプ ×1.5</small></button>
+      ${item.isNew ? '' : `<button class="hint-btn" data-act="mikiri">⚡ 見切り <small>↑スワイプ ×1.5 / 外すと−15</small></button>`}
       <button class="hint-btn" data-act="pass">🏳️ パス <small>↓スワイプ</small></button>
     </div>
     <div class="tap-hint">タップで選択肢を出す</div>
@@ -261,6 +272,7 @@ function renderPrompt(item) {
     const a = e.target.closest('[data-act]');
     if (!a) return;
     if (a.dataset.act === 'replay') { speak(item.entry.w, app.profile.settings.rate); return; }
+    if (a.dataset.act === 'peek') { peekWord(item); return; }
     if (a.dataset.act === 'mikiri') doMikiri();
     if (a.dataset.act === 'pass') doPass();
   };
@@ -277,8 +289,16 @@ function typeLabel(t) {
   return { e2j: '意味は?', j2e: '英語は?', listen: 'リスニング', cloze: '空所に入るのは?' }[t] || '';
 }
 
+function peekWord(item) {
+  // リスニングのフォールバック: TTSが鳴らない環境でも詰まないように文字を見せる(報酬・評価は下がる)
+  item.hinted = true;
+  const slot = $('#peekSlot');
+  if (slot) slot.innerHTML = `<div class="prompt small">${esc(item.entry.w)}</div>`;
+}
+
 function doMikiri() {
   if (phase !== 'prompt') return;
+  if (cur?.item?.isNew) return; // 新出のエコーテストに見切りは使えない
   mikiri = true;
   sfx('flip');
   revealChoices();
@@ -289,7 +309,7 @@ function doPass() {
   clearTimeout(revealTimer);
   phase = 'feedback';
   const res = run.submit({ passed: true });
-  renderMissPanel(res, 'パス — 正直は強さ。記憶は守られた');
+  renderMissPanel(res, 'パス — 正直は強さ。ノード終盤にもう一度挑もう');
 }
 
 function revealChoices() {
@@ -302,7 +322,7 @@ function revealChoices() {
   const dirs = ['top', 'right', 'bottom', 'left'];
   const isListen = q.type === 'listen';
   const promptHtml = isListen
-    ? `<button class="replay small" data-act="replay">🔊</button>`
+    ? `<button class="replay small" data-act="replay">🔊</button><div class="peek-slot" id="peekSlot">${item.hinted ? `<div class="prompt small">${esc(item.entry.w)}</div>` : `<button class="text-btn" data-act="peek">👁 文字を見る(報酬減)</button>`}</div>`
     : `<div class="prompt small ${q.type === 'cloze' ? 'cloze' : ''} ${q.type === 'j2e' ? 'ja-prompt' : ''}">${esc(q.prompt)}</div>`;
   $('#stage').innerHTML = `
   <div class="qa choices-phase ${run.isBoss ? 'boss-bg' : ''}">
@@ -315,6 +335,7 @@ function revealChoices() {
   </div>`;
   $('#stage').onclick = (e) => {
     if (e.target.closest('[data-act="replay"]')) { speak(item.entry.w, app.profile.settings.rate); return; }
+    if (e.target.closest('[data-act="peek"]')) { peekWord(item); return; }
     const c = e.target.closest('.choice');
     if (c && phase === 'choices') answer(Number(c.dataset.i));
   };
@@ -324,7 +345,8 @@ function answer(idx) {
   if (phase !== 'choices') return;
   phase = 'feedback';
   const item = cur.item;
-  const res = run.submit({ choiceIdx: idx, mikiri, timeMs: Date.now() - tShown });
+  const myRun = run;
+  const res = run.submit({ choiceIdx: idx, mikiri, hinted: !!item.hinted, timeMs: Date.now() - tShown });
   const before = run.nodeScore - res.points;
 
   document.querySelectorAll('.choice').forEach((el, i) => {
@@ -340,21 +362,25 @@ function answer(idx) {
     fx.className = `points-fx ${res.crit ? 'crit' : ''}`;
     fx.innerHTML = `+${res.points}${res.crit ? '<span class="crit-label">再燃バースト!</span>' : ''}${res.breakdown && res.breakdown.burstM >= 2.2 ? `<span class="burst-detail">×${res.breakdown.burstM.toFixed(1)}</span>` : ''}`;
     $('.qa').appendChild(fx);
-    if (res.crit) { $('#stage').classList.add('flash'); setTimeout(() => $('#stage').classList.remove('flash'), 350); }
+    if (res.crit) { $('#stage').classList.add('flash'); setTimeout(() => $('#stage')?.classList.remove('flash'), 350); }
     updateRunHud();
     animateScore(before, run.nodeScore);
-    setTimeout(() => handleStep(run.advance()), res.crit ? 1100 : 850);
+    feedbackTimer = setTimeout(() => { if (run === myRun) handleStep(run.advance()); }, res.crit ? 1100 : 850);
   } else {
     sfx('bad');
     if (res.phoenix) toast('🪶 不死鳥の羽がコンボを守った');
+    else if (mikiri) toast('⚡ 見切り失敗 −15🔥');
     $('#stage').classList.add('shake');
-    setTimeout(() => $('#stage').classList.remove('shake'), 400);
+    setTimeout(() => $('#stage')?.classList.remove('shake'), 400);
     updateRunHud();
-    setTimeout(() => renderMissPanel(res, item.retry ? 'また取り逃した…' : 'この言霊は暴走した — ノード終盤に再来する'), 650);
+    feedbackTimer = setTimeout(() => {
+      if (run === myRun) renderMissPanel(res, item.retry ? 'また取り逃した…' : 'この言霊は暴走した — ノード終盤に再来する');
+    }, 650);
   }
 }
 
 function renderMissPanel(res, label) {
+  if (!$('#stage') || !run) return; // 帰還後にタイマーが残っていた場合のガード
   const e = res.entry;
   $('#stage').innerHTML = `
   <div class="miss-panel pop">

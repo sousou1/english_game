@@ -66,9 +66,9 @@ export class Run {
     }
     if (out.length < n) {
       const s = p.settings;
+      // 設定したレベル・分野は黙って破らない。枯渇時はリプレイ救済(buildQueue側)に任せる
       let pool = words.filter((e) => unseen(e) && !this.usedWords.has(e.w) && !out.includes(e)
         && s.levels.includes(e.l) && s.fields.includes(e.f));
-      if (!pool.length) pool = words.filter((e) => unseen(e) && !this.usedWords.has(e.w) && !out.includes(e));
       pool = pool.map((e) => ({ e, k: e.l + Math.random() * 1.2 })).sort((a, b) => a.k - b.k).map((x) => x.e);
       out.push(...pool.slice(0, n - out.length));
     }
@@ -112,12 +112,13 @@ export class Run {
       const shortage = size - (qCount + newTake + fillers.length);
       if (shortage > 0) newTake += shortage;
       const news = this.pickNewEntries(newTake);
+      // 紹介カードは前方に、出題は他の問題を挟んだ後方に置く(直後のエコーテストでは想起にならない)
+      const newQs = [];
       for (const e of news) {
-        items.push({ kind: 'study', entry: e }, { kind: 'q', entry: e, isNew: true });
-        this.introducedCount++;
-        dayStat(p).new++;
+        items.push({ kind: 'study', entry: e });
+        newQs.push({ kind: 'q', entry: e, isNew: true });
       }
-      items.push(...fillers);
+      items.push(...fillers, ...newQs);
       // 語彙プールも尽きた場合: 本日想起済みの言霊を再登板させる(完全な空キューを防ぐ)
       let qc = items.filter((i) => i.kind === 'q').length;
       if (qc < size) {
@@ -178,7 +179,7 @@ export class Run {
     return this.startNode();
   }
 
-  submit({ choiceIdx = -1, mikiri = false, passed = false, timeMs = 0 }) {
+  submit({ choiceIdx = -1, mikiri = false, passed = false, hinted = false, timeMs = 0 }) {
     const item = this.queue[this.qPos];
     const entry = item.entry;
     const p = this.app.profile;
@@ -188,10 +189,17 @@ export class Run {
 
     let rating;
     if (passed || !correct) rating = 0;
-    else if (item.retry) rating = 1;
-    else if (mikiri) rating = 3;
+    else if (item.retry || hinted) rating = 1; // 再挑戦・ヒント後の正解はhard
+    else if (mikiri && !item.isNew) rating = 3; // 紹介直後のエコーは見切りでもeasy扱いしない
+    else if (timeMs > 9000) rating = 1; // 長考の末の正解は確信が低い
     else rating = 2;
     p.cards[entry.w] = review(card, rating, Date.now());
+
+    // 新出の消費は実際に初回想起した時に数える(ラン途中離脱で枠が溶けないように)
+    if (item.isNew && !item.retry) {
+      dayStat(p).new++;
+      this.introducedCount++;
+    }
 
     p.stats.reviews++;
     const ds = dayStat(p);
@@ -205,8 +213,11 @@ export class Run {
       let base = 10 + entry.l * 3;
       if (item.isNew) base = Math.round(base * 1.4); // 出会いの火: 初想起の成功ボーナス
       const burstScale = this.tools.some((id) => toolById(id).burstScale) ? 1.5 : 1;
-      const burstM = item.isNew || !Rbefore ? 1 : burst(Rbefore, burstScale);
-      const mikiriM = mikiri ? 1.5 : 1;
+      let burstM = item.isNew || !Rbefore ? 1 : burst(Rbefore, burstScale);
+      // 失念直後の語はバースト減衰(高レア語をわざと潰して刈る農法を無効化)
+      if (card.postLapse > 0) burstM = Math.min(burstM, 1.4);
+      const mikiriM = mikiri && !item.isNew ? 1.5 : 1;
+      const hintM = hinted ? 0.6 : 1;
       const comboM = 1 + Math.min(this.combo, 12) * 0.06;
       const ctx = {
         entry, qtype: item.q.type, mikiri, combo: this.combo, isNew: !!item.isNew,
@@ -219,8 +230,8 @@ export class Run {
         if (t.flat) flat += t.flat(ctx);
       }
       const retryM = item.retry ? 0.5 : 1;
-      points = Math.round(base * burstM * mikiriM * comboM * toolM * retryM) + flat;
-      crit = burstM >= 2.2 || mikiri;
+      points = Math.round(base * burstM * mikiriM * comboM * toolM * retryM * hintM) + flat;
+      crit = burstM >= 2.2 || (mikiri && !item.isNew);
       breakdown = { base, burstM, mikiriM, comboM, toolM, flat };
       this.nodeScore += points;
       this.totalScore += points;
@@ -231,12 +242,18 @@ export class Run {
       } else {
         this.combo = 0;
       }
+      if (mikiri) {
+        // 見切りは賭け: 外すと燃料を失う(ノーリスクの支配戦略にしない)
+        this.nodeScore = Math.max(0, this.nodeScore - 15);
+      }
       if (!item.retry) {
         this.requeue.push(entry);
         this.misses.push({ entry, type: item.q.type });
       }
+    } else if (!item.retry) {
+      // パスはコンボ維持(正直な申告を守る)が、答えを見た後の再想起はノード終盤に課す
+      this.requeue.push(entry);
     }
-    // パスはコンボ維持(正直な申告を守る)
 
     this.prevPos = entry.p;
     this.app.save();
@@ -254,11 +271,14 @@ export class Run {
     const today = todayKey();
     if (p.streak.lastDay !== today) {
       const gap = dayDiff(p.streak.lastDay, today);
-      if (gap === 1) p.streak.count += 1;
-      else if (gap > 1 && gap < Infinity) p.streak.count = Math.max(1, p.streak.count - (gap - 1) * 2);
-      else p.streak.count = Math.max(1, p.streak.count + 1);
-      p.streak.lastDay = today;
-      p.streak.best = Math.max(p.streak.best, p.streak.count);
+      if (gap === Infinity) p.streak.count = 1; // 初回
+      else if (gap === 1) p.streak.count += 1;
+      else if (gap > 1) p.streak.count = Math.max(1, p.streak.count - (gap - 1) * 2);
+      // gap <= 0(時計の巻き戻し・タイムゾーン移動)は加算もlastDay更新もしない
+      if (gap >= 1 || gap === Infinity) {
+        p.streak.lastDay = today;
+        p.streak.best = Math.max(p.streak.best, p.streak.count);
+      }
     }
 
     // 勝利報酬: 熟成宝箱(明日開く=分散学習の第1間隔)

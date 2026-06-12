@@ -13,7 +13,7 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.
 const fail = (msg) => { console.error('✖', msg); process.exitCode = 1; };
 const ok = (msg) => console.log('✔', msg);
 
-await page.goto('http://localhost:8347/', { waitUntil: 'networkidle' });
+await page.goto(process.argv[2] || 'http://localhost:8347/', { waitUntil: 'networkidle' });
 
 // ホーム画面
 await page.waitForSelector('.hero h1', { timeout: 5000 });

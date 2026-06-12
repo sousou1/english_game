@@ -76,8 +76,10 @@ export function pickType(entry, card, settings) {
   const reps = card ? card.reps : 0;
   const pool = ['e2j'];
   if (reps >= 1) pool.push('j2e');
-  if (reps >= 1 && settings.listen && ttsAvailable()) pool.push('listen', 'listen');
+  // リスニングは発音を聴く機会(正解時の読み上げ等)を経た後に解禁する
+  if (reps >= 2 && settings.listen && ttsAvailable()) pool.push('listen');
   if (reps >= 2) pool.push('j2e');
+  if (reps >= 3 && settings.listen && ttsAvailable()) pool.push('listen');
   if (reps >= 3 && clozeable(entry)) pool.push('cloze', 'cloze');
   return pool[Math.floor(Math.random() * pool.length)];
 }

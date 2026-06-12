@@ -19,7 +19,15 @@ initUI(app);
 
 // PWA
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js')
+    .then((reg) => { reg.update().catch(() => {}); })
+    .catch(() => {});
+  let swSwapped = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swSwapped) return;
+    swSwapped = true;
+    toast('✨ 新しいバージョンを準備した — 次回起動で適用');
+  });
 }
 
 window.addEventListener('error', (e) => {

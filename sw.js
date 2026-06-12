@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `kotodama-${VERSION}`;
 const CORE = [
   './',
@@ -29,27 +29,43 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// HTMLはネットワーク優先(更新を素早く)、その他はキャッシュ優先(オフライン動作)
+// ナビゲーション: ネットワーク優先だが2.5秒で諦めてキャッシュ起動(低速回線で固まらない)
+// その他: stale-while-revalidate(キャッシュ即返し+裏で更新→次回起動に反映される)
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET') return;
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+
   if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy));
+    e.respondWith((async () => {
+      const cached = caches.match('./index.html');
+      const net = fetch(req).then((res) => {
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
         return res;
-      }).catch(() => caches.match(req).then((m) => m || caches.match('./index.html')))
-    );
+      });
+      const winner = await Promise.race([
+        net.then((res) => ({ res })).catch(() => ({ failed: true })),
+        new Promise((r) => setTimeout(() => r({ timeout: true }), 2500)),
+      ]);
+      if (winner.res) return winner.res;
+      const c = await cached;
+      if (c) return c;
+      return net.catch(() => Response.error());
+    })());
     return;
   }
-  e.respondWith(
-    caches.match(req).then((m) => m || fetch(req).then((res) => {
-      if (res.ok && new URL(req.url).origin === location.origin) {
+
+  e.respondWith((async () => {
+    const cached = await caches.match(req);
+    const net = fetch(req).then((res) => {
+      if (res.ok) {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
       }
       return res;
-    }))
-  );
+    }).catch(() => cached);
+    return cached || net;
+  })());
 });

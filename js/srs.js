@@ -34,12 +34,18 @@ export function review(card, rating, now = Date.now()) {
     c.S = Math.max(0.3, 0.4 * Math.sqrt(c.S));
     c.D = Math.min(10, c.D + 1.6);
     c.lapses = (c.lapses || 0) + 1;
+    c.postLapse = 2; // 再学習ステップ: 直後2回の成功は成長・バーストを抑制(まぐれ正解対策)
   } else {
     const R = retrievability(card, now);
     // 忘れかけ(R低)ほど成長が大きい = 望ましい困難
     let g = 13 * ((11 - c.D) / 10) * Math.pow(Math.max(c.S, 0.3), -0.05) * (Math.exp(1.8 * (1 - R)) - 1);
     g *= rating === 1 ? 0.5 : rating === 3 ? 1.35 : 1;
     g = Math.min(Math.max(g, 0.05), 5);
+    if (c.postLapse > 0) {
+      // 失念直後は4択のまぐれ正解でSが跳ばないよう成長上限を絞る
+      g = Math.min(g, 1.2);
+      c.postLapse--;
+    }
     c.S = Math.min(365, c.S * (1 + g));
     c.D = Math.max(1, Math.min(10, c.D + [0, 0.4, -0.2, -0.6][rating]));
   }

@@ -9,9 +9,13 @@ export function initAudio() {
   if (!ctx) {
     try {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // iOSはバックグラウンド復帰後にinterrupted/suspendedのまま戻らないことがある
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
+      });
     } catch (e) { /* 音なしでも遊べる */ }
   }
-  if (ctx && ctx.state === 'suspended') ctx.resume();
+  if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
   loadVoice();
   // iOSはユーザー操作内で一度speakしないとTTSが解放されないことがある
   if (ttsAvailable() && !loadVoice._warmed) {
@@ -46,13 +50,19 @@ function loadVoice() {
 export function speak(text, rate = 0.95) {
   if (!ttsAvailable() || !text) return false;
   try {
-    speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
     if (voice) u.voice = voice;
     u.rate = rate;
     u.pitch = 1;
-    speechSynthesis.speak(u);
+    // Android Chromeはcancel()直後の同期speak()が破棄されることがあるため少し空ける
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
+    if (busy) {
+      speechSynthesis.cancel();
+      setTimeout(() => { try { speechSynthesis.speak(u); } catch (e) { /* ignore */ } }, 80);
+    } else {
+      speechSynthesis.speak(u);
+    }
     return true;
   } catch (e) {
     return false;
@@ -77,7 +87,8 @@ function tone(freq, t0, dur, type = 'sine', gain = 0.12) {
 }
 
 export function sfx(name) {
-  if (!ctx || ctx.state !== 'running') return;
+  if (!ctx) return;
+  if (ctx.state !== 'running') { ctx.resume().catch(() => {}); return; }
   try {
     switch (name) {
       case 'ok':
