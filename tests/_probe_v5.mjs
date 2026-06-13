@@ -41,7 +41,8 @@ await banner.tap();
 await page.waitForSelector('#eventOv:not(.hidden)', { timeout: 2000 });
 ok(true, 'イベントオーバーレイが開いた');
 
-const teachSeq = EV.beats.filter((b) => b.teach).map((b) => b.teach);
+// 複数語ビート対応: teach は 'w' | ['w1','w2']。answers の順に左からタップする
+const teachSeq = EV.beats.filter((b) => b.teach).flatMap((b) => (Array.isArray(b.teach) ? b.teach : [b.teach]));
 let teachPtr = 0;
 let wrongTried = false;
 let safety = 80;
@@ -52,7 +53,7 @@ while (safety-- > 0) {
     hasNext: !!document.querySelector('#eventOv [data-act="next"]'),
     hasClose: !!document.querySelector('#eventOv [data-act="close"]'),
     jp: document.querySelector('#eventOv .ev-jp')?.textContent || '',
-    choices: [...document.querySelectorAll('#eventOv [data-cast]')].map((b) => b.dataset.cast),
+    choices: [...document.querySelectorAll('#eventOv [data-cast]:not([disabled])')].map((b) => b.dataset.cast),
   }));
   if (!state.overlay) break;
   if (state.hasClose) {

@@ -159,6 +159,15 @@ export class Pool {
     return true;
   }
 
+  // イベント初回クリア報酬: ゲージを即満タンにして解放可能にする(ラッシュ中は何もしない)
+  fillGauge(now = Date.now()) {
+    if (this.mode === 'rush') return false;
+    this.g = jobMod(this.app.profile, 'gaugeMax', CURVE.fever.gaugeMax);
+    this.mode = 'ready';
+    this.readyAt = now;
+    return true;
+  }
+
   // 1秒ティック。{rushEnded, readyExpired} を返す
   tickSecond(now = Date.now()) {
     const out = { rushEnded: false };

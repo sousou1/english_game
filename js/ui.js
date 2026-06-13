@@ -845,12 +845,10 @@ function renderSpellbookSheet() {
     items.push({ w, e, c, kind: 'card', R, tier: rarityIndex(c), sort: R < 0.9 ? -1 : R });
   }
   items.sort((a, b) => a.sort - b.sort);
-  const left = Math.min(ws.inviteCapToday(), Math.max(0, ws.roomLeft()));
   const open = body.dataset?.open || '';
   body.innerHTML = `
     <h3>📖 呪文書 <small>${items.length}語</small></h3>
-    <button class="primary-btn small" data-act="invite" ${left ? '' : 'disabled'}>新しい呪文を編む${left ? `(きょうあと${left})` : '(きょうは終わり)'}</button>
-    <div id="inviteArea"></div>
+    <p class="story-hint">あたらしい言葉は、物語のイベントで手に入る。</p>
     <div class="spell-list">
     ${items.slice(0, 60).map((it) => {
       const color = it.kind === 'step' ? '#9a8fa8' : RARITY[it.tier].color;
@@ -864,22 +862,6 @@ function renderSpellbookSheet() {
   `;
   body.onclick = (e) => {
     if (!fresh('sheet')) return;
-    if (e.target.closest('[data-act="invite"]')) { renderInvite(); return; }
-    const inv = e.target.closest('[data-invite-w]');
-    if (inv) {
-      const w = inv.dataset.inviteW;
-      if (ws.invite(w)) {
-        battle.addExp('invite');
-        sfx('flip');
-        const entry = app.index.byKey.get(w);
-        ticker(`新しい呪文『${w}』(${entry.j})を書きとめた。`);
-        if (p.settings.autoSpeak || p.settings.listen) speak(w, p.settings.rate);
-        pool.refill();
-        renderSpellbookSheet();
-        renderedAt.sheet = performance.now();
-      }
-      return;
-    }
     const sp = e.target.closest('[data-speak]');
     if (sp) { speak(sp.dataset.speak, p.settings.rate); return; }
     const row = e.target.closest('.spell-row');
@@ -898,18 +880,6 @@ function spellDetail(it) {
     ${e.ex ? `<div class="spell-ex">${esc(e.ex)}<br><small>${esc(e.jx)}</small></div>` : ''}
     ${it.c ? `<small>つよさ ${(it.R * 100).toFixed(0)}% ・ 唱えた回数 ${app.profile.taps[it.w] || 0}</small>` : ''}
   </div>`;
-}
-
-function renderInvite() {
-  const cands = ws.inviteCandidates(3);
-  const area = $('#inviteArea');
-  if (!cands.length) { area.innerHTML = `<p class="story-hint">${esc(line('invite_empty'))}</p>`; return; }
-  area.innerHTML = cands.map((e) => `
-    <div class="cand">
-      <b>${esc(e.w)}</b> <span>${esc(e.j)}</span> <small>${LEVEL_NAMES[e.l]}・${FIELD_NAMES[e.f] || ''}</small>
-      <button class="mini-act" data-speak="${esc(e.w)}">🔊</button>
-      <button class="mini-act warm" data-invite-w="${esc(e.w)}">書きとめる</button>
-    </div>`).join('');
 }
 
 function renderSettingsSheet() {
@@ -1048,15 +1018,19 @@ function renderEventStep() {
       <div class="ev-cast">
         ${s.review ? '<small class="ev-tag">反芻——おぼえた言葉で</small>' : s.recall ? '<small class="ev-tag warm">思い出せ——さっきの言葉だ</small>' : ''}
         <p class="ev-jp">${esc(s.jp)}</p>
-        <p class="ev-blank">「<b>___</b>」</p>
+        <p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>
       </div>
-      <div class="ev-choices">${s.choices.map((c) => `<button class="ev-choice" data-cast="${esc(c.w)}">${esc(c.w)}</button>`).join('')}</div>`;
+      <div class="ev-choices">${(() => {
+        const used = new Set(s.entries.slice(0, s.ptr).map((e) => e.w));
+        return s.choices.map((c) => `<button class="ev-choice${used.has(c.w) ? ' used' : ''}" ${used.has(c.w) ? 'disabled' : ''} data-cast="${esc(c.w)}">${esc(c.w)}</button>`).join('');
+      })()}</div>`;
   } else if (s.t === 'clear') {
     const r = evRun.finish();
     let drops = '';
     if (!r.already) {
       const roll = dropRoll(app.profile, 'mid');
       if (roll) { pushBox(app.profile, roll); drops = `<p class="ev-reward">🎁 武器が回収箱に届いた(${roll.rar})</p>`; app.save(); }
+      if (pool.fillGauge()) drops += '<p class="ev-reward">⚡ ことだまが満ちた——ラッシュ解放の準備よし!</p>';
       sfx('kyuin');
       if (navigator.vibrate) navigator.vibrate([30, 40, 80]);
     }

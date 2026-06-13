@@ -444,6 +444,8 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .ev-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .ev-choice { background: var(--bg2); border: 1px solid var(--panel2); border-radius: 11px; padding: 14px 8px; font-size: 17px; font-weight: 700; }
 .ev-choice.ng { border-color: var(--bad); color: var(--bad); animation: shake .3s; }
+.ev-choice.used { opacity: .35; border-style: dashed; }
+.ev-blank b.ok { color: var(--good, #7bd88f); letter-spacing: .05em; }
 @keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 .ev-album { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
 .ev-thumb { background: var(--panel); border: 1px solid var(--panel2); border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
