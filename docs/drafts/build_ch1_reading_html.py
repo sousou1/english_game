@@ -25,8 +25,8 @@ ASSET_DIR = "ch1_illust_assets"
 ILLUST = {
     "c01_010": {"rec": 11, "cand": [7, 11, 23, 31],
                 "cap": "屋根の上で振り返るユイ（見た目12〜13歳）と眼下の祭り・谷縁の大灯（石積み＋木組みの古い灯台）"},
-    "c01_040": {"rec": 41, "cand": [41, 43, 47, 53],
-                "cap": "一人称POV：差し出したアキの手とカンテラ／暖光に照らされ驚くユイ（v2・構図を明確化）"},
+    "c01_040": {"rec": 61, "cand": [61, 63, 67, 71],
+                "cap": "一人称POV：カンテラに初めて灯がともり、暖光が灰の靄を払う“最初の灯”（v3・ユイを外し場面を明確化）"},
     "c01_060": {"rec": 23, "cand": [7, 11, 23, 31],
                 "cap": "灰の靄から浮かぶ灰狼の影（喉に灰）／手前は立ちすくむ村人の背・主人公は映さない"},
     "c01_140": {"rec": 23, "cand": [7, 11, 23, 31],
@@ -141,14 +141,22 @@ for si, sc in enumerate(scenes):
                 f'<img loading="lazy" src="{ASSET_DIR}/il_{sid}_{s}_0.png" alt="{esc(sid)} seed{s}">'
                 f'<span class="cap">seed{s}{"（推奨）" if s==rec else ""}</span></label>'
                 for s in info["cand"])
+            # 「どれでもない（再生成依頼）」を選択肢に追加（seedラジオと排他）
+            thumbs += (f'<label class="cand regen"><input type="radio" name="sel-{sid}" value="regen">'
+                       f'<span class="cap">⟳ どれでもない（再生成を依頼）</span></label>')
+            # 微修正依頼チェック＋理由フリー記述コメント欄
+            fb = (f'<div class="fb">'
+                  f'<label class="fbminor"><input type="checkbox" data-minor> 微修正で対応（軽微な修正依頼）</label>'
+                  f'<textarea data-cmt rows="2" placeholder="この絵への指摘・修正指示（理由）を自由記述 — 例: ランプの位置 / 色 / 表情 など"></textarea>'
+                  f'</div>')
             illust_slot = (
                 f'<figure class="illust" id="{domid}" data-sid="{esc(sid)}" data-dir="{ASSET_DIR}" data-rec="{rec}">'
                 f'<img class="mainimg" src="{esc(rec_src)}" alt="{esc(sid)} 採用カット seed{rec}">'
                 f'<figcaption><span class="ill-rec" data-sel-label>推奨</span> {esc(sid)} ／ '
                 f'<span class="ill-seed">seed<b data-sel-seed>{rec}</b></span> ／ '
                 f'<span class="ill-cap">{esc(info["cap"])}</span></figcaption>'
-                f'<details class="cands"><summary>全候補（{len(info["cand"])}枚）から選ぶ — ラジオで選択すると上の大画像が切替（採否は人間／下の「選択をコピー」で書き出し）</summary>'
-                f'<div class="candrow">{thumbs}</div></details>'
+                f'<details class="cands"><summary>全候補（{len(info["cand"])}枚）から選ぶ／再生成依頼・コメント — ラジオで選択すると上の大画像が切替（採否は人間／下の「選択をコピー」で書き出し）</summary>'
+                f'<div class="candrow">{thumbs}</div>{fb}</details>'
                 f'</figure>')
         else:
             illust_slot = f'<div class="illust-slot">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>'
@@ -236,6 +244,17 @@ label.cand>img{{display:block;width:100%;height:auto;}}
 label.cand>.cap{{display:block;font-family:sans-serif;font-size:.7rem;color:var(--dim);text-align:center;padding:4px 2px;}}
 label.cand:has(input:checked){{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}}
 label.cand:has(input:checked)>.cap{{color:var(--accent);font-weight:700;}}
+label.cand.regen{{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:9px 12px;background:#1b1611;}}
+label.cand.regen>input{{position:static;}}
+label.cand.regen:has(input:checked){{border-color:#d98a5a;box-shadow:0 0 0 1px #d98a5a inset;}}
+label.cand.regen:has(input:checked)>.cap{{color:#e89a6a;}}
+.fb{{display:flex;flex-direction:column;gap:7px;padding:4px 14px 14px;}}
+.fb .fbminor{{font-family:sans-serif;font-size:.76rem;color:#b8ac9c;cursor:pointer;display:flex;align-items:center;gap:6px;}}
+.fb .fbminor input{{accent-color:#7fb6c4;width:15px;height:15px;}}
+.fb textarea{{width:100%;background:#14110f;color:var(--ink);border:1px solid var(--line);border-radius:6px;font-family:sans-serif;font-size:.8rem;line-height:1.5;padding:7px 9px;resize:vertical;}}
+.fb textarea:focus{{outline:none;border-color:var(--accent);}}
+figure.illust.regen-req{{box-shadow:0 0 0 2px #d98a5a inset;}}
+figure.illust.regen-req .ill-rec{{background:#d98a5a;}}
 .selbar{{position:fixed;right:14px;bottom:14px;z-index:20;display:flex;gap:8px;align-items:center;background:rgba(20,17,15,.95);border:1px solid #4a3f2c;border-radius:10px;padding:8px 10px;font-family:sans-serif;font-size:.8rem;box-shadow:0 4px 18px rgba(0,0,0,.5);}}
 .selbar button{{font-family:sans-serif;font-size:.8rem;color:#14110f;background:var(--accent);border:none;border-radius:7px;padding:7px 13px;cursor:pointer;font-weight:700;}}
 .selbar button:hover{{background:#efbd6e;}}
@@ -309,6 +328,14 @@ document.querySelectorAll('figure.illust').forEach(function(fig){{
   fig.querySelectorAll('input[type=radio]').forEach(function(r){{
     r.addEventListener('change', function(){{
       if(!r.checked) return;
+      if(r.value === 'regen'){{
+        fig.classList.add('regen-req');
+        seedEl.textContent = '—';
+        labelEl.textContent = '再生成依頼';
+        labelEl.style.background = '#d98a5a';
+        return;
+      }}
+      fig.classList.remove('regen-req');
       main.src = dir + '/il_' + sid + '_' + r.value + '_0.png';
       seedEl.textContent = r.value;
       const isRec = (r.value === rec);
@@ -318,16 +345,26 @@ document.querySelectorAll('figure.illust').forEach(function(fig){{
   }});
 }});
 function collectSel(){{
-  const sel = {{}};
+  const out = {{}};
   document.querySelectorAll('figure.illust').forEach(function(fig){{
     const r = fig.querySelector('input[type=radio]:checked');
-    if(r) sel[fig.dataset.sid] = parseInt(r.value);
+    const minor = fig.querySelector('input[data-minor]');
+    const cmt = fig.querySelector('textarea[data-cmt]');
+    const v = r ? r.value : null;
+    out[fig.dataset.sid] = {{
+      seed: (v === 'regen' || v === null) ? v : parseInt(v),
+      regen: (v === 'regen'),
+      minorFix: !!(minor && minor.checked),
+      comment: (cmt && cmt.value.trim()) || ''
+    }};
   }});
-  return sel;
+  return out;
 }}
 document.getElementById('copy-sel').addEventListener('click', function(){{
   const sel = collectSel();
-  const txt = '第1章 挿絵 採用seed（c01_NNN: seed）\\n' + JSON.stringify(sel, null, 2);
+  const txt = '第1章 挿絵レビュー結果（貼り戻し用）\\n'
+    + '// seed=採用シード / regen=true は再生成依頼 / minorFix=true は微修正で可 / comment=理由・指示\\n'
+    + JSON.stringify(sel, null, 2);
   const bar = document.getElementById('selbar');
   function done(){{ bar.classList.add('ok'); const b=document.getElementById('copy-sel'); const o=b.textContent; b.textContent='コピーしました ✓'; setTimeout(function(){{b.textContent=o;bar.classList.remove('ok');}},1800); }}
   if(navigator.clipboard && navigator.clipboard.writeText){{
