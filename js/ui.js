@@ -3,7 +3,7 @@
 // 規則: 偽タイマー禁止・16ms応答・描画後300msガード・全画面割込み禁止(プレイヤー起点のシートは可)
 // SRS想起は「焚き火」(100%オーバーレイ)に物理隔離 — 同じ画面に敵がいない。
 import { rarityIndex, retrievability, RARITY } from './srs.js';
-import { POS_JA } from './quiz.js';
+import { POS_JA, clozeText, clozeable } from './quiz.js';
 import { Workshop } from './workshop.js';
 import { Pool, CURVE } from './pool.js';
 import { Battle, BATTLE, enemyHp, isMidBoss, isChapterBoss, hpMax, levelOf, bossAtk } from './battle.js';
@@ -96,6 +96,7 @@ export function initUI(appRef) {
       </div>
       <button id="engageBtn" class="engage hidden">⚔ とどめの間合いに踏み込む</button>
       <div id="ticker" class="ticker" ></div>
+      <div id="driftLine" class="drift-line"></div>
     </div>
     <button id="eventBanner" class="event-banner hidden"></button>
     <div id="band" class="band">
@@ -323,24 +324,74 @@ function enemyEmoji(k) {
   return set[k % set.length];
 }
 
+// 非ボス遭遇の「皮」。combat 以外に move(移動)/errand(お使い)を混ぜる。
+// 数式・報酬・討伐クロック(B2/B6)は不変。placeLbl・敵アイコン・HPバー文言と、
+// 道中にふわっと出す物語行(Task2)だけを差し替える、純・演出レイヤー。
+const JOURNEY = [
+  null, // ch は1始まり。index0 は未使用
+  {
+    move: { icon: '🥾', place: '街道をゆく', hp: 'のこり', drift: [
+      '街道は、どこまでもまっすぐだ。',
+      '風が、知らない土地のにおいを運んでくる。',
+      'ノノ「足、だいじょうぶ? あたしはもう限界に近い」',
+      '王都は、まだ地平線の向こう。',
+    ] },
+    errand: { icon: '📦', place: 'お使い: 荷を届ける', hp: 'あと', drift: [
+      'マーサに頼まれた荷を、こぼさないように運ぶ。',
+      '下町の路地は、迷路みたいに入りくんでいる。',
+      'ノノ「これ届けたら、あったかい飯だってさ」',
+      '迷うたら、灯りのある方へ。じいちゃんの口ぐせだ。',
+    ] },
+  },
+];
+function skinOf(k, ch) {
+  if (battle.isBossNow()) return null; // ボスは戦闘のまま
+  const tbl = JOURNEY[Math.min(ch, JOURNEY.length - 1)];
+  if (!tbl) return null;
+  const m = k % 6;
+  if (m === 2 || m === 5) return { kind: 'move', ...tbl.move };
+  if (m === 4) return { kind: 'errand', ...tbl.errand };
+  return null;
+}
+let journey = { k: -1, hits: 0, shown: 0 };
+function showDrift(txt) {
+  const el = $('#driftLine');
+  if (!el || !txt) return;
+  el.textContent = txt;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(showDrift._t);
+  showDrift._t = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
 function renderStage() {
   const p = app.profile;
   const k = p.battle.kills;
   const boss = battle.isBossNow();
   const ch = chapterOf(k);
-  $('#placeLbl').textContent = `${SCENARIO.places[Math.min(ch - 1, SCENARIO.places.length - 1)]}・${k + 1}体目${boss ? (isChapterBoss(k) ? '【章ボス】' : '【ボス】') : ''}`;
+  const jskin = skinOf(k, ch);
+  $('#placeLbl').textContent = jskin
+    ? jskin.place
+    : `${SCENARIO.places[Math.min(ch - 1, SCENARIO.places.length - 1)]}・${k + 1}体目${boss ? (isChapterBoss(k) ? '【章ボス】' : '【ボス】') : ''}`;
   const en = $('#enemy');
-  const skin = enemySkin(k);
   en.classList.remove('sprite', 'sprite-anim');
   en.style.backgroundImage = '';
-  if (skin) {
-    en.textContent = '';
-    en.classList.add(skin.anim ? 'sprite-anim' : 'sprite');
-    en.style.backgroundImage = `url(assets/img/${skin.img}.webp)`;
+  if (jskin) {
+    // 移動/お使いの皮: 魔物でなくアイコンを出す(戦闘演出は流用=タップで進む手応え)
+    en.textContent = jskin.icon;
+    en.classList.remove('boss');
   } else {
-    en.textContent = enemyEmoji(k);
+    const skin = enemySkin(k);
+    if (skin) {
+      en.textContent = '';
+      en.classList.add(skin.anim ? 'sprite-anim' : 'sprite');
+      en.style.backgroundImage = `url(assets/img/${skin.img}.webp)`;
+    } else {
+      en.textContent = enemyEmoji(k);
+    }
+    en.classList.toggle('boss', boss);
   }
-  en.classList.toggle('boss', boss);
 
   // 敵HP
   const total = enemyHp(k);
@@ -350,7 +401,7 @@ function renderStage() {
   else remain = Math.max(0, total - p.battle.dmg);
   const pct = Math.max(0, Math.min(100, (remain / total) * 100));
   $('#ehpFill').style.width = `${pct}%`;
-  $('#ehpPct').textContent = `${Math.ceil(pct)}%`;
+  $('#ehpPct').textContent = jskin ? `${jskin.hp} ${Math.ceil(pct)}%` : `${Math.ceil(pct)}%`;
   $('#ehpFill').classList.toggle('low', pct < 25);
 
   // 討伐チャンス
@@ -431,6 +482,17 @@ function poolTap(w, tileEl) {
     renderBand();
     return;
   }
+  // お使い/移動の皮なら、数語ごとに物語行をふわっと出す(Task2: 読みでなく入力で物語が進む)
+  {
+    const k0 = p.battle.kills;
+    const js = skinOf(k0, chapterOf(k0));
+    if (js && js.drift) {
+      if (journey.k !== k0) journey = { k: k0, hits: 0, shown: 0 };
+      journey.hits++;
+      if (journey.hits % 4 === 0 && journey.shown < js.drift.length) showDrift(js.drift[journey.shown++]);
+    }
+  }
+
   // 収入(攻撃=収入)。開発者モードは進行倍率(vrefは正直なまま)
   const devGain = res.gain * (p.dev?.mult || 1);
   p.lights += devGain;
@@ -631,6 +693,22 @@ function sceneLine(l) {
   if (!who) return `<p class="scene-line">${esc(l)}</p>`;
   const face = `por_${who.key}_${moodOf(m[2], who.moods)}`;
   return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.src='assets/img/por_${who.key}_normal.webp'"><span>${esc(l)}</span></p>`;
+}
+
+// 例文の和訳(jx)のうち、見出し語(j)に当たる箇所を <mark> で強調する。
+// j の先頭の漢字連続を語幹として jx 内で探し、後続の送り仮名まで伸ばす(ヒューリスティック)。
+function highlightJa(j, jx, pos) {
+  if (!jx) return '';
+  const inflect = pos === 'verb' || pos === 'adjective' || pos === 'adverb'; // 送り仮名を持つ品詞だけ延長
+  const stem = (j.match(/^[一-龥々〆ヶ]+/) || [])[0];
+  let idx = -1, len = 0;
+  if (stem) {
+    idx = jx.indexOf(stem);
+    if (idx >= 0) { len = stem.length; if (inflect) while (idx + len < jx.length && /[ぁ-ん]/.test(jx[idx + len])) len++; }
+  }
+  if (idx < 0) { idx = jx.indexOf(j); len = j.length; }
+  if (idx < 0) return esc(jx);
+  return esc(jx.slice(0, idx)) + `<mark>${esc(jx.slice(idx, idx + len))}</mark>` + esc(jx.slice(idx + len));
 }
 
 function renderScene(scene, reread) {
@@ -1074,12 +1152,24 @@ function renderEventStep() {
       <button class="primary-btn" data-act="next">この言葉で、唱える</button>`;
     if (app.profile.settings.autoSpeak) speak(s.entry.w, app.profile.settings.rate);
   } else if (s.t === 'cast') {
-    body.innerHTML = `${head}
-      <div class="ev-cast">
+    // 新語を覚えるcast(反芻以外)は「英文穴埋め+和訳の該当語強調」で出す。
+    // 反芻(review)は没入優先で従来の詠唱和文のまま。
+    const cur = s.entries[s.ptr];
+    const useCloze = !s.review && cur && clozeable(cur);
+    const blankLine = `<p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>`;
+    const inner = useCloze ? `
+        <small class="ev-tag warm">${s.recall ? '思い出せ——さっきの言葉だ' : 'あたらしい言葉を、この一文に'}</small>
+        <p class="ev-jp dim">${esc(s.jp)}</p>
+        <p class="ev-cloze">${clozeText(cur)}</p>
+        <p class="ev-cloze-ja">${highlightJa(cur.j, cur.jx || cur.j, cur.p)}</p>
+        ${s.entries.length > 1 ? blankLine : ''}
+      ` : `
         ${s.review ? '<small class="ev-tag">反芻——おぼえた言葉で</small>' : s.recall ? '<small class="ev-tag warm">思い出せ——さっきの言葉だ</small>' : ''}
         <p class="ev-jp">${esc(s.jp)}</p>
-        <p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>
-      </div>
+        ${blankLine}
+      `;
+    body.innerHTML = `${head}
+      <div class="ev-cast">${inner}</div>
       <div class="ev-choices">${(() => {
         const used = new Set(s.entries.slice(0, s.ptr).map((e) => e.w));
         return s.choices.map((c) => `<button class="ev-choice${used.has(c.w) ? ' used' : ''}" ${used.has(c.w) ? 'disabled' : ''} data-cast="${esc(c.w)}">${esc(c.w)}</button>`).join('');

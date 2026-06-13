@@ -120,6 +120,14 @@ button:active { transform: scale(.96); }
 .ticker .gold { color: var(--fire2); }
 .ticker.tick-in { animation: lineIn .35s ease-out; }
 @keyframes lineIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.drift-line {
+  position: absolute; left: 50%; bottom: 10px; transform: translate(-50%, 8px);
+  max-width: 88%; text-align: center; font-size: 14px; line-height: 1.6;
+  color: var(--text); background: rgba(11, 10, 16, .72); border-radius: 12px;
+  padding: 8px 14px; pointer-events: none; opacity: 0; transition: opacity .8s ease, transform .8s ease;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .9);
+}
+.drift-line.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- C: コンボ/ラッシュ帯 ---------- */
 .band {
@@ -440,6 +448,10 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .ev-tag { color: var(--dim); font-size: 11px; }
 .ev-tag.warm { color: var(--fire2); }
 .ev-jp { font-size: 16px; line-height: 1.7; margin: 6px 0; }
+.ev-jp.dim { font-size: 13px; color: var(--dim); margin: 2px 0 8px; }
+.ev-cloze { font-size: 20px; font-weight: 700; line-height: 1.6; margin: 8px 0 4px; letter-spacing: .01em; }
+.ev-cloze-ja { font-size: 13px; color: var(--dim); margin: 0 0 6px; }
+.ev-cloze-ja mark, .ev-jp mark { background: none; color: var(--fire2); font-weight: 700; border-bottom: 2px solid var(--fire2); padding: 0 1px; }
 .ev-blank b { color: var(--fire2); letter-spacing: .2em; }
 .ev-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .ev-choice { background: var(--bg2); border: 1px solid var(--panel2); border-radius: 11px; padding: 14px 8px; font-size: 17px; font-weight: 700; }
