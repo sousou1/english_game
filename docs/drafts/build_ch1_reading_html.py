@@ -110,13 +110,21 @@ for si, sc in enumerate(scenes):
             notes_html.append(f'<div class="note"><span class="nlabel">{esc(lab)}</span>{pname(inline_md(sc["notes"][lab]))}</div>')
     notes_block = (f'<details class="notes"><summary>演出ノート（{esc(sc["id"])}）</summary>{"".join(notes_html)}</details>') if notes_html else ""
     illust_slot = f'<div class="illust-slot">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>' if sc["illust"] else ""
-    # 行動選択肢
-    acts = ACTIONS.get(sc["id"], ["つづける"])
+    # 行動選択肢: 3択=複数ボタン / アクション点=行動ラベルの1ボタン / その他=「▶ つづける」
+    acts = ACTIONS.get(sc["id"], [])
     is_last = (si == len(scenes) - 1)
+    action_points = set(ACTIONS.get("_action_points", []))
+    if len(acts) > 1:
+        labels = acts
+    elif sc["id"] in action_points and acts:
+        labels = acts
+    else:
+        labels = ["つづける"]
+    plain = (len(labels) == 1 and labels == ["つづける"])
     btns = "".join(
-        f'<button class="act" data-next="{si+1}" data-last="{1 if is_last else 0}">{pname(esc(a))}</button>'
-        for a in acts)
-    multi = ' multi' if len(acts) > 1 else ''
+        f'<button class="act{" plain" if plain else ""}" data-next="{si+1}" data-last="{1 if is_last else 0}">{pname(esc(a))}</button>'
+        for a in labels)
+    multi = ' multi' if len(labels) > 1 else ''
     blocks.append((si,
         f'<section class="scene" id="{esc(sc["id"])}" data-grp="{si}">'
         f'<h3 class="shead"><a href="#{esc(sc["id"])}" class="anchor">#</a> <span class="sid">{esc(sc["id"])}</span> {inline_md(sc["title"])} {star}</h3>'
@@ -164,6 +172,8 @@ p.narration .pname{{color:var(--accent);}}
 .act{{font-family:sans-serif;font-size:.96rem;color:var(--ink);background:linear-gradient(180deg,#241d16,#1b1611);border:1px solid #4a3f2c;border-radius:9px;padding:11px 22px;min-width:60%;cursor:pointer;transition:.15s;letter-spacing:.02em;}}
 .act:before{{content:"▸ ";color:var(--accent);}}
 .act:hover{{border-color:var(--accent);color:#fff;background:linear-gradient(180deg,#2e2517,#221a12);}}
+.act.plain{{min-width:auto;padding:7px 24px;font-size:.86rem;color:var(--dim);background:transparent;border-color:var(--line);}}
+.act.plain:hover{{color:var(--ink);border-color:#5a4a2e;background:#1b1611;}}
 .act.chosen{{opacity:.4;border-color:var(--line);}} .act.faded{{opacity:.18;pointer-events:none;}}
 .callout{{background:var(--panel);border:1px solid var(--line);border-left:3px solid #6a5a3a;color:var(--dim);font-family:sans-serif;font-size:.78rem;line-height:1.7;padding:10px 14px;margin:14px 0;border-radius:6px;}}
 .illust-slot{{background:repeating-linear-gradient(45deg,#1d1916,#1d1916 10px,#211c18 10px,#211c18 20px);border:1px dashed #4a3f30;color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;padding:30px 10px;border-radius:8px;margin:6px 0 14px;}}
