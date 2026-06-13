@@ -232,9 +232,9 @@ function spark(x, y, big = false) {
   setTimeout(() => s.remove(), 700);
 }
 
-function dmgPop(text, crit = false) {
+function dmgPop(text, crit = false, kind = '') {
   const d = document.createElement('div');
-  d.className = `dmg-pop ${crit ? 'crit' : ''}`;
+  d.className = `dmg-pop ${crit ? 'crit' : ''} ${kind}`.trim();
   d.textContent = text;
   const e = $('#enemyWrap').getBoundingClientRect();
   d.style.left = `${e.x + e.width / 2 + (Math.random() * 60 - 30)}px`;
@@ -482,15 +482,14 @@ function poolTap(w, tileEl) {
     renderBand();
     return;
   }
+  // この遭遇の「皮」(combat / move / errand)。手応えの見せ方を分岐するため先に確定。
+  const k0 = p.battle.kills;
+  const js = skinOf(k0, chapterOf(k0));
   // お使い/移動の皮なら、数語ごとに物語行をふわっと出す(Task2: 読みでなく入力で物語が進む)
-  {
-    const k0 = p.battle.kills;
-    const js = skinOf(k0, chapterOf(k0));
-    if (js && js.drift) {
-      if (journey.k !== k0) journey = { k: k0, hits: 0, shown: 0 };
-      journey.hits++;
-      if (journey.hits % 4 === 0 && journey.shown < js.drift.length) showDrift(js.drift[journey.shown++]);
-    }
+  if (js && js.drift) {
+    if (journey.k !== k0) journey = { k: k0, hits: 0, shown: 0 };
+    journey.hits++;
+    if (journey.hits % 4 === 0 && journey.shown < js.drift.length) showDrift(js.drift[journey.shown++]);
   }
 
   // 収入(攻撃=収入)。開発者モードは進行倍率(vrefは正直なまま)
@@ -503,12 +502,17 @@ function poolTap(w, tileEl) {
   if (navigator.vibrate) navigator.vibrate(res.crit ? 25 : 5);
   const r = tileEl.getBoundingClientRect();
   spark(r.x + r.width / 2, r.y + 10, res.crit);
-  dmgPop(`-${fmtBig(devGain)}`, res.crit);
+  // 皮ごとに手応えを変える: 通常戦闘=ダメージ / 移動=前進(+歩) / お使い=運搬(📦+)
+  if (js && js.kind === 'move') dmgPop(`+${fmtBig(devGain)}歩`, res.crit, 'step');
+  else if (js && js.kind === 'errand') dmgPop(`📦+${fmtBig(devGain)}`, res.crit, 'step');
+  else dmgPop(`-${fmtBig(devGain)}`, res.crit);
   if (res.crit) { cutin(pool.tiles.find(() => true) ? w : w, ''); sfx('crit'); }
   const en = $('#enemy');
-  en.classList.remove('hitfx');
+  // 皮のとき(move/errand)は殴打シェイクでなく、穏やかな前進パルスに差し替える
+  const fxClass = js ? 'stepfx' : 'hitfx';
+  en.classList.remove('hitfx', 'stepfx');
   void en.offsetWidth;
-  en.classList.add('hitfx');
+  en.classList.add(fxClass);
 
   if (res.gaugeReady) { sfx('reach'); ticker('力が満ちた——⚡解放できる!', 'gold'); }
   if (res.milestone) ticker(line('milestone_word', { word: w }));

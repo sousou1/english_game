@@ -88,11 +88,18 @@ button:active { transform: scale(.96); }
 }
 .enemy.boss { filter: drop-shadow(0 0 24px rgba(200, 80, 255, .5)); }
 .enemy.hitfx { animation: hitfx .18s; }
+.enemy.stepfx { animation: stepfx .26s ease-out; }
 @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @keyframes hitfx {
   0% { transform: translateX(0) scale(1); filter: brightness(2.4); }
   40% { transform: translateX(7px) scale(.97); }
   100% { transform: translateX(0) scale(1); }
+}
+/* 移動/お使いの「進む手応え」: 殴打でなく、ふわっと弾む前進パルス */
+@keyframes stepfx {
+  0% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-9px) scale(1.06); filter: brightness(1.25); }
+  100% { transform: translateY(0) scale(1); }
 }
 .ehp-wrap { width: 100%; display: flex; align-items: center; gap: 8px; }
 .ehp { flex: 1; height: 12px; background: rgba(0, 0, 0, .45); border-radius: 99px; overflow: hidden; border: 1px solid var(--panel2); }
@@ -121,11 +128,11 @@ button:active { transform: scale(.96); }
 .ticker.tick-in { animation: lineIn .35s ease-out; }
 @keyframes lineIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 .drift-line {
-  position: absolute; left: 50%; bottom: 10px; transform: translate(-50%, 8px);
-  max-width: 88%; text-align: center; font-size: 14px; line-height: 1.6;
-  color: var(--text); background: rgba(11, 10, 16, .72); border-radius: 12px;
+  position: absolute; left: 50%; top: 34px; transform: translate(-50%, -8px);
+  z-index: 4; max-width: 88%; text-align: center; font-size: 14px; line-height: 1.6;
+  color: var(--text); background: rgba(11, 10, 16, .82); border-radius: 12px;
   padding: 8px 14px; pointer-events: none; opacity: 0; transition: opacity .8s ease, transform .8s ease;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, .9);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .9); box-shadow: 0 4px 18px rgba(0, 0, 0, .5);
 }
 .drift-line.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -377,6 +384,8 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
   animation: dmgup .75s ease-out forwards;
 }
 .dmg-pop.crit { font-size: 38px; color: var(--fire2); }
+.dmg-pop.step { color: var(--good); text-shadow: 0 0 12px rgba(79, 174, 122, .85); }
+.dmg-pop.step.crit { color: #9be8b6; }
 @keyframes dmgup {
   0% { transform: translateX(-50%) translateY(8px) scale(.8); opacity: 0; }
   15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
