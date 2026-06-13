@@ -184,7 +184,10 @@ details.notes summary:before{{content:"▸ 演出ノート ";color:var(--accent)
 .note .nlabel{{color:var(--accent);font-weight:600;margin-right:8px;}}
 code{{font-family:ui-monospace,monospace;font-size:.85em;background:#241d17;color:#d7b486;padding:0 4px;border-radius:3px;}}
 body:not(.shownotes) details.notes,body:not(.shownotes) .illust-slot{{display:none;}}
-[data-grp]:not(.shown){{display:none;}}
+/* JS有効時のみVN式に1シーンずつ隠す。JS無効(iOSクイックルック等)では全文がそのまま読める */
+body.js [data-grp]:not(.shown){{display:none;}}
+body:not(.js) .actions{{display:none;}}
+body:not(.js) .toolbar{{display:none;}}
 .endcard{{display:none;text-align:center;color:var(--accent);font-family:sans-serif;margin:40px 0;font-size:1.1rem;letter-spacing:.1em;}}
 .endcard.shown{{display:block;}}
 footer{{color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;margin-top:50px;border-top:1px solid var(--line);padding-top:18px;}}
@@ -205,6 +208,7 @@ footer{{color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:cent
 <footer>本文＝<code>docs/drafts/ch1.md</code>／行動＝<code>ch1_actions.json</code> から自動生成。挿絵スロットは生成後の組込み位置（組み合わせ評価は別工程）。</footer>
 </div>
 <script>
+document.body.classList.add('js'); // JSが動く時だけVN式の段階表示を有効化(無効時は全文表示)
 const groups = {n_scenes};
 function show(grp){{
   document.querySelectorAll('[data-grp="'+grp+'"]').forEach(function(el){{ el.classList.add('shown'); }});
