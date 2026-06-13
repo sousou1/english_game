@@ -599,18 +599,37 @@ const SCENE_ART = {
   c01_180: 'scene_oathroof', c02_000: 'scene_chapter',
 };
 
-// 立ち絵: 会話行「名前「…」」の話者に小さな顔アイコンを添える(por_*。表情差分は normal を既定)
+// 立ち絵: 会話行「名前「…」」の話者に小さな顔アイコンを添える(por_<key>_<表情>)。
+// 表情はセリフ末の気分から推測し、その話者に存在する差分だけ使う(無ければ normal)。
 const PORTRAITS = {
-  'レン': 'por_ren_normal', 'ノノ': 'por_nono_normal', 'マーサ': 'por_martha_normal',
-  '老詠唱士': 'por_sage_normal', 'セシリア': 'por_cecilia_normal', 'ガイ': 'por_gai_normal',
-  'バルド': 'por_bald_normal',
+  'レン': { key: 'ren', moods: { smile: 1, sad: 1, fight: 1 } },
+  'ノノ': { key: 'nono', moods: { smile: 1, sad: 1, surprised: 1, worry: 1, determined: 1 } },
+  'マーサ': { key: 'martha', moods: { smile: 1 } },
+  '老詠唱士': { key: 'sage', moods: {} },
+  'セシリア': { key: 'cecilia', moods: { smug: 1 } },
+  'ガイ': { key: 'gai', moods: {} },
+  'バルド': { key: 'bald', moods: {} },
 };
 
+// セリフ本文から気分を推測(話者が持つ差分のみ採用。優先順で最初に一致したもの)
+function moodOf(text, moods) {
+  const has = (m) => moods[m];
+  if (/[!!?].*[!!?]|だ[!!]|ぞ[!!]|やる|行くぞ|まかせ/.test(text) && has('determined')) return 'determined';
+  if (/[?!!?]{1,}/.test(text) && /[えっ!?]|まさか|びっくり|なに/.test(text) && has('surprised')) return 'surprised';
+  if (/(……|涙|なみだ|さびし|恋し|ごめん|つら|泣)/.test(text) && has('sad')) return 'sad';
+  if (/(だいじょうぶ|心配|こわ|不安|……ね|どうしよ)/.test(text) && has('worry')) return 'worry';
+  if (/(ふっ|ふん|くす|どう[??]|でしょ[??]|ね[??])/.test(text) && has('smug')) return 'smug';
+  if (/(笑|わら|やった|うれし|たのし|^「?は[はぁ]|♪|だね|いいね)/.test(text) && has('smile')) return 'smile';
+  if (/([!!]{1,}|戦|破|こじあけ|撃|たたか)/.test(text) && has('fight')) return 'fight';
+  return 'normal';
+}
+
 function sceneLine(l) {
-  const m = l.match(/^([^「()]{1,6})「/);
-  const face = m && PORTRAITS[m[1]];
-  if (!face) return `<p class="scene-line">${esc(l)}</p>`;
-  return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.remove()"><span>${esc(l)}</span></p>`;
+  const m = l.match(/^([^「()]{1,6})「(.*)/);
+  const who = m && PORTRAITS[m[1]];
+  if (!who) return `<p class="scene-line">${esc(l)}</p>`;
+  const face = `por_${who.key}_${moodOf(m[2], who.moods)}`;
+  return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.src='assets/img/por_${who.key}_normal.webp'"><span>${esc(l)}</span></p>`;
 }
 
 function renderScene(scene, reread) {
