@@ -75,8 +75,8 @@ while i < len(lines):
 flush()
 
 def esc(s): return html.escape(s)
-def pname(s):  # アキ を命名スパンに（escはこの前に済ませる）
-    return s.replace("アキ", '<span class="pname">アキ</span>')
+def pname(s):  # 名前機能はゲームシステム側のため読み物HTMLでは何もしない(主人公名は本文どおり「アキ」固定)
+    return s
 def inline_md(s):
     s = esc(s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
@@ -101,8 +101,7 @@ for si, sc in enumerate(scenes):
         elif kind == "voice":
             body_html.append(f'<p class="line voice"><span class="who">{esc(sp)}</span>「{t}」</p>')
         else:
-            who = (f'<span class="who pname">アキ</span>' if sp == "アキ" else f'<span class="who">{esc(sp)}</span>')
-            body_html.append(f'<p class="line">{who}「{t}」</p>')
+            body_html.append(f'<p class="line"><span class="who">{esc(sp)}</span>「{t}」</p>')
     star = '<span class="ill">★挿絵</span>' if sc["illust"] else ""
     notes_html = []
     for lab in NOTE_ORDER:
@@ -189,21 +188,8 @@ body:not(.shownotes) details.notes,body:not(.shownotes) .illust-slot{{display:no
 .endcard{{display:none;text-align:center;color:var(--accent);font-family:sans-serif;margin:40px 0;font-size:1.1rem;letter-spacing:.1em;}}
 .endcard.shown{{display:block;}}
 footer{{color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;margin-top:50px;border-top:1px solid var(--line);padding-top:18px;}}
-/* 名前入力モーダル */
-#namemodal{{position:fixed;inset:0;background:rgba(10,8,7,.94);z-index:20;display:flex;align-items:center;justify-content:center;}}
-#namemodal .card{{background:var(--panel);border:1px solid #4a3f2c;border-radius:12px;padding:30px 28px;max-width:380px;text-align:center;font-family:sans-serif;}}
-#namemodal h2{{color:var(--accent);font-size:1.1rem;margin:.2em 0 .6em;}}
-#namemodal p{{color:var(--dim);font-size:.84rem;line-height:1.7;}}
-#namemodal input{{font-size:1.1rem;text-align:center;padding:9px 12px;border-radius:8px;border:1px solid #4a3f2c;background:#14110f;color:var(--ink);margin:14px 0;width:70%;}}
-#namemodal button{{font-family:sans-serif;font-size:1rem;color:#fff;background:linear-gradient(180deg,#7a5a26,#5a3f18);border:1px solid var(--accent);border-radius:9px;padding:10px 26px;cursor:pointer;}}
 </style></head>
 <body>
-<div id="namemodal"><div class="card">
-  <h2>主人公の名前</h2>
-  <p>この灯詠みの少年の名を決めてください。<br>（空欄なら「アキ」になります）</p>
-  <input id="nameinput" type="text" maxlength="8" placeholder="アキ" autocomplete="off">
-  <br><button id="namego">この名前ではじめる</button>
-</div></div>
 <div class="toolbar">
   <span class="meta">読みもの評価用 ／ {n_scenes}シーン</span>
   <label><input type="checkbox" id="t-notes"> 演出ノート・挿絵を表示</label>
@@ -235,16 +221,7 @@ function advance(next, isLast, btn){{
   const sec = document.querySelector('[data-grp="'+next+'"]');
   if(sec) sec.scrollIntoView({{behavior:'smooth', block:'start'}});
 }}
-function start(name){{
-  document.querySelectorAll('.pname').forEach(function(e){{ e.textContent = name; }});
-  reveal(0);
-  document.getElementById('namemodal').style.display='none';
-}}
-document.getElementById('namego').addEventListener('click', function(){{
-  const v = (document.getElementById('nameinput').value || '').trim() || 'アキ';
-  start(v);
-}});
-document.getElementById('nameinput').addEventListener('keydown', function(e){{ if(e.key==='Enter') document.getElementById('namego').click(); }});
+reveal(0); // 名前モーダルは廃止: 読み込み直後から最初のシーンを表示
 document.querySelectorAll('.act').forEach(function(b){{
   b.addEventListener('click', function(){{ advance(parseInt(b.dataset.next), b.dataset.last==='1', b); }});
 }});
