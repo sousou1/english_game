@@ -16,6 +16,25 @@ ACTIONS = json.load(open(os.path.join(HERE, "ch1_actions.json"), encoding="utf-8
 lines = open(SRC, encoding="utf-8").read().splitlines()
 ILLUST_SCENES = {"c01_010", "c01_040", "c01_060", "c01_140", "c01_180"}
 
+# --- 挿絵の採用カット（2026-06-14 claude vision 選定 / 最終可否は人間レビュー）------------------
+# 候補画像は ch1_illust_assets/il_<sid>_<seed>_0.png（生成済み26枚を同梱）。
+# rec=推奨1案のシード, cand=全候補シード（人間が差し替えられるよう全併記）。
+# 整合チェック5観点（①大灯の近代タワー化 ②主人公の顔/全身露出 ③年齢12-13からのズレ
+# ④画風崩れ ⑤灰→雪化け）で逸脱ゼロを確認済み。各seed23が整合タグ最多のため推奨。
+ASSET_DIR = "ch1_illust_assets"
+ILLUST = {
+    "c01_010": {"rec": 23, "cand": [7, 11, 23, 31],
+                "cap": "屋根の上で振り返るユイ（見た目12〜13歳）と眼下の祭り・谷縁の大灯（石積み＋木組みの古い灯台）"},
+    "c01_040": {"rec": 23, "cand": [7, 11, 23, 31],
+                "cap": "一人称POV：差し出したアキの手とカンテラ／放射状の光と薙がれる灰の靄・奥にユイ"},
+    "c01_060": {"rec": 23, "cand": [7, 11, 23, 31],
+                "cap": "灰の靄から浮かぶ灰狼の影（喉に灰）／手前は立ちすくむ村人の背・主人公は映さない"},
+    "c01_140": {"rec": 23, "cand": [7, 11, 23, 31],
+                "cap": "ボス灰狼（喉に灰の亀裂）と、手前にカンテラを構える腕（顔は映さない）の対峙"},
+    "c01_180": {"rec": 23, "cand": [7, 11, 23, 31],
+                "cap": "広い星空の下、街道を行くユイの小さな後ろ姿と遠くの街のあかり・カンテラの一点の暖色"},
+}
+
 scenes, quests, callouts, intro_lines = [], [], [], []
 cur, mode, note_label = None, None, None
 
@@ -108,7 +127,29 @@ for si, sc in enumerate(scenes):
         if sc["notes"].get(lab):
             notes_html.append(f'<div class="note"><span class="nlabel">{esc(lab)}</span>{pname(inline_md(sc["notes"][lab]))}</div>')
     notes_block = (f'<details class="notes"><summary>演出ノート（{esc(sc["id"])}）</summary>{"".join(notes_html)}</details>') if notes_html else ""
-    illust_slot = f'<div class="illust-slot">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>' if sc["illust"] else ""
+    illust_slot = ""
+    if sc["illust"]:
+        info = ILLUST.get(sc["id"])
+        if info:
+            sid = sc["id"]
+            domid = "img-" + sid.replace("_", "-")  # 例: img-c01-040
+            rec = info["rec"]
+            rec_src = f'{ASSET_DIR}/il_{sid}_{rec}_0.png'
+            thumbs = "".join(
+                f'<figure class="cand{" is-rec" if s==rec else ""}">'
+                f'<img loading="lazy" src="{ASSET_DIR}/il_{sid}_{s}_0.png" alt="{esc(sid)} seed{s}">'
+                f'<figcaption>seed{s}{"（推奨）" if s==rec else ""}</figcaption></figure>'
+                for s in info["cand"])
+            illust_slot = (
+                f'<figure class="illust" id="{domid}">'
+                f'<img loading="lazy" src="{esc(rec_src)}" alt="{esc(sid)} 推奨カット seed{rec}">'
+                f'<figcaption><span class="ill-rec">推奨</span> {esc(sid)} ／ seed{rec} ／ '
+                f'<span class="ill-cap">{esc(info["cap"])}</span></figcaption>'
+                f'<details class="cands"><summary>全候補（{len(info["cand"])}枚）から選ぶ — 採否は人間レビュー</summary>'
+                f'<div class="candrow">{thumbs}</div></details>'
+                f'</figure>')
+        else:
+            illust_slot = f'<div class="illust-slot">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>'
     # 行動選択肢: 3択=複数ボタン / アクション点=行動ラベルの1ボタン / その他=「▶ つづける」
     acts = ACTIONS.get(sc["id"], [])
     is_last = (si == len(scenes) - 1)
@@ -176,6 +217,21 @@ p.narration .pname{{color:var(--accent);}}
 .act.chosen{{opacity:.4;border-color:var(--line);}} .act.faded{{opacity:.18;pointer-events:none;}}
 .callout{{background:var(--panel);border:1px solid var(--line);border-left:3px solid #6a5a3a;color:var(--dim);font-family:sans-serif;font-size:.78rem;line-height:1.7;padding:10px 14px;margin:14px 0;border-radius:6px;}}
 .illust-slot{{background:repeating-linear-gradient(45deg,#1d1916,#1d1916 10px,#211c18 10px,#211c18 20px);border:1px dashed #4a3f30;color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;padding:30px 10px;border-radius:8px;margin:6px 0 14px;}}
+figure.illust{{margin:8px 0 18px;background:#191512;border:1px solid var(--line);border-radius:10px;overflow:hidden;}}
+figure.illust>img{{display:block;width:100%;height:auto;}}
+figure.illust>figcaption{{font-family:sans-serif;font-size:.78rem;line-height:1.6;color:#b8ac9c;padding:9px 14px;}}
+figure.illust .ill-rec{{color:#14110f;background:var(--accent);font-weight:700;border-radius:4px;padding:1px 7px;font-size:.72rem;margin-right:6px;}}
+figure.illust .ill-cap{{color:var(--dim);}}
+details.cands{{border-top:1px solid var(--line);}}
+details.cands summary{{cursor:pointer;color:var(--accent);font-family:sans-serif;font-size:.74rem;padding:8px 14px;list-style:none;}}
+details.cands summary::-webkit-details-marker{{display:none}}
+details.cands summary:before{{content:"▸ ";}}
+.candrow{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:6px 14px 14px;}}
+figure.cand{{margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#14110f;}}
+figure.cand.is-rec{{border-color:var(--accent);}}
+figure.cand>img{{display:block;width:100%;height:auto;}}
+figure.cand>figcaption{{font-family:sans-serif;font-size:.7rem;color:var(--dim);text-align:center;padding:4px 2px;}}
+figure.cand.is-rec>figcaption{{color:var(--accent);}}
 details.notes{{margin:8px 0 4px;border:1px solid var(--line);border-radius:6px;background:#191512;}}
 details.notes summary{{cursor:pointer;color:var(--dim);font-family:sans-serif;font-size:.74rem;padding:7px 12px;list-style:none;}}
 details.notes summary::-webkit-details-marker{{display:none}}
