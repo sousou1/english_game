@@ -599,6 +599,20 @@ const SCENE_ART = {
   c01_180: 'scene_oathroof', c02_000: 'scene_chapter',
 };
 
+// 立ち絵: 会話行「名前「…」」の話者に小さな顔アイコンを添える(por_*。表情差分は normal を既定)
+const PORTRAITS = {
+  'レン': 'por_ren_normal', 'ノノ': 'por_nono_normal', 'マーサ': 'por_martha_normal',
+  '老詠唱士': 'por_sage_normal', 'セシリア': 'por_cecilia_normal', 'ガイ': 'por_gai_normal',
+  'バルド': 'por_bald_normal',
+};
+
+function sceneLine(l) {
+  const m = l.match(/^([^「()]{1,6})「/);
+  const face = m && PORTRAITS[m[1]];
+  if (!face) return `<p class="scene-line">${esc(l)}</p>`;
+  return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.remove()"><span>${esc(l)}</span></p>`;
+}
+
 function renderScene(scene, reread) {
   const p = app.profile;
   const sc = p.scenario;
@@ -611,7 +625,7 @@ function renderScene(scene, reread) {
     <h3>📜 ${esc(scene.title)}</h3>
     ${SCENE_ART[scene.id] ? `<img class="ev-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
     ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
-    <div class="scene">${scene.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
+    <div class="scene">${scene.lines.map(sceneLine).join('')}</div>
     ${scene.choice && !reread ? `
       <div class="choices">
         <p class="choice-prompt">${esc(scene.choice.prompt)}</p>
@@ -1001,7 +1015,7 @@ function renderEventStep() {
   if (s.t === 'lines') {
     body.innerHTML = `${head}
       ${s.art && ev.art ? `<img class="ev-art" src="assets/img/${ev.art}.webp" onerror="this.remove()">` : ''}
-      <div class="ev-lines">${s.lines.map((l) => `<p class="scene-line">${esc(l)}</p>`).join('')}</div>
+      <div class="ev-lines">${s.lines.map(sceneLine).join('')}</div>
       <button class="primary-btn" data-act="next">▶ つづける</button>`;
   } else if (s.t === 'teach') {
     body.innerHTML = `${head}
