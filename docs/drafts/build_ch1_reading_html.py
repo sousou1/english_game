@@ -16,7 +16,7 @@ ACTIONS = json.load(open(os.path.join(HERE, "ch1_actions.json"), encoding="utf-8
 lines = open(SRC, encoding="utf-8").read().splitlines()
 ILLUST_SCENES = {"c01_010", "c01_040", "c01_060", "c01_140", "c01_180"}
 
-# --- 挿絵の採用カット（2026-06-14 claude vision 選定 / 最終可否は人間レビュー）------------------
+# --- 挿絵の採用カット（2026-06-14 claude vision 選定 → ユーザー承認済み・第1章確定）------------------
 # 候補画像は ch1_illust_assets/il_<sid>_<seed>_0.png（生成済み26枚を同梱）。
 # rec=推奨1案のシード, cand=全候補シード（人間が差し替えられるよう全併記）。
 # 整合チェック5観点（①大灯の近代タワー化 ②主人公の顔/全身露出 ③年齢12-13からのズレ
