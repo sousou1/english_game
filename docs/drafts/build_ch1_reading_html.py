@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
-# docs/drafts/ch1.md を「読みもの」として読める自己完結HTMLに変換する。
+# docs/drafts/ch1.md を「ノベルゲーム風に能動的に読める」自己完結HTMLに変換する。
 # 出力: docs/drafts/ch1_reading.html
-# - 本文を主役にして読めるレイアウト。台詞/地の文/カンテラの声を描き分け。
-# - 演出・挿絵概要・学習接続・分岐は <details> の「演出ノート」に畳む(既定=閉、純粋な読み物)。
-# - シーンIDを見出し/アンカーに振り、指摘しやすくする。
-import re, html, sys, os
+# 機能:
+#  - 冒頭で主人公名を任意入力(デフォルト「アキ」)。本文/話者ラベルの「アキ」を置換。
+#  - 1シーンずつ進行。各シーン末に「行動」選択肢(ch1_actions.json)を表示し、押すと次へ。
+#    温度3択シーンは3ボタン(どれでも同一の次シーンへ合流=canon)。
+#  - 本文を主役に台詞/地の文/カンテラの声(別色)を描き分け。演出ノート/挿絵スロットはトグルで表示。
+import re, html, json, sys, os
 
-SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "ch1.md")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(os.path.dirname(__file__), "ch1_reading.html")
+HERE = os.path.dirname(__file__)
+SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "ch1.md")
+OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "ch1_reading.html")
+ACTIONS = json.load(open(os.path.join(HERE, "ch1_actions.json"), encoding="utf-8"))
 
 lines = open(SRC, encoding="utf-8").read().splitlines()
-
-# --- パース ---
 ILLUST_SCENES = {"c01_010", "c01_040", "c01_060", "c01_140", "c01_180"}
-scenes = []          # {id,title,illust,body:[(kind,speaker,text)],notes:{label:text}}
-quests = []          # (index_in_scenes, quest_title)
-callouts = []        # (after_scene_index, text)  ▶ イベント/さしいれ
-intro_lines = []
-cur = None
-mode = None          # None / 'body' / 'note'
-note_label = None
-seen_quest = False
 
-def flush_scene():
+scenes, quests, callouts, intro_lines = [], [], [], []
+cur, mode, note_label = None, None, None
+
+def flush():
     global cur
     if cur is not None:
-        scenes.append(cur)
-        cur = None
+        scenes.append(cur); cur = None
 
 i = 0
 while i < len(lines):
@@ -35,73 +31,52 @@ while i < len(lines):
     m_s = re.match(r"^### (c01_\d+)\s*(.*)$", ln)
     m_note = re.match(r"^\*\*(本文|演出|挿絵概要|学習接続|分岐/フラグ)\*\*\s*[:：]?\s*(.*)$", ln)
     m_call = re.match(r"^>\s*▶\s*(.*)$", ln)
-
     if m_q:
-        flush_scene()
-        quests.append((len(scenes), m_q.group(1).strip()))
-        mode = None
-        i += 1; continue
+        flush(); quests.append((len(scenes), m_q.group(1).strip())); mode = None; i += 1; continue
     if m_s:
-        flush_scene()
-        sid = m_s.group(1)
+        flush(); sid = m_s.group(1)
         title = m_s.group(2).replace("★挿絵", "").strip()
-        cur = {"id": sid, "title": title, "illust": ("★挿絵" in m_s.group(2)) or (sid in ILLUST_SCENES),
+        cur = {"id": sid, "title": title,
+               "illust": ("★挿絵" in m_s.group(2)) or (sid in ILLUST_SCENES),
                "body": [], "notes": {}}
-        mode = None
-        i += 1; continue
+        mode = None; i += 1; continue
     if m_call:
-        # ▶ コールアウト（イベント/さしいれ）。直前シーンの後に置く。
-        txt = m_call.group(1).strip()
-        # 連続する > 行を結合
-        j = i + 1
+        txt = m_call.group(1).strip(); j = i + 1
         while j < len(lines) and re.match(r"^>\s+", lines[j]) and not re.match(r"^>\s*▶", lines[j]):
-            txt += " " + re.sub(r"^>\s+", "", lines[j]).strip()
-            j += 1
-        callouts.append((len(scenes) - 1, txt))
-        i = j; continue
+            txt += " " + re.sub(r"^>\s+", "", lines[j]).strip(); j += 1
+        callouts.append((len(scenes) - 1, txt)); i = j; continue
     if m_note and cur is not None:
         label = m_note.group(1)
         if label == "本文":
             mode = "body"
         else:
             mode = "note"; note_label = label
-            rest = m_note.group(2).strip()
-            cur["notes"][label] = rest
+            cur["notes"][label] = m_note.group(2).strip()
         i += 1; continue
-
-    # 本文の引用行
     if cur is not None and mode == "body" and ln.startswith(">"):
         text = re.sub(r"^>\s?", "", ln).rstrip()
-        if text == "":
-            i += 1; continue
-        # 話者判定
-        m_sp = re.match(r"^([^「」]{1,8})「(.*)」\s*$", text)
-        if m_sp:
-            sp = m_sp.group(1)
-            kind = "voice" if sp == "声" else "dialogue"
-            cur["body"].append((kind, sp, m_sp.group(2)))
-        else:
-            cur["body"].append(("narration", "", text))
+        if text:
+            m_sp = re.match(r"^([^「」]{1,8})「(.*)」\s*$", text)
+            if m_sp:
+                sp = m_sp.group(1)
+                cur["body"].append(("voice" if sp == "声" else "dialogue", sp, m_sp.group(2)))
+            else:
+                cur["body"].append(("narration", "", text))
         i += 1; continue
-
-    # ノート本文の続き（演出等の複数行）
     if cur is not None and mode == "note":
-        if ln.strip() == "" or ln.startswith("###") or ln.startswith("##"):
+        if ln.strip() == "" or ln.startswith("#"):
             mode = None
         else:
             cur["notes"][note_label] = (cur["notes"].get(note_label, "") + " " + ln.strip()).strip()
         i += 1; continue
-
-    # イントロ（最初のクエスト前）
     if not quests and cur is None:
         intro_lines.append(ln)
     i += 1
+flush()
 
-flush_scene()
-
-# --- HTML 生成 ---
 def esc(s): return html.escape(s)
-
+def pname(s):  # アキ を命名スパンに（escはこの前に済ませる）
+    return s.replace("アキ", '<span class="pname">アキ</span>')
 def inline_md(s):
     s = esc(s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
@@ -109,57 +84,53 @@ def inline_md(s):
     return s
 
 NOTE_ORDER = ["演出", "挿絵概要", "学習接続", "分岐/フラグ"]
-
-# クエスト境界マップ
-quest_at = {idx: title for idx, title in quests}
+quest_at = {idx: t for idx, t in quests}
 callout_at = {}
 for idx, txt in callouts:
     callout_at.setdefault(idx, []).append(txt)
 
-parts = []
+blocks = []  # (group_scene_index, html)
 for si, sc in enumerate(scenes):
     if si in quest_at:
-        parts.append(f'<h2 class="quest">{inline_md(quest_at[si])}</h2>')
+        blocks.append((si, f'<h2 class="quest" data-grp="{si}">{inline_md(quest_at[si])}</h2>'))
     body_html = []
     for kind, sp, text in sc["body"]:
+        t = pname(esc(text))
         if kind == "narration":
-            body_html.append(f'<p class="narration">{esc(text)}</p>')
+            body_html.append(f'<p class="narration">{t}</p>')
         elif kind == "voice":
-            body_html.append(f'<p class="line voice"><span class="who">{esc(sp)}</span>「{esc(text)}」</p>')
+            body_html.append(f'<p class="line voice"><span class="who">{esc(sp)}</span>「{t}」</p>')
         else:
-            body_html.append(f'<p class="line"><span class="who">{esc(sp)}</span>「{esc(text)}」</p>')
-    star = '<span class="ill" title="節目の挿絵シーン">★挿絵</span>' if sc["illust"] else ""
+            who = (f'<span class="who pname">アキ</span>' if sp == "アキ" else f'<span class="who">{esc(sp)}</span>')
+            body_html.append(f'<p class="line">{who}「{t}」</p>')
+    star = '<span class="ill">★挿絵</span>' if sc["illust"] else ""
     notes_html = []
     for lab in NOTE_ORDER:
-        if lab in sc["notes"] and sc["notes"][lab]:
-            notes_html.append(f'<div class="note"><span class="nlabel">{esc(lab)}</span>{inline_md(sc["notes"][lab])}</div>')
-    notes_block = ""
-    if notes_html:
-        notes_block = (f'<details class="notes"><summary>演出ノート（{esc(sc["id"])}）</summary>'
-                       + "".join(notes_html) + "</details>")
-    illust_slot = ""
-    if sc["illust"]:
-        illust_slot = f'<div class="illust-slot" data-sid="{esc(sc["id"])}">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>'
-    parts.append(
-        f'<section class="scene" id="{esc(sc["id"])}">'
+        if sc["notes"].get(lab):
+            notes_html.append(f'<div class="note"><span class="nlabel">{esc(lab)}</span>{pname(inline_md(sc["notes"][lab]))}</div>')
+    notes_block = (f'<details class="notes"><summary>演出ノート（{esc(sc["id"])}）</summary>{"".join(notes_html)}</details>') if notes_html else ""
+    illust_slot = f'<div class="illust-slot">挿絵スロット（{esc(sc["id"])}）— 生成後に組み込み</div>' if sc["illust"] else ""
+    # 行動選択肢
+    acts = ACTIONS.get(sc["id"], ["つづける"])
+    is_last = (si == len(scenes) - 1)
+    btns = "".join(
+        f'<button class="act" data-next="{si+1}" data-last="{1 if is_last else 0}">{pname(esc(a))}</button>'
+        for a in acts)
+    multi = ' multi' if len(acts) > 1 else ''
+    blocks.append((si,
+        f'<section class="scene" id="{esc(sc["id"])}" data-grp="{si}">'
         f'<h3 class="shead"><a href="#{esc(sc["id"])}" class="anchor">#</a> <span class="sid">{esc(sc["id"])}</span> {inline_md(sc["title"])} {star}</h3>'
-        f'{illust_slot}'
-        f'<div class="body">{"".join(body_html)}</div>'
-        f'{notes_block}'
-        "</section>"
-    )
+        f'{illust_slot}<div class="body">{"".join(body_html)}</div>{notes_block}'
+        f'<div class="actions{multi}">{btns}</div>'
+        "</section>"))
     for txt in callout_at.get(si, []):
-        parts.append(f'<aside class="callout">▶ {inline_md(txt)}</aside>')
+        blocks.append((si, f'<aside class="callout" data-grp="{si}">▶ {inline_md(txt)}</aside>'))
 
-intro_html = ""
-# イントロは要点だけ（先頭の見出しと舞台行）を畳んで載せる
-intro_join = "\n".join(intro_lines)
-title_m = re.search(r"^# (.*)$", intro_join, re.M)
-chapter_title = title_m.group(1).strip() if title_m else "第1章"
-# 読みもの用に簡潔化（「…素案 ―…」以降を落とす）
-chapter_title = re.split(r"\s*素案", chapter_title)[0].strip()
+body_doc = "".join(h for _, h in blocks)
 
-body_doc = "".join(parts)
+title_m = re.search(r"^# (.*)$", "\n".join(intro_lines), re.M)
+chapter_title = re.split(r"\s*素案", (title_m.group(1).strip() if title_m else "第1章"))[0].strip()
+n_scenes = len(scenes)
 
 doc = f"""<!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
@@ -169,59 +140,111 @@ doc = f"""<!DOCTYPE html>
 :root{{--bg:#14110f;--panel:#1d1916;--ink:#ece5db;--dim:#9a8f81;--accent:#e0a85a;--voice:#7fb6c4;--line:#2a241f;}}
 *{{box-sizing:border-box}}
 body{{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Mincho ProN","Yu Mincho",serif;line-height:1.95;}}
-.wrap{{max-width:760px;margin:0 auto;padding:48px 22px 120px;}}
-header.top{{text-align:center;border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:10px;}}
-header.top h1{{font-size:1.9rem;letter-spacing:.06em;margin:.2em 0;}}
-header.top .sub{{color:var(--dim);font-size:.9rem;font-family:sans-serif;}}
-.toolbar{{position:sticky;top:0;background:rgba(20,17,15,.92);backdrop-filter:blur(4px);z-index:5;display:flex;gap:14px;align-items:center;justify-content:center;padding:10px;border-bottom:1px solid var(--line);font-family:sans-serif;font-size:.84rem;}}
-.toolbar label{{color:var(--dim);cursor:pointer;user-select:none;}}
-h2.quest{{font-size:1.15rem;color:var(--accent);font-family:sans-serif;letter-spacing:.05em;margin:64px 0 8px;border-left:3px solid var(--accent);padding-left:12px;}}
-section.scene{{padding:22px 0 8px;border-bottom:1px dotted var(--line);}}
-.shead{{font-size:.82rem;font-family:sans-serif;font-weight:600;color:var(--dim);margin:0 0 14px;letter-spacing:.02em;}}
-.shead .sid{{color:var(--accent);opacity:.8;}}
-.shead .anchor{{color:var(--line);text-decoration:none;}}
+.wrap{{max-width:760px;margin:0 auto;padding:20px 22px 160px;}}
+header.top{{text-align:center;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:6px;}}
+header.top h1{{font-size:1.8rem;letter-spacing:.06em;margin:.2em 0;}}
+header.top .sub{{color:var(--dim);font-size:.86rem;font-family:sans-serif;}}
+.toolbar{{position:sticky;top:0;background:rgba(20,17,15,.93);backdrop-filter:blur(4px);z-index:5;display:flex;gap:16px;align-items:center;justify-content:center;padding:9px;border-bottom:1px solid var(--line);font-family:sans-serif;font-size:.82rem;}}
+.toolbar label,.toolbar button{{color:var(--dim);cursor:pointer;font-family:sans-serif;font-size:.82rem;background:none;border:1px solid var(--line);border-radius:5px;padding:3px 9px;}}
+.toolbar .meta{{border:none;}}
+h2.quest{{font-size:1.12rem;color:var(--accent);font-family:sans-serif;letter-spacing:.05em;margin:54px 0 8px;border-left:3px solid var(--accent);padding-left:12px;}}
+section.scene{{padding:18px 0 6px;}}
+.shead{{font-size:.8rem;font-family:sans-serif;font-weight:600;color:var(--dim);margin:0 0 12px;}}
+.shead .sid{{color:var(--accent);opacity:.8;}} .shead .anchor{{color:var(--line);text-decoration:none;}}
 .shead:hover .anchor{{color:var(--accent);}}
-.ill{{color:#caa15e;border:1px solid #5a4a2e;border-radius:4px;padding:0 6px;font-size:.7rem;margin-left:6px;}}
-.body{{font-size:1.08rem;}}
-p{{margin:.1em 0 .55em;}}
-p.narration{{text-indent:1em;color:var(--ink);}}
-p.line{{margin-left:.2em;}}
-p.line .who{{color:var(--accent);font-family:sans-serif;font-size:.78rem;margin-right:.15em;opacity:.95;}}
-p.voice{{color:var(--voice);font-style:italic;opacity:.92;}}
-p.voice .who{{color:var(--voice);}}
-.callout{{background:var(--panel);border:1px solid var(--line);border-left:3px solid #6a5a3a;color:var(--dim);font-family:sans-serif;font-size:.8rem;line-height:1.7;padding:10px 14px;margin:14px 0;border-radius:6px;}}
-.illust-slot{{background:repeating-linear-gradient(45deg,#1d1916,#1d1916 10px,#211c18 10px,#211c18 20px);border:1px dashed #4a3f30;color:var(--dim);font-family:sans-serif;font-size:.78rem;text-align:center;padding:34px 10px;border-radius:8px;margin:6px 0 16px;}}
+.ill{{color:#caa15e;border:1px solid #5a4a2e;border-radius:4px;padding:0 6px;font-size:.68rem;margin-left:6px;}}
+.body{{font-size:1.08rem;}} p{{margin:.1em 0 .55em;}}
+p.narration{{text-indent:1em;}}
+p.line .who{{color:var(--accent);font-family:sans-serif;font-size:.78rem;margin-right:.15em;}}
+p.voice{{color:var(--voice);font-style:italic;opacity:.92;}} p.voice .who{{color:var(--voice);}}
+.pname{{color:inherit;font-weight:600;}}
+p.narration .pname{{color:var(--accent);}}
+.actions{{display:flex;flex-direction:column;gap:9px;margin:20px 0 8px;align-items:center;}}
+.actions.multi .act{{border-color:#6a5a3a;}}
+.act{{font-family:sans-serif;font-size:.96rem;color:var(--ink);background:linear-gradient(180deg,#241d16,#1b1611);border:1px solid #4a3f2c;border-radius:9px;padding:11px 22px;min-width:60%;cursor:pointer;transition:.15s;letter-spacing:.02em;}}
+.act:before{{content:"▸ ";color:var(--accent);}}
+.act:hover{{border-color:var(--accent);color:#fff;background:linear-gradient(180deg,#2e2517,#221a12);}}
+.act.chosen{{opacity:.4;border-color:var(--line);}} .act.faded{{opacity:.18;pointer-events:none;}}
+.callout{{background:var(--panel);border:1px solid var(--line);border-left:3px solid #6a5a3a;color:var(--dim);font-family:sans-serif;font-size:.78rem;line-height:1.7;padding:10px 14px;margin:14px 0;border-radius:6px;}}
+.illust-slot{{background:repeating-linear-gradient(45deg,#1d1916,#1d1916 10px,#211c18 10px,#211c18 20px);border:1px dashed #4a3f30;color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;padding:30px 10px;border-radius:8px;margin:6px 0 14px;}}
 details.notes{{margin:8px 0 4px;border:1px solid var(--line);border-radius:6px;background:#191512;}}
-details.notes summary{{cursor:pointer;color:var(--dim);font-family:sans-serif;font-size:.76rem;padding:7px 12px;list-style:none;}}
+details.notes summary{{cursor:pointer;color:var(--dim);font-family:sans-serif;font-size:.74rem;padding:7px 12px;list-style:none;}}
 details.notes summary::-webkit-details-marker{{display:none}}
-details.notes summary:before{{content:"▸ ";color:var(--accent);}}
-details.notes[open] summary:before{{content:"▾ ";}}
-.note{{font-family:sans-serif;font-size:.78rem;line-height:1.7;color:#b8ac9c;padding:6px 14px;border-top:1px solid var(--line);}}
-.note .nlabel{{display:inline-block;color:var(--accent);font-weight:600;margin-right:8px;}}
+details.notes summary:before{{content:"▸ 演出ノート ";color:var(--accent);}}
+.note{{font-family:sans-serif;font-size:.76rem;line-height:1.7;color:#b8ac9c;padding:6px 14px;border-top:1px solid var(--line);}}
+.note .nlabel{{color:var(--accent);font-weight:600;margin-right:8px;}}
 code{{font-family:ui-monospace,monospace;font-size:.85em;background:#241d17;color:#d7b486;padding:0 4px;border-radius:3px;}}
-body.hidenotes details.notes{{display:none;}}
-body.hidenotes .illust-slot{{display:none;}}
-footer{{color:var(--dim);font-family:sans-serif;font-size:.78rem;text-align:center;margin-top:60px;border-top:1px solid var(--line);padding-top:20px;}}
+body:not(.shownotes) details.notes,body:not(.shownotes) .illust-slot{{display:none;}}
+[data-grp]:not(.shown){{display:none;}}
+.endcard{{display:none;text-align:center;color:var(--accent);font-family:sans-serif;margin:40px 0;font-size:1.1rem;letter-spacing:.1em;}}
+.endcard.shown{{display:block;}}
+footer{{color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:center;margin-top:50px;border-top:1px solid var(--line);padding-top:18px;}}
+/* 名前入力モーダル */
+#namemodal{{position:fixed;inset:0;background:rgba(10,8,7,.94);z-index:20;display:flex;align-items:center;justify-content:center;}}
+#namemodal .card{{background:var(--panel);border:1px solid #4a3f2c;border-radius:12px;padding:30px 28px;max-width:380px;text-align:center;font-family:sans-serif;}}
+#namemodal h2{{color:var(--accent);font-size:1.1rem;margin:.2em 0 .6em;}}
+#namemodal p{{color:var(--dim);font-size:.84rem;line-height:1.7;}}
+#namemodal input{{font-size:1.1rem;text-align:center;padding:9px 12px;border-radius:8px;border:1px solid #4a3f2c;background:#14110f;color:var(--ink);margin:14px 0;width:70%;}}
+#namemodal button{{font-family:sans-serif;font-size:1rem;color:#fff;background:linear-gradient(180deg,#7a5a26,#5a3f18);border:1px solid var(--accent);border-radius:9px;padding:10px 26px;cursor:pointer;}}
 </style></head>
-<body class="hidenotes">
+<body>
+<div id="namemodal"><div class="card">
+  <h2>主人公の名前</h2>
+  <p>この灯詠みの少年の名を決めてください。<br>（空欄なら「アキ」になります）</p>
+  <input id="nameinput" type="text" maxlength="8" placeholder="アキ" autocomplete="off">
+  <br><button id="namego">この名前ではじめる</button>
+</div></div>
 <div class="toolbar">
-  <label><input type="checkbox" id="t-notes"> 演出ノート・挿絵スロットを表示</label>
+  <span class="meta">読みもの評価用 ／ {n_scenes}シーン</span>
+  <label><input type="checkbox" id="t-notes"> 演出ノート・挿絵を表示</label>
+  <button id="t-all">最後まで一気に表示</button>
 </div>
 <div class="wrap">
 <header class="top">
   <h1>{esc(chapter_title)}</h1>
-  <div class="sub">『ともしび』第1章 ／ 読みもの評価用（本文中心・演出ノートは既定で非表示）</div>
+  <div class="sub">『ともしび』第1章 ／ 行動を選んで読み進める（“何をするか”を選択肢で明示）</div>
 </header>
 {body_doc}
-<footer>読みもの評価用ビルド ／ 本文＝<code>docs/drafts/ch1.md</code> から自動生成。<br>
-挿絵スロットは生成後にシーン絵を組み込む位置（組み合わせ評価は別途）。</footer>
+<div class="endcard" id="endcard">― 第1章 了 ―</div>
+<footer>本文＝<code>docs/drafts/ch1.md</code>／行動＝<code>ch1_actions.json</code> から自動生成。挿絵スロットは生成後の組込み位置（組み合わせ評価は別工程）。</footer>
 </div>
 <script>
-document.getElementById('t-notes').addEventListener('change',function(e){{
-  document.body.classList.toggle('hidenotes', !e.target.checked);
+const groups = {n_scenes};
+function show(grp){{
+  document.querySelectorAll('[data-grp="'+grp+'"]').forEach(function(el){{ el.classList.add('shown'); }});
+}}
+let cur = 0;
+function reveal(upto){{ for(let g=0; g<=upto; g++) show(g); cur = Math.max(cur, upto); }}
+function advance(next, isLast, btn){{
+  // 押したボタンを選択済みに、同シーンの他ボタンを淡色化
+  const acts = btn.parentNode;
+  acts.querySelectorAll('.act').forEach(function(b){{ b.classList.add(b===btn?'chosen':'faded'); }});
+  if(isLast){{ document.getElementById('endcard').classList.add('shown'); return; }}
+  show(next);
+  if(next>cur) cur = next;
+  const sec = document.querySelector('[data-grp="'+next+'"]');
+  if(sec) sec.scrollIntoView({{behavior:'smooth', block:'start'}});
+}}
+function start(name){{
+  document.querySelectorAll('.pname').forEach(function(e){{ e.textContent = name; }});
+  reveal(0);
+  document.getElementById('namemodal').style.display='none';
+}}
+document.getElementById('namego').addEventListener('click', function(){{
+  const v = (document.getElementById('nameinput').value || '').trim() || 'アキ';
+  start(v);
+}});
+document.getElementById('nameinput').addEventListener('keydown', function(e){{ if(e.key==='Enter') document.getElementById('namego').click(); }});
+document.querySelectorAll('.act').forEach(function(b){{
+  b.addEventListener('click', function(){{ advance(parseInt(b.dataset.next), b.dataset.last==='1', b); }});
+}});
+document.getElementById('t-notes').addEventListener('change', function(e){{ document.body.classList.toggle('shownotes', e.target.checked); }});
+document.getElementById('t-all').addEventListener('click', function(){{
+  for(let g=0; g<groups; g++) show(g);
+  document.querySelectorAll('.act').forEach(function(b){{ if(b.dataset.last!=='1') b.classList.add('chosen'); }});
+  document.getElementById('endcard').classList.add('shown');
 }});
 </script>
 </body></html>"""
-
 open(OUT, "w", encoding="utf-8").write(doc)
 print(f"scenes={len(scenes)} quests={len(quests)} callouts={len(callouts)} -> {OUT}")
