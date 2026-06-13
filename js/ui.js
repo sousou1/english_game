@@ -533,6 +533,7 @@ function applyFlag(flagStr) {
 
 function canPassGate(gate) {
   if (!gate) return true;
+  if (app.profile.dev?.story) return true; // デバッグ: ストーリー解放(ゲート全無視)
   if (gate.settled && settledCount() < gate.settled) return false;
   if (gate.kills && app.profile.battle.kills < gate.kills) return false;
   return true;
@@ -635,7 +636,7 @@ function sceneLine(l) {
 function renderScene(scene, reread) {
   const p = app.profile;
   const sc = p.scenario;
-  const cost = reread ? 0 : (sc.read[scene.id] ? 0 : sceneCost(scene));
+  const cost = reread || p.dev?.story ? 0 : (sc.read[scene.id] ? 0 : sceneCost(scene));
   const body = $('#sheetBody');
   const canAfford = p.gold >= cost;
   const letter = !reread && letterAvailable(p);
@@ -945,6 +946,12 @@ function renderSettingsSheet() {
       <button class="chip" data-skip="86400000">+1日</button>
       <button class="chip" data-skip="604800000">+1週間</button>
     </div>
+    <h4>ストーリー試遊(デバッグ)</h4>
+    <div class="chips">
+      <button class="chip ${app.profile.dev?.story ? 'on' : ''}" data-act="storymode">📖 ストーリー解放${app.profile.dev?.story ? '(ON)' : ''}</button>
+      <button class="chip" data-act="storynext">▶ 次の物語へ</button>
+    </div>
+    <p class="story-hint">解放ON: シーンの解禁ゲート(討伐数・定着語)と読む費用を無視して読み進められる。イベントもgate解放で順に開く。</p>
     <p class="story-hint">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ 討伐 ${app.profile.battle.kills}体</p>
   `;
   body.onclick = (ev) => {
@@ -959,7 +966,7 @@ function renderSettingsSheet() {
     const tg = ev.target.closest('[data-tg]');
     if (tg) { s[tg.dataset.tg] = !s[tg.dataset.tg]; app.save(); reopen(); return; }
     const dv = ev.target.closest('[data-dev]');
-    if (dv) { app.profile.dev = { mult: Number(dv.dataset.dev) }; app.save(); reopen(); ticker(`開発者モード ×${dv.dataset.dev}`); return; }
+    if (dv) { app.profile.dev = { ...app.profile.dev, mult: Number(dv.dataset.dev) }; app.save(); reopen(); ticker(`開発者モード ×${dv.dataset.dev}`); return; }
     const sk = ev.target.closest('[data-skip]');
     if (sk) {
       const ms = Number(sk.dataset.skip);
@@ -977,6 +984,26 @@ function renderSettingsSheet() {
     }
     const act = ev.target.closest('[data-act]');
     if (!act) return;
+    if (act.dataset.act === 'storymode') {
+      const pr = app.profile;
+      pr.dev = { ...pr.dev, story: !pr.dev?.story };
+      app.save(); reopen();
+      ticker(pr.dev.story ? '📖 ストーリー解放ON — ゲート無視で読み進められる。' : 'ストーリー解放OFF。', 'gold');
+      renderMenuBadges();
+      return;
+    }
+    if (act.dataset.act === 'storynext') {
+      const pr = app.profile;
+      pr.dev = { ...pr.dev, story: true };       // 次へ自動で解放ONにする
+      pr.scenario.scene = '';                     // 読みかけロックを解除
+      const nx = SCENARIO.scenes.find((sc) => !pr.scenario.read[sc.id]);
+      app.save();
+      if (!nx) { ticker('もう続きはない(最後まで読んだ)。'); reopen(); return; }
+      sheetKind = 'story';          // シートは開いたまま物語へ切り替え
+      renderScene(nx, false);
+      renderedAt.sheet = performance.now();
+      return;
+    }
     if (act.dataset.act === 'export') {
       const data = JSON.stringify(app.profile);
       if (navigator.clipboard?.writeText) navigator.clipboard.writeText(data).then(() => ticker('記録を書き出した。')).catch(() => prompt('コピーしてください', data));
