@@ -23,16 +23,16 @@ ILLUST_SCENES = {"c01_010", "c01_040", "c01_060", "c01_140", "c01_180"}
 # ④画風崩れ ⑤灰→雪化け）で逸脱ゼロを確認済み。各seed23が整合タグ最多のため推奨。
 ASSET_DIR = "ch1_illust_assets"
 ILLUST = {
-    "c01_010": {"rec": 23, "cand": [7, 11, 23, 31],
+    "c01_010": {"rec": 11, "cand": [7, 11, 23, 31],
                 "cap": "屋根の上で振り返るユイ（見た目12〜13歳）と眼下の祭り・谷縁の大灯（石積み＋木組みの古い灯台）"},
-    "c01_040": {"rec": 23, "cand": [7, 11, 23, 31],
-                "cap": "一人称POV：差し出したアキの手とカンテラ／放射状の光と薙がれる灰の靄・奥にユイ"},
+    "c01_040": {"rec": 41, "cand": [41, 43, 47, 53],
+                "cap": "一人称POV：差し出したアキの手とカンテラ／暖光に照らされ驚くユイ（v2・構図を明確化）"},
     "c01_060": {"rec": 23, "cand": [7, 11, 23, 31],
                 "cap": "灰の靄から浮かぶ灰狼の影（喉に灰）／手前は立ちすくむ村人の背・主人公は映さない"},
     "c01_140": {"rec": 23, "cand": [7, 11, 23, 31],
                 "cap": "ボス灰狼（喉に灰の亀裂）と、手前にカンテラを構える腕（顔は映さない）の対峙"},
-    "c01_180": {"rec": 23, "cand": [7, 11, 23, 31],
-                "cap": "広い星空の下、街道を行くユイの小さな後ろ姿と遠くの街のあかり・カンテラの一点の暖色"},
+    "c01_180": {"rec": 47, "cand": [41, 43, 47, 53],
+                "cap": "広い星空の下、街道を行くユイ単独の後ろ姿と遠くの街のあかり・カンテラの一点（v2・ユイ以外を排除）"},
 }
 
 scenes, quests, callouts, intro_lines = [], [], [], []
@@ -136,16 +136,18 @@ for si, sc in enumerate(scenes):
             rec = info["rec"]
             rec_src = f'{ASSET_DIR}/il_{sid}_{rec}_0.png'
             thumbs = "".join(
-                f'<figure class="cand{" is-rec" if s==rec else ""}">'
+                f'<label class="cand{" is-rec" if s==rec else ""}">'
+                f'<input type="radio" name="sel-{sid}" value="{s}"{" checked" if s==rec else ""}>'
                 f'<img loading="lazy" src="{ASSET_DIR}/il_{sid}_{s}_0.png" alt="{esc(sid)} seed{s}">'
-                f'<figcaption>seed{s}{"（推奨）" if s==rec else ""}</figcaption></figure>'
+                f'<span class="cap">seed{s}{"（推奨）" if s==rec else ""}</span></label>'
                 for s in info["cand"])
             illust_slot = (
-                f'<figure class="illust" id="{domid}">'
-                f'<img loading="lazy" src="{esc(rec_src)}" alt="{esc(sid)} 推奨カット seed{rec}">'
-                f'<figcaption><span class="ill-rec">推奨</span> {esc(sid)} ／ seed{rec} ／ '
+                f'<figure class="illust" id="{domid}" data-sid="{esc(sid)}" data-dir="{ASSET_DIR}" data-rec="{rec}">'
+                f'<img class="mainimg" src="{esc(rec_src)}" alt="{esc(sid)} 採用カット seed{rec}">'
+                f'<figcaption><span class="ill-rec" data-sel-label>推奨</span> {esc(sid)} ／ '
+                f'<span class="ill-seed">seed<b data-sel-seed>{rec}</b></span> ／ '
                 f'<span class="ill-cap">{esc(info["cap"])}</span></figcaption>'
-                f'<details class="cands"><summary>全候補（{len(info["cand"])}枚）から選ぶ — 採否は人間レビュー</summary>'
+                f'<details class="cands"><summary>全候補（{len(info["cand"])}枚）から選ぶ — ラジオで選択すると上の大画像が切替（採否は人間／下の「選択をコピー」で書き出し）</summary>'
                 f'<div class="candrow">{thumbs}</div></details>'
                 f'</figure>')
         else:
@@ -227,11 +229,18 @@ details.cands summary{{cursor:pointer;color:var(--accent);font-family:sans-serif
 details.cands summary::-webkit-details-marker{{display:none}}
 details.cands summary:before{{content:"▸ ";}}
 .candrow{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:6px 14px 14px;}}
-figure.cand{{margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#14110f;}}
-figure.cand.is-rec{{border-color:var(--accent);}}
-figure.cand>img{{display:block;width:100%;height:auto;}}
-figure.cand>figcaption{{font-family:sans-serif;font-size:.7rem;color:var(--dim);text-align:center;padding:4px 2px;}}
-figure.cand.is-rec>figcaption{{color:var(--accent);}}
+label.cand{{display:block;margin:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#14110f;cursor:pointer;position:relative;}}
+label.cand.is-rec{{border-color:#6a5a3a;}}
+label.cand>input{{position:absolute;top:6px;left:6px;z-index:2;accent-color:var(--accent);width:18px;height:18px;}}
+label.cand>img{{display:block;width:100%;height:auto;}}
+label.cand>.cap{{display:block;font-family:sans-serif;font-size:.7rem;color:var(--dim);text-align:center;padding:4px 2px;}}
+label.cand:has(input:checked){{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}}
+label.cand:has(input:checked)>.cap{{color:var(--accent);font-weight:700;}}
+.selbar{{position:fixed;right:14px;bottom:14px;z-index:20;display:flex;gap:8px;align-items:center;background:rgba(20,17,15,.95);border:1px solid #4a3f2c;border-radius:10px;padding:8px 10px;font-family:sans-serif;font-size:.8rem;box-shadow:0 4px 18px rgba(0,0,0,.5);}}
+.selbar button{{font-family:sans-serif;font-size:.8rem;color:#14110f;background:var(--accent);border:none;border-radius:7px;padding:7px 13px;cursor:pointer;font-weight:700;}}
+.selbar button:hover{{background:#efbd6e;}}
+.selbar .hint{{color:var(--dim);}}
+.selbar.ok{{border-color:var(--accent);}}
 details.notes{{margin:8px 0 4px;border:1px solid var(--line);border-radius:6px;background:#191512;}}
 details.notes summary{{cursor:pointer;color:var(--dim);font-family:sans-serif;font-size:.74rem;padding:7px 12px;list-style:none;}}
 details.notes summary::-webkit-details-marker{{display:none}}
@@ -263,6 +272,10 @@ footer{{color:var(--dim);font-family:sans-serif;font-size:.76rem;text-align:cent
 <div class="endcard" id="endcard">― 第1章 了 ―</div>
 <footer>本文＝<code>docs/drafts/ch1.md</code>／行動＝<code>ch1_actions.json</code> から自動生成。挿絵スロットは生成後の組込み位置（組み合わせ評価は別工程）。</footer>
 </div>
+<div class="selbar" id="selbar">
+  <span class="hint">挿絵の選択：</span>
+  <button id="copy-sel">選択をコピー</button>
+</div>
 <script>
 document.body.classList.add('js'); // JSが動く時だけVN式の段階表示を有効化(無効時は全文表示)
 const groups = {n_scenes};
@@ -286,6 +299,41 @@ document.querySelectorAll('.act').forEach(function(b){{
   b.addEventListener('click', function(){{ advance(parseInt(b.dataset.next), b.dataset.last==='1', b); }});
 }});
 document.getElementById('t-notes').addEventListener('change', function(e){{ document.body.classList.toggle('shownotes', e.target.checked); }});
+
+// --- 挿絵選択（貼り戻し方式）: ラジオ選択で大画像を切替＋選択をJSONでコピー ---
+document.querySelectorAll('figure.illust').forEach(function(fig){{
+  const sid = fig.dataset.sid, dir = fig.dataset.dir, rec = fig.dataset.rec;
+  const main = fig.querySelector('.mainimg');
+  const seedEl = fig.querySelector('[data-sel-seed]');
+  const labelEl = fig.querySelector('[data-sel-label]');
+  fig.querySelectorAll('input[type=radio]').forEach(function(r){{
+    r.addEventListener('change', function(){{
+      if(!r.checked) return;
+      main.src = dir + '/il_' + sid + '_' + r.value + '_0.png';
+      seedEl.textContent = r.value;
+      const isRec = (r.value === rec);
+      labelEl.textContent = isRec ? '推奨' : '選択';
+      labelEl.style.background = isRec ? 'var(--accent)' : '#7fb6c4';
+    }});
+  }});
+}});
+function collectSel(){{
+  const sel = {{}};
+  document.querySelectorAll('figure.illust').forEach(function(fig){{
+    const r = fig.querySelector('input[type=radio]:checked');
+    if(r) sel[fig.dataset.sid] = parseInt(r.value);
+  }});
+  return sel;
+}}
+document.getElementById('copy-sel').addEventListener('click', function(){{
+  const sel = collectSel();
+  const txt = '第1章 挿絵 採用seed（c01_NNN: seed）\\n' + JSON.stringify(sel, null, 2);
+  const bar = document.getElementById('selbar');
+  function done(){{ bar.classList.add('ok'); const b=document.getElementById('copy-sel'); const o=b.textContent; b.textContent='コピーしました ✓'; setTimeout(function(){{b.textContent=o;bar.classList.remove('ok');}},1800); }}
+  if(navigator.clipboard && navigator.clipboard.writeText){{
+    navigator.clipboard.writeText(txt).then(done, function(){{ window.prompt('この内容をコピーして貼り戻してください', txt); }});
+  }} else {{ window.prompt('この内容をコピーして貼り戻してください', txt); }}
+}});
 document.getElementById('t-all').addEventListener('click', function(){{
   for(let g=0; g<groups; g++) show(g);
   document.querySelectorAll('.act').forEach(function(b){{ if(b.dataset.last!=='1') b.classList.add('chosen'); }});
