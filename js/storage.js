@@ -64,7 +64,7 @@ export function defaultProfile() {
     scenario: { scene: null, flags: {}, chapter: 1, read: {} },
     facilities: {}, // id -> 個数
     chest: null,    // {openDay, words[]}
-    story: { seen: {}, intro: 0 },
+    story: { seen: {}, intro: 0, firstLight: 0 }, // firstLight: 初めて灯をともすチュートリアル(c01_040)を越えたか
     streak: { count: 0, best: 0, lastDay: null },
     stats: { recalls: 0, correct: 0, byDay: {} },
     feedback: [],   // ゲーム内フィードバック・メモ: {t, where, tags[], comment}
@@ -94,6 +94,10 @@ export function backfill(p) {
   for (const k of Object.keys(d)) if (!(k in p)) p[k] = d[k];
   // playerName が空文字・非文字列なら既定へ(壊れたデータのフォールバック)
   if (typeof p.playerName !== 'string' || !p.playerName.trim()) p.playerName = DEFAULT_PLAYER_NAME;
+  // 既存セーブ(firstLight 導入前)は、進行済みなら初灯済みとみなしてロックしない
+  if (p.story && p.story.firstLight === undefined) {
+    p.story.firstLight = (p.stats?.correct > 0 || p.scenario?.read?.c01_040 || Object.keys(p.cards || {}).length > 0) ? 1 : 0;
+  }
   return p;
 }
 

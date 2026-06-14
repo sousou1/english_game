@@ -231,8 +231,7 @@ function startIntro() {
     p.story.intro = 99;
     intro.classList.add('hidden');
     app.save();
-    boot();
-    openTakibi(); // 最初の3語をおもいだす
+    boot(); // 物語先行: c01_002 から全画面リーダーが開く(初灯チュートリアルは c01_040 で挟む)
   };
   intro.onpointerdown = (e) => {
     if (e.target.closest('#nameInput') || e.target.closest('#introGo') || e.target.closest('#fbBtn')) return; // 命名フォーム・✎は靄払いに使わない
@@ -817,7 +816,7 @@ function renderStory() {
     <div class="story-bar">
       <button class="story-back ${canBack ? '' : 'off'}" data-sact="back" ${canBack ? '' : 'disabled'}>◀ 戻る</button>
       <span class="story-title">${esc(scene.title)}</span>
-      <button class="story-close" data-sact="close">✕</button>
+      ${p.story.firstLight ? '<button class="story-close" data-sact="close">✕</button>' : '<span class="story-lock" title="灯をともすまで進もう">🔒</span>'}
     </div>
     ${SCENE_ART[scene.id] ? `<img class="story-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
     ${letter ? '<button class="buy-row" data-sact="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
@@ -876,6 +875,8 @@ function storyForward(scene) {
 function storyCommit(scene, optIndex) {
   const p = app.profile;
   const sc = p.scenario;
+  // 初灯チュートリアル: c01_040「最初の灯」の行動で、覚える/詠める/罰なしを体験(初灯まで物語は進めない)
+  if (scene.id === 'c01_040' && !p.story.firstLight) { openFirstLightTutorial(); return; }
   const opt = scene.choice && optIndex != null ? scene.choice.options[optIndex] : null;
   const cost = (p.dev?.story || sc.read[scene.id]) ? 0 : sceneCost(scene);
   if (cost > 0 && p.gold < cost) { ticker(`💰${fmtBig(cost)} 必要 — 魔物を倒そう`); return; }
@@ -1495,6 +1496,62 @@ function renderEventStep() {
   };
 }
 
+// ---------- 初灯チュートリアル(c01_040): 覚える→詠める→罰なし を一度だけ案内 ----------
+function openFirstLightTutorial() {
+  initAudio(); // ユーザー操作内で音を解放(以後の自動読み上げが不意に鳴らない)
+  storyView = null;
+  $('#storyOv').classList.add('hidden');
+  takibiState = { tutorial: true, queue: [...ws.introQueue()], card: null };
+  $('#takibi').classList.remove('hidden');
+  document.body.classList.add('in-takibi');
+  renderTutorialHowto();
+}
+
+function renderTutorialHowto() {
+  renderedAt.takibi = performance.now();
+  $('#takibiBody').innerHTML = `<div class="takibi-head">🔥</div>
+    <div class="icard tut">
+      <div class="icard-tag">はじめての灯</div>
+      <p class="tut-line">カンテラの文字が、ひとつ強く光っている。灯すには、まず<b>ことばの意味を思い出す</b>。</p>
+      <ul class="tut-list">
+        <li>🔥 <b>意味を覚える</b> — 焚き火でカードを見て「おぼえた」。🔊で発音も聞ける。</li>
+        <li>👆 <b>詠める</b> — お題に合うことばを<b>タップ</b>すると灯る。</li>
+        <li>🕯 <b>まちがえても罰はない</b> — 灯らないだけ。何度でもやり直せる。</li>
+      </ul>
+      <button class="primary-btn" data-act="tut-start">灯を、思い出す</button>
+    </div>`;
+  $('#takibiBody').onclick = (e) => {
+    if (!fresh('takibi')) return;
+    if (e.target.closest('[data-act="tut-start"]')) nextTakibi();
+  };
+}
+
+function renderFirstLightDone() {
+  const p = app.profile;
+  renderedAt.takibi = performance.now();
+  $('#takibiBody').innerHTML = `<div class="takibi-head">🔥</div>
+    <div class="icard tut">
+      <div class="icard-tag pinto">灯った!</div>
+      <p class="tut-line">思い出したことばが、ちいさな火になった。これが——灯火(ともしび)。</p>
+      <p class="tut-line dim">これから、覚えたことばで詠唱できる。さあ、物語の続きへ。</p>
+      <button class="primary-btn" data-act="tut-done">物語へ進む</button>
+    </div>`;
+  $('#takibiBody').onclick = (e) => {
+    if (!fresh('takibi')) return;
+    if (!e.target.closest('[data-act="tut-done"]')) return;
+    p.story.firstLight = 1;
+    p.scenario.read['c01_040'] = 1;
+    p.scenario.scene = 'c01_050';
+    app.save();
+    takibiState = null;
+    $('#takibi').classList.add('hidden');
+    document.body.classList.remove('in-takibi');
+    pool.refill();
+    renderAll();
+    openStoryReader('c01_050');
+  };
+}
+
 // ---------- 焚き火(修行=SRS。敵もタイマーもない場所) ----------
 function openTakibi() {
   takibiState = { queue: [...ws.introQueue(), ...ws.wakeQueue().map((x) => x.w)], card: null };
@@ -1504,16 +1561,20 @@ function openTakibi() {
 }
 
 function closeTakibi() {
+  const wasTutorial = takibiState?.tutorial;
   takibiState = null;
   $('#takibi').classList.add('hidden');
   document.body.classList.remove('in-takibi');
   pool.refill();
   renderAll();
+  // 初灯チュートリアルを中断したら、ロックされた物語(c01_040)へ戻す(初灯までは外に出さない)
+  if (wasTutorial && !app.profile.story.firstLight) openStoryReader('c01_040');
 }
 
 function nextTakibi() {
   const p = app.profile;
   if (!takibiState.queue.length) {
+    if (takibiState.tutorial) { renderFirstLightDone(); return; }
     renderTakibiDone();
     return;
   }

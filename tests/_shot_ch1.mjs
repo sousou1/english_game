@@ -65,14 +65,38 @@ async function revealAll(page) {
   }
 }
 
+// 初灯チュートリアル(c01_040で起動する焚き火)を最後まで進める。fresh('takibi')=300msガードに合わせ待つ。
+async function driveTutorial(page) {
+  await page.click('#takibiBody [data-act="tut-start"]').catch(() => {});
+  for (let i = 0; i < 40; i++) {
+    await page.waitForTimeout(360);
+    if (await page.$('#takibiBody [data-act="tut-done"]')) { await page.click('#takibiBody [data-act="tut-done"]'); return true; }
+    if (await page.$('#takibiBody [data-act="got"]')) { await page.click('#takibiBody [data-act="got"]'); continue; }
+    if (await page.$('#takibiBody [data-act="open"]')) { await page.click('#takibiBody [data-act="open"]'); continue; }
+    if (await page.$('#takibiBody .ichoice:not([disabled])')) { await page.click('#takibiBody .ichoice'); continue; }
+    if (await page.$('#takibiBody [data-act="next"]')) { await page.click('#takibiBody [data-act="next"]'); continue; }
+    if (await page.$('#takibi.hidden')) return true;
+  }
+  return false;
+}
+
 // ---- (A) 全画面リーダーで第1章を通しプレイ: 25シーン・挿絵5枚・主人公名置換 ----
 {
   const page = await newPage(storyProfile(NAME));
   await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 });
-  const illustOk = {}; let nameShown = false, tokenLeak = false, akiLeak = false, reached180 = false;
+  const illustOk = {}; let nameShown = false, tokenLeak = false, akiLeak = false, reached180 = false, tutorialDone = false;
 
   for (let step = 0; step < 80; step++) {
-    if (await page.$('#storyOv.hidden')) { log('A) リーダー終了(ハブへ=読了/旅支度)'); break; }
+    // c01_040 で物語リーダーが閉じ、初灯チュートリアル(焚き火)へ。完走したら物語(c01_050)に戻る。
+    if (await page.$('#storyOv.hidden')) {
+      if (await page.$('#takibi:not(.hidden)')) {
+        const ok = await driveTutorial(page);
+        tutorialDone = tutorialDone || ok;
+        await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 }).catch(() => {});
+        continue;
+      }
+      log('A) リーダー終了(ハブへ=読了/旅支度)'); break;
+    }
     await revealAll(page);
     const artSrc = await page.$eval('#storyBody .story-art', (e) => e.getAttribute('src')).catch(() => null);
     const m = artSrc && artSrc.match(/scene_(c01_\d+)\.webp/);
@@ -96,9 +120,11 @@ async function revealAll(page) {
     else break;
     await page.waitForTimeout(200);
   }
+  const flAfter = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')).story.firstLight);
+  log(`A) 初灯チュートリアル完走: ${tutorialDone} / firstLight=${flAfter}`);
   log(`A) 主人公名「${NAME}」表示: ${nameShown} / {name}残留: ${tokenLeak}(false期待) / アキ漏れ: ${akiLeak}(false期待)`);
   log(`A) 挿絵ロード: ${ILLUST.map((id) => `${id}=${illustOk[id] ? 'OK' : '✗'}`).join(' ')} / c01_180到達: ${reached180}`);
-  if (!nameShown || tokenLeak || akiLeak || !reached180) pass = false;
+  if (!nameShown || tokenLeak || akiLeak || !reached180 || !tutorialDone || !flAfter) pass = false;
   for (const id of ILLUST) if (!illustOk[id]) pass = false;
   await page.context().close();
 }

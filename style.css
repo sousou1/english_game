@@ -557,6 +557,14 @@ body.sheet-open .fb-btn { display: none; }   /* 下シート(設定/武器屋等
 .story-foot .primary-btn.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--panel2); }
 .story-foot .choices { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
 .story-foot .choice-prompt { text-align: center; }
+.story-lock { font-size: 16px; opacity: .55; padding: 7px 11px; }
+
+/* 初灯チュートリアルのカード */
+.icard.tut { text-align: left; gap: 8px; }
+.tut-line { font-size: 14px; line-height: 1.7; margin: 6px 0; }
+.tut-line.dim { color: var(--dim); }
+.tut-list { list-style: none; padding: 0; margin: 6px 0 12px; display: flex; flex-direction: column; gap: 8px; }
+.tut-list li { font-size: 13px; line-height: 1.6; background: var(--panel); border: 1px solid var(--panel2); border-radius: 10px; padding: 8px 10px; }
 .fb-where { font-size: 12px; color: var(--fire2); background: rgba(255,138,42,.08); border-radius: 8px; padding: 6px 10px; margin: 0 0 10px; }
 .fb-tags { margin-bottom: 10px; }
 .fb-comment { width: 100%; box-sizing: border-box; font-size: 14px; padding: 10px 12px; border-radius: 12px;
