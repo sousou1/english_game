@@ -1,0 +1,91 @@
+{
+  "_doc": "『ともしび』シーン挿絵のデータ駆動定義。章をまたいで再利用する。各シーンは cast.json のキャラ id と stages の舞台 id を参照し、生成時には ref_chars に挙げたキャラの確定立ち絵(out/cast/<id>.png)を参照画像として gpt-image-2 の images.edit に添付する設計。existing_asset は旧 Anima で作った既存挿絵の対応表(描き直しの突き合わせ用)。",
+
+  "pov_rule": "主人公アキはシーン挿絵では極力映さない(一人称POV)。pov=true のシーンは『手・前腕＋カンテラ』『後ろ頭・肩越し』『画面外』に留め、被写体はユイ・情景・敵にする。",
+
+  "stages": {
+    "nagi_village": "A medieval mountain-valley village of wooden cottages with thatched roofs, pre-modern rustic style, warm flame light.",
+    "great_lamp": "An old rustic stone-and-timber beacon tower (a great-lamp) with rough masonry and wooden scaffolding, a large warm flame burning at its top.",
+    "nagi_village_alley": "A narrow rustic village alley between wooden cottages at night, warm scattered lamplight and deep shadow.",
+    "road2": "A pre-modern country road of packed dirt and stone winding over gentle grassy hills, rustic landscape.",
+    "caravan": "A merchant caravan of wooden covered wagons with cloth tarps in a roadside hollow, rustic pre-modern traders, a warm campfire.",
+    "trade_town": "A distant pre-modern stone-walled trading town with rustic stone buildings and city walls glowing with tiny warm lights on the horizon.",
+    "ash_modifier": "Creeping grey ash mist, words and letters turning to ash. Keep it ashen, NOT snow or winter."
+  },
+
+  "scenes": [
+    {
+      "id": "c01_010", "chapter": 1, "size": "1536x864", "pov": true,
+      "cap": "屋根の上: 主人公の後ろ頭・肩越しPOV＋振り返るユイ＋眼下の村祭り＋谷の素朴な灯台",
+      "stage": "nagi_village", "ref_chars": ["yui"], "focus": "yui",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_010_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
+    },
+    {
+      "id": "c01_020", "chapter": 1, "size": "1536x864", "pov": false,
+      "cap": "消える大灯: 素朴な灯台の火が落ちる＋灰の靄(人物なし)",
+      "stage": "great_lamp", "stage_extra": ["ash_modifier"], "ref_chars": [], "focus": "scenery",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_020_{seed}_0.png", "cand": [7,11,23], "rec": null}
+    },
+    {
+      "id": "c01_040", "chapter": 1, "size": "1024x1536", "pov": true,
+      "cap": "最初の灯: 一人称POV(手＋カンテラ)＋放射状の光＋照らされ振り返るユイ",
+      "stage": "nagi_village", "ref_chars": ["yui"], "focus": "yui",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_040_{seed}_0.png", "cand": [61,63,67,71], "rec": null}
+    },
+    {
+      "id": "c01_060", "chapter": 1, "size": "1024x1536", "pov": false,
+      "cap": "灰狼の影: 路地の奥の獣シルエット＋手前に立ちすくむ村人の背(主人公なし)",
+      "stage": "nagi_village_alley", "ref_chars": ["hairou"], "focus": "hairou",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_060_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
+    },
+    {
+      "id": "c01_140", "chapter": 1, "size": "1536x864", "pov": true,
+      "cap": "ボス灰狼: POV(手前に腕＋カンテラ・顔は映さない)＋巨狼＋舞う灰の文字",
+      "stage": "nagi_village_alley", "stage_extra": ["ash_modifier"], "ref_chars": ["hairou"], "focus": "hairou",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_140_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
+    },
+    {
+      "id": "c01_150", "chapter": 1, "size": "1024x1536", "pov": false,
+      "cap": "戻らない言葉: 星を見る老灯守＋遠くに小さな二人(ほろ苦)",
+      "stage": "nagi_village", "ref_chars": ["old_lampkeeper", "yui"], "focus": "old_lampkeeper",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_150_{seed}_0.png", "cand": [7,11,23], "rec": null}
+    },
+    {
+      "id": "c01_180", "chapter": 1, "size": "1024x1536", "pov": true,
+      "cap": "星空の街道: POV(肩越し)＋歩み去るユイの小さな後ろ姿＋満天の星",
+      "stage": "road2", "ref_chars": ["yui"], "focus": "yui",
+      "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_180_{seed}_0.png", "cand": [41,43,47,53], "rec": null}
+    },
+
+    {
+      "id": "c02_010", "chapter": 2, "size": "1536x864", "pov": false,
+      "cap": "はじめての街道: 先を行くユイの後ろ姿・石垣の道・遠い谷の町・朝",
+      "stage": "road2", "ref_chars": ["yui"], "focus": "yui",
+      "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_010_{seed}_0.png", "cand": [7,11,23,31], "rec": 31}
+    },
+    {
+      "id": "c02_040", "chapter": 2, "size": "1536x864", "pov": false,
+      "cap": "隊商の焚き火: 厚い灰の靄を拳で散らす大柄なガク・幌の荷車・焚き火",
+      "stage": "caravan", "stage_extra": ["ash_modifier"], "ref_chars": ["gaku"], "focus": "gaku",
+      "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_040_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
+    },
+    {
+      "id": "c02_090", "chapter": 2, "size": "1024x1536", "pov": false,
+      "cap": "灰の手先ドゥド: 単体・くすんだ灯詞を灰に崩す不穏な登場",
+      "stage": "road2", "stage_extra": ["ash_modifier"], "ref_chars": ["doudo"], "focus": "doudo",
+      "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_090_{seed}_0.png", "cand": [41,43,47,53], "rec": 41}
+    },
+    {
+      "id": "c02_100", "chapter": 2, "size": "1536x864", "pov": false,
+      "cap": "灯詞バトル決着: 撃破されるドゥド単体・灰が暖色の燠火にほどけて静かに崩れる",
+      "stage": "road2", "ref_chars": ["doudo"], "focus": "doudo",
+      "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_100_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
+    },
+    {
+      "id": "c02_130", "chapter": 2, "size": "1536x864", "pov": false,
+      "cap": "次の灯へ: 笑顔で別れを告げるガク・先を行くユイの後ろ姿・遠景の交易街",
+      "stage": "trade_town", "ref_chars": ["gaku", "yui"], "focus": "gaku",
+      "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_130_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
+    }
+  ]
+}

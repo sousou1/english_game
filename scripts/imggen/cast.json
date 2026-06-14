@@ -1,0 +1,178 @@
+{
+  "_doc": "『ともしび』登場人物のデータ駆動定義。gpt-image-2 は自然言語プロンプトなので Anima のタグ列ではなく英文で容姿を確定する。出典: docs/drafts/arc-plot.md §3 / scripts/prompts/tomoshibi/_FIXED_TEXTS.md。各 character を 1人1枚のキャラ立ち絵に使い、生成物を以降のシーン挿絵の参照画像(ref)ライブラリにする。",
+
+  "style": {
+    "base": "Soft painterly Japanese anime illustration, rich warm coloring with luminous flame lighting, gentle detailed linework, fantasy storybook quality. A pre-modern medieval mountain-valley world lit by warm flames; warm amber lamplight against cool dusk tones.",
+    "portrait_framing": "Full-body character reference, a single character standing in a relaxed neutral pose, facing the viewer, clear full view of face and outfit, simple soft warm plain background, even soft lighting, no other characters.",
+    "negative": "Keep it wholesome and modestly dressed. Avoid: modern clothes, zippers, buttons, modern or sci-fi background, skyscraper, concrete, steel, glass building, guns, text, letters, captions, watermark, signature, photorealism, multiple people in a portrait."
+  },
+
+  "characters": [
+    {
+      "id": "aki",
+      "name": "アキ",
+      "role": "主人公・14歳 (第1章は12〜13歳の童顔)",
+      "show_policy": "avoid_in_scenes",
+      "show_note": "シーン挿絵では一人称POVのため極力映さない(手＋カンテラ/後ろ姿)。ただしキャスト立ち絵としては全身を一度確定する(要再検討)。",
+      "appearance": "A 14-year-old boy with a boyish round youthful face, messy dark brown hair, sharp lively eyes, a slightly cheeky expression.",
+      "outfit": "A worn traveler's coat over a simple tunic, cloth trousers, worn brown leather boots, a brown leather belt.",
+      "equipment": "Holding an old brass hand lantern (a kantera) with a small warm flame inside, his grandfather's keepsake.",
+      "palette": "earthy browns, warm amber lantern glow",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_aki_ages/aki15_front_7_0.png"]
+    },
+    {
+      "id": "yui",
+      "name": "ユイ",
+      "role": "ヒロイン・幼馴染・第1章は12〜13歳",
+      "show_policy": "full",
+      "appearance": "A petite 12-to-13-year-old girl with a childish round face, short messy crimson-red hair with one small stray ahoge and exactly two small low side tails, blunt straight bangs, big amber eyes, a small fang, a confident cheeky grin.",
+      "outfit": "A charcoal-grey short hooded cape over the shoulders, a deep teal sleeveless village tunic dress at knee length, a brown leather work belt at the waist, cloth leggings and worn brown leather boots.",
+      "equipment": "A small brass oil lamp clipped at her LEFT hip, and a coil of pale beige lampwick thread tied at her RIGHT hip.",
+      "palette": "crimson-red hair, amber eyes, charcoal-grey cape, deep teal dress, brass lamp",
+      "negative_extra": "Avoid: blonde or long hair, ponytail, high or long twintails, single side tail, necklace, earrings, jewelry, hair ornament, gloves, scarf, the lamp on the right hip.",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_yui_sheet/yuiF_ch1_front_11_0.png"]
+    },
+    {
+      "id": "aki_15",
+      "name": "アキ(15歳)",
+      "role": "主人公・15歳・少年期",
+      "show_policy": "avoid_in_scenes",
+      "appearance": "A 15-year-old boy who still keeps a youthful boyish round face, messy dark brown hair, sharp lively eyes, a cheeky confident look, a little taller and leaner than as a child.",
+      "outfit": "A worn traveler's coat over a simple tunic, cloth trousers, worn brown leather boots, a brown leather belt.",
+      "equipment": "Holding an old brass hand lantern (a kantera) with a small warm flame inside, his grandfather's keepsake.",
+      "palette": "earthy browns, warm amber lantern glow",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_aki_ages/aki15_front_7_0.png"]
+    },
+    {
+      "id": "aki_18",
+      "name": "アキ(18歳)",
+      "role": "主人公・18歳・青年期(童顔のまま)",
+      "show_policy": "avoid_in_scenes",
+      "appearance": "An 18-year-old young man who STILL keeps a youthful boyish face (a baby-faced youth), messy dark brown hair, sharp eyes with a calmer steadier gaze, taller and leaner with a slightly more grown build, the same cheeky air softened by the years.",
+      "outfit": "A worn well-traveled coat over a simple tunic, cloth trousers, worn brown leather boots, a brown leather belt.",
+      "equipment": "Holding an old brass hand lantern (a kantera) with a small warm flame inside, his grandfather's keepsake.",
+      "palette": "earthy browns, warm amber lantern glow",
+      "negative_extra": "Keep the face youthful and boyish. Avoid: heavy beard, a rugged middle-aged look, an old face.",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_aki_ages/aki18_front_7_0.png"]
+    },
+    {
+      "id": "yui_15",
+      "name": "ユイ(15歳)",
+      "role": "ヒロイン・15歳・少女期(童→大人の中間)",
+      "show_policy": "full",
+      "appearance": "A 15-year-old girl, between child and young woman, with a still-youthful face, short-to-medium messy crimson-red hair with one small stray ahoge and two small low side tails, blunt straight bangs, big amber eyes, a small fang, a confident cheeky grin.",
+      "outfit": "A charcoal-grey short hooded cape over the shoulders, a deep teal sleeveless village tunic dress at knee length, a brown leather work belt at the waist, cloth leggings and worn brown leather boots.",
+      "equipment": "A small brass oil lamp clipped at her LEFT hip, and a coil of pale beige lampwick thread tied at her RIGHT hip.",
+      "palette": "crimson-red hair, amber eyes, charcoal-grey cape, deep teal dress, brass lamp",
+      "negative_extra": "Keep it wholesome and modestly dressed. Avoid: blonde or long hair, high or long twintails, single side tail, necklace, earrings, jewelry, hair ornament, gloves, scarf, the lamp on the right hip.",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_grow/yui_mid_front_7_0.png"]
+    },
+    {
+      "id": "yui_18",
+      "name": "ユイ(18歳)",
+      "role": "ヒロイン・18歳・年月を経て落ち着いた姿",
+      "show_policy": "full",
+      "appearance": "An 18-year-old young woman, slender, with longer crimson-red hair tied back in a low ponytail and side bangs, calm amber eyes, a gentle serene expression, grown calmer after years of loss and travel.",
+      "outfit": "A charcoal-grey traveler's hooded cape over a deep teal tunic dress, a brown leather work belt, cloth leggings and worn traveling boots.",
+      "equipment": "A small brass oil lamp at her hip, and a coil of pale beige lampwick thread.",
+      "palette": "crimson-red hair, amber eyes, charcoal-grey cape, deep teal dress, brass lamp",
+      "negative_extra": "Keep it wholesome and modestly dressed. Avoid: blonde hair, jewelry, hair ornament, gloves, scarf, a different hair color.",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_yui_sheet/yuiF_matured_front_23_0.png"]
+    },
+    {
+      "id": "gaku",
+      "name": "ガク",
+      "role": "道中の相棒・15歳・灯詠み不能の好漢",
+      "show_policy": "full",
+      "appearance": "A large muscular 15-year-old boy, tall and broad-shouldered, tanned skin, short spiky black hair, thick eyebrows, a bold toothy grin, brimming with energy.",
+      "outfit": "A sleeveless dark teal tunic, a red waist sash, brown trousers, worn brown boots, leather wrist wraps on both forearms.",
+      "equipment": "Bare fists raised, fighting bare-handed (he carries NO weapon).",
+      "palette": "tanned skin, black hair, dark teal tunic, red sash",
+      "negative_extra": "Avoid: axe, sword, spear, any weapon, shield, helmet, armor, sleeves, beard, looking like an old man.",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_cast/gaku_front_11_0.png"]
+    },
+    {
+      "id": "kagari",
+      "name": "カガリ",
+      "role": "兄貴分・27歳・流れ灯詠み (第3章〜)",
+      "show_policy": "full",
+      "appearance": "A rugged friendly 27-year-old man with a big-brother air, medium-length dark hair loosely tied back, light stubble, warm confident easy smile, weathered but kind eyes.",
+      "outfit": "A worn brown traveler's leather coat over a simple shirt, a sash, sturdy trousers and travel boots.",
+      "equipment": "A traveler's brass lamp at his hip.",
+      "palette": "warm browns, dark hair, amber lamp",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_cast/kagari_front_23_0.png"]
+    },
+    {
+      "id": "towa",
+      "name": "トワ",
+      "role": "ラスボス・最初の最も強い灯詠み・叫ばない静かな翁",
+      "show_policy": "full",
+      "appearance": "An ancient, weary, quiet old man, hundreds of years old, with long grey-white hair and a long beard, a calm sorrowful expression, never shouting, an air of profound loneliness.",
+      "outfit": "Long flowing ash-grey robes faded with age, worn over centuries.",
+      "equipment": "Countless tiny faint lamp-lights gathered and hovering around him, as if he hoards every word of light.",
+      "palette": "ash grey, faded white, faint cold lamplight",
+      "ref_existing": ["/home/tamura/llm/image_gen/review/tomoshibi_cast/towa_front_23_0.png"]
+    },
+    {
+      "id": "doudo",
+      "name": "ドゥド (灰の手先)",
+      "role": "第2章ボス・灰の手先",
+      "show_policy": "full",
+      "appearance": "A gaunt hunched man, his ashen desaturated grey skin, his face hidden in deep shadow under a tattered hood, dull lifeless grey tones all over him.",
+      "outfit": "Tattered dusty grey ragged robes with a tattered hood.",
+      "equipment": "Wisps of grey ash leaking from him, fragments of dull ashen letters crumbling into ash around him.",
+      "palette": "dull desaturated grey, ash, shadow",
+      "negative_extra": "Avoid: snow, winter, bright colors, a clear visible face.",
+      "ref_existing": []
+    },
+    {
+      "id": "hairou",
+      "name": "灰狼 (はいろう)",
+      "role": "第1章ボス・獣",
+      "type": "creature",
+      "show_policy": "full",
+      "appearance": "A large menacing wolf-like beast with black fur, glowing faintly, grey ash leaking and seeping from its throat and maw.",
+      "outfit": "",
+      "equipment": "Trails of creeping grey ash mist around it.",
+      "palette": "black fur, grey ash",
+      "negative_extra": "Avoid: snow, winter, a cute or friendly look.",
+      "ref_existing": []
+    },
+    {
+      "id": "old_lampkeeper",
+      "name": "老灯守 (ろうひもり)",
+      "role": "ナギ村の老灯守・第1章で失語する準キャラ",
+      "show_policy": "full",
+      "appearance": "A gentle elderly village lamp-keeper, deeply wrinkled kind face, thin white hair and a short white beard, a quiet caring expression.",
+      "outfit": "Simple humble pre-modern village robes and a worn apron, a cloth cap.",
+      "equipment": "Tending a warm flame, holding a lamp-tending rod or a small oil lamp.",
+      "palette": "muted earthy village tones, warm flame",
+      "ref_existing": []
+    },
+    {
+      "id": "teo",
+      "name": "テオ (隊商の少年)",
+      "role": "隊商の少年・第2章の脇役",
+      "show_policy": "full",
+      "appearance": "A young caravan boy of about 11 years old, lively curious eyes, tousled brown hair, a friendly open face, a bit travel-worn.",
+      "outfit": "Simple sturdy pre-modern traveler's clothes, a short cloak and a small cloth cap, a satchel.",
+      "equipment": "Standing beside merchant caravan wagons.",
+      "palette": "dusty travel browns and ochres",
+      "ref_existing": []
+    },
+    {
+      "id": "kantera_voice",
+      "name": "カンテラの声",
+      "role": "形見のカンテラに宿る声・姿なし(立ち絵不要設計)",
+      "type": "object_no_figure",
+      "show_policy": "no_figure",
+      "show_note": "正体=孤独な一語 lonely。作中では姿を持たない。立ち絵の代わりに『声の器』である真鍮カンテラそのものを温かく灯った状態で描く。",
+      "appearance": "No human figure at all. An old brass hand lantern (a kantera) standing alone, its small warm flame glowing softly inside, faint motes of light drifting from it, as if a quiet voice lives within. An intimate still-life portrait of just the lantern.",
+      "outfit": "",
+      "equipment": "",
+      "palette": "warm brass, amber flame glow against soft dark",
+      "negative_extra": "Avoid: any person, any face, any hands, a human figure.",
+      "ref_existing": []
+    }
+  ]
+}
