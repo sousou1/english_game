@@ -1,7 +1,7 @@
 {
-  "name": "スペルライト ―異界の言葉と無言の王―",
-  "short_name": "スペルライト",
-  "description": "異界の言葉(英語)で詠唱するファンタジーRPG",
+  "name": "ともしび ―ことばを思い出して、灯す―",
+  "short_name": "ともしび",
+  "description": "異界の言葉(英語)を思い出して灯すテキスト放置RPG。忘れかけた言葉ほど、よく灯る",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
