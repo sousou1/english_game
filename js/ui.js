@@ -205,7 +205,7 @@ function startIntro() {
   const render = () => {
     const k = p.story.intro;
     intro.innerHTML = `
-      <img class="intro-bg" src="assets/img/title_art.webp" onerror="this.remove()" style="opacity:${Math.max(0.12, 0.5 - k * 0.05)}">
+      <img class="intro-bg" src="assets/img/scene_c01_180.webp" onerror="this.src='assets/img/title_art.webp';this.onerror=null" style="opacity:${Math.max(0.12, 0.5 - k * 0.05)}">
       <div class="mist" style="opacity:${Math.max(0.15, 1 - k * 0.11)}"></div>
       ${k === 0 ? `<p class="intro-line">${esc(SCENARIO.introLines[0])}</p>` : ''}
       ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(SCENARIO.introLines[1])}</p>` : ''}
@@ -1362,7 +1362,7 @@ function exportFeedbackJSON() {
   const p = app.profile;
   const payload = {
     game: 'ともしび', target: 'game-feedback', chapter: p.scenario?.chapter || 1,
-    playerName: p.playerName, swVersion: 'v21', exportedAt: new Date().toISOString(),
+    playerName: p.playerName, swVersion: 'v22', exportedAt: new Date().toISOString(),
     notes: (p.feedback || []).map((n) => ({ where: n.where, tags: n.tags, comment: n.comment, at: new Date(n.t).toISOString() })),
   };
   const data = JSON.stringify(payload, null, 2);

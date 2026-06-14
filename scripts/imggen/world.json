@@ -1,0 +1,110 @@
+{
+  "_doc": "『ともしび』世界観イラスト(舞台・敵勢力)のデータ駆動定義。シーン挿絵の前段として、村・大灯・街道・隊商・交易街・翳り(灰)・敵勢力の establishing/世界観確立画を作る。人物は原則映さない情景カット(遠景に小さな人影は可)なので、参照画像(out/cast/)は添付しない=プロンプトのみで背景・世界を再構築する。出典: docs/drafts/arc-plot.md §2(世界観)/scenes.json stages。人間レビューで採否を決め、採用カットを次フェーズでシーン挿絵の世界観土台にする。",
+
+  "style": {
+    "base": "Soft painterly Japanese anime illustration, rich warm coloring with luminous flame lighting, gentle detailed linework, fantasy storybook quality. A pre-modern medieval mountain-valley world lit by warm flames; warm amber lamplight against cool dusk tones.",
+    "establishing_framing": "A wide cinematic establishing background shot of the place itself, atmospheric environment art, no close-up characters (at most a few tiny distant figures). Emphasis on landscape, architecture, light and mood.",
+    "negative": "Keep it wholesome. Avoid: modern clothes, zippers, buttons, modern or sci-fi elements, skyscraper, concrete, steel, glass building, cars, power lines, guns, text, letters, captions, watermark, signature, photorealism, close-up portrait of a person."
+  },
+
+  "cuts": [
+    {
+      "id": "w_nagi_village_day",
+      "label": "ナギ村・全景(夕)",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "A medieval mountain-valley village of wooden cottages with thatched roofs nestled in a green river valley between forested mountains, narrow dirt lanes, small fields and stone walls, a few warm lamps beginning to glow in the late afternoon golden light. Pre-modern rustic style, peaceful homely frontier village."
+    },
+    {
+      "id": "w_nagi_village_night",
+      "label": "ナギ村・夜(灯火のあかり)",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "The same mountain-valley village at night, the wooden cottages and a defensive wooden palisade lit only by warm amber flame-light and hanging lamps that push back the surrounding darkness, deep cool blue night beyond the glow, smoke rising from a chimney. The warmth of the flame is the only thing holding back the dark."
+    },
+    {
+      "id": "w_great_lamp_lit",
+      "label": "大灯・点灯",
+      "group": "舞台",
+      "size": "1024x1536",
+      "desc": "An old rustic stone-and-timber beacon tower (a 'great-lamp') with rough masonry and wooden scaffolding standing on a rise above the village, a large warm flame burning brightly at its top, casting golden light over the valley at dusk. The heart and pride of the village."
+    },
+    {
+      "id": "w_great_lamp_failing",
+      "label": "大灯・火が落ちる＋灰の靄(翳り)",
+      "group": "敵勢力/翳り",
+      "size": "1536x864",
+      "desc": "The same old stone-and-timber beacon tower at night, but its great flame is guttering and dying down to faint embers, and a creeping grey ash mist is seeping up around its base and drifting across the scene, draining the color toward dull grey. Ominous and sorrowful, the light of the world going out. Keep it ashen and grey, NOT snow or winter."
+    },
+    {
+      "id": "w_nagi_village_alley",
+      "label": "村の路地・夜",
+      "group": "舞台",
+      "size": "1024x1536",
+      "desc": "A narrow rustic village alley between wooden cottages at night, uneven dirt ground, warm scattered lamplight from a single hanging lantern falling into deep shadow, a sense of something lurking in the darkness at the far end. Tense, quiet, nocturnal."
+    },
+    {
+      "id": "w_road2_morning",
+      "label": "街道・朝",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "A pre-modern country road of packed dirt and stone winding over gentle green grassy hills under a soft pale morning sky, low stone walls along the verge, a distant valley town faintly visible far ahead on the horizon. Open, hopeful, the start of a journey."
+    },
+    {
+      "id": "w_road2_starry",
+      "label": "街道・満天の星(夜)",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "The same winding country road over grassy hills at deep night under an overwhelming sky full of stars and a faint glowing band of the milky way, the road pale in the starlight, low stone walls, a lonely vast quiet beauty. A single faint warm lamp glow somewhere along the road."
+    },
+    {
+      "id": "w_caravan_camp",
+      "label": "隊商の野営・焚き火",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "A merchant caravan of wooden covered wagons with cloth tarps drawn up in a roadside grassy hollow at dusk, a warm crackling campfire in the middle throwing golden light, bundles of trade goods, draft animals resting nearby, rustic pre-modern traders' encampment. Warm, lived-in, the safety of fire on the road."
+    },
+    {
+      "id": "w_trade_town_distant",
+      "label": "交易街・遠景(城壁と灯)",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "A pre-modern stone-walled trading town seen from a hillside road at dusk, rustic stone buildings and tiled roofs packed within tall city walls and a gate tower, countless tiny warm lights glowing in its windows and along its ramparts on the horizon. A real town after the wilderness, bustle and promise."
+    },
+    {
+      "id": "w_trade_town_street",
+      "label": "交易街・街並み(近景)",
+      "group": "舞台",
+      "size": "1536x864",
+      "desc": "A bustling pre-modern stone-paved street inside a walled trading town, two and three story rustic stone-and-timber buildings, market stalls under cloth awnings, hanging shop lanterns, narrow side lanes, a few tiny distant townsfolk, warm lamplight in the early evening. Lively rustic commerce."
+    },
+    {
+      "id": "w_kageri_phenomenon",
+      "label": "翳り・言葉が灰に崩れる現象",
+      "group": "敵勢力/翳り",
+      "size": "1536x864",
+      "desc": "An abstract atmospheric depiction of 'the dimming' blight: glowing warm letters and written words floating in the air at the edge of a landscape, but crumbling and dissolving into drifting grey ash and dust, the color draining out of the land behind them toward lifeless grey. Eerie, melancholy, beautiful and wrong. Keep it ashen grey, NOT snow or winter."
+    },
+    {
+      "id": "w_ash_fallen_village",
+      "label": "翳りに呑まれ灰色になった土地",
+      "group": "敵勢力/翳り",
+      "size": "1536x864",
+      "desc": "A small rustic village that has been swallowed by the grey blight: every cottage, road and tree drained of color to dull ash-grey, no warm light anywhere, thick grey ash mist hanging in the dead silent air, abandoned and forgotten, a place where the lamps have gone out and people have forgotten their own words. Desolate, sorrowful, monochrome grey. NOT snow, NOT winter."
+    },
+    {
+      "id": "w_haito_ash_capital",
+      "label": "灰都(トワが灯詞を集めた灰の都)",
+      "group": "敵勢力/翳り",
+      "size": "1024x1536",
+      "desc": "A vast eerie capital city of grey stone where every lamp-word of the world has been hoarded: countless tiny cold faint lamplights gathered and stored in towering grey halls, the whole city drained to ash-grey and choked with hovering grey ash, no warmth, an oppressive lonely cathedral-like grandeur. The hoard that is dimming the world. Ashen grey, NOT snow."
+    },
+    {
+      "id": "w_ash_minions_mood",
+      "label": "灰の手先・勢力の雰囲気",
+      "group": "敵勢力/翳り",
+      "size": "1536x864",
+      "desc": "An ominous group atmosphere piece of the ash servants: several gaunt hunched hooded figures of ashen desaturated grey, their faces lost in shadow, advancing through grey ash mist along a road at dusk, dull lifeless grey lamp-light flickering weakly around them and shedding grey ash, fragments of dull crumbling ashen letters drifting in the air. Menacing, blighted, drained of color. NOT snow, NOT winter."
+    }
+  ]
+}
