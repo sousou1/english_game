@@ -140,7 +140,7 @@ export class Battle {
     return { kill: true, gold, killedIndex: k, levelUp: lv, chapterBoss: isChapterBoss(k), midBoss: isMidBoss(k) };
   }
 
-  // 討伐チャンス(プレイヤー起点)。opts: {dmgReduce(装備), hpBonus(ノノの手紙)}
+  // 討伐チャンス(プレイヤー起点)。opts: {dmgReduce(装備), hpBonus(ユイの手紙)}
   engageBoss(opts = {}, now = Date.now()) {
     const p = this.app.profile;
     if (!this.isBossNow() || p.boss.engaged) return false;

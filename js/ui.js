@@ -14,7 +14,7 @@ import { letterAvailable, readLetter, consumeLetterBuff, COMPANIONS } from './pa
 import { TIER_NAMES, FACILITIES, facilityPrice } from './economy.js';
 import { SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
 import { sfx, speak, initAudio, ttsAvailable, comboTone } from './audio.js';
-import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FIELDS, dayStat } from './storage.js';
+import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FIELDS, dayStat, DEFAULT_PLAYER_NAME } from './storage.js';
 import { SCENARIO, sceneById } from './scenario.js';
 import { eventAvailable, clearedEvents, eventById, EventRun } from './events.js';
 
@@ -31,6 +31,9 @@ let tickerTimer = 0;
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+// 主人公名(プレイヤー命名・既定アキ)。物語/イベント本文の {name} トークンを表示時に置換する。
+const pname = () => (app?.profile?.playerName || DEFAULT_PLAYER_NAME);
+const tok = (s) => String(s ?? '').replace(/\{name\}/g, pname());
 const fresh = (k) => performance.now() - renderedAt[k] > 300;
 
 function fmtBig(n) {
@@ -123,8 +126,15 @@ export function initUI(appRef) {
     <div id="takibi" class="takibi hidden"><div id="takibiBody"></div></div>
     <div id="eventOv" class="takibi event-ov hidden"><div id="eventBody"></div></div>
     <div id="fx" class="fx"></div>
+    <button id="fbBtn" class="fb-btn" title="気になった所をメモ(フィードバック)">✎</button>
+    <div id="fbScrim" class="scrim hidden"></div>
+    <div id="fbOv" class="sheet fb-ov hidden"><div class="grabber"></div><div id="fbBody" class="sheet-body"></div></div>
     <div id="intro" class="intro hidden"></div>
   `;
+
+  $('#fbBtn').onclick = openFeedback;
+  $('#fbScrim').onclick = closeFeedback;
+  $('#fbOv').onclick = (e) => { if (e.target.closest('.grabber')) closeFeedback(); };
 
   $('#menu').onclick = (e) => {
     const b = e.target.closest('[data-sheet]');
@@ -151,7 +161,7 @@ export function initUI(appRef) {
   $('#engageBtn').onclick = () => {
     const fx = equippedEffects(app.profile);
     const hpBonus = consumeLetterBuff(app.profile);
-    if (hpBonus > 0) ticker('💌 ノノのさしいれが、腹と心にしみる。(HP+15%)', 'gold');
+    if (hpBonus > 0) ticker('💌 ユイのさしいれが、腹と心にしみる。(HP+15%)', 'gold');
     if (battle.engageBoss({ dmgReduce: fx.bossGuard, hpBonus })) {
       sfx('zawa');
       ticker('魔物の眼が、こちらを向いた。');
@@ -177,12 +187,12 @@ function boot() {
   const ret = ws.settleReturn();
   if (ret.away > 90 * 1000 && ret.gained > 0) ticker(lineVar('settle_return', { n: fmtBig(ret.gained) }));
   if (ws.canOpenChest()) ticker(line('chest_wait'), 'gold');
-  if (letterAvailable(p)) ticker('💌 ノノからさしいれが届いている。(物語シートで読める)', 'gold');
+  if (letterAvailable(p)) ticker('💌 ユイからさしいれが届いている。(物語シートで読める)', 'gold');
   if (eventAvailable(p)) ticker('⚡ イベントが解放されている! 金色の帯にふれろ。', 'gold');
   pool.refill();
   renderAll();
   const sc = p.scenario;
-  if (!sc.scene && !sc.read['c01_010']) { sc.scene = SCENARIO.start; openSheet('story'); }
+  if (!sc.scene && !sc.read[SCENARIO.start]) { sc.scene = SCENARIO.start; openSheet('story'); }
 }
 
 // ---------- 導入 ----------
@@ -197,28 +207,43 @@ function startIntro() {
       <div class="mist" style="opacity:${Math.max(0.15, 1 - k * 0.11)}"></div>
       ${k === 0 ? `<p class="intro-line">${esc(SCENARIO.introLines[0])}</p>` : ''}
       ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(SCENARIO.introLines[1])}</p>` : ''}
-      ${k >= 6 ? `<div class="ember"></div><p class="intro-line">${esc(SCENARIO.introLines[2])}</p><button class="primary-btn" id="introGo">ことばを、おもいだす</button>` : ''}
+      ${k >= 6 ? `<div class="ember"></div><p class="intro-line">${esc(SCENARIO.introLines[2])}</p>
+        <div class="name-form">
+          <label class="name-label">きみの名は?</label>
+          <input id="nameInput" class="name-input" type="text" maxlength="12" value="${esc(p.playerName || DEFAULT_PLAYER_NAME)}" placeholder="${esc(DEFAULT_PLAYER_NAME)}" autocomplete="off" enterkeyhint="go">
+          <p class="name-hint">空のままなら「${esc(DEFAULT_PLAYER_NAME)}」。あとから設定で変えられる。</p>
+          <button class="primary-btn" id="introGo">この名で、ことばを思い出す</button>
+        </div>` : ''}
       ${k < 6 ? '<p class="intro-hint">タップで靄(もや)を払う</p>' : ''}
     `;
   };
   render();
+  const confirmName = () => {
+    const inp = $('#nameInput');
+    const v = (inp?.value || '').trim();
+    p.playerName = v || DEFAULT_PLAYER_NAME;
+    p.named = true;
+    p.story.intro = 99;
+    intro.classList.add('hidden');
+    app.save();
+    boot();
+    openTakibi(); // 最初の3語をおもいだす
+  };
   intro.onpointerdown = (e) => {
-    if (e.target.closest('#introGo')) return;
+    if (e.target.closest('#nameInput') || e.target.closest('#introGo')) return; // 命名フォームは靄払いに使わない
     if (p.story.intro < 6) {
       p.story.intro++;
       sfx('tick');
       spark(e.clientX, e.clientY);
       render();
+      if (p.story.intro >= 6) setTimeout(() => $('#nameInput')?.focus(), 50);
     }
   };
   intro.onclick = (e) => {
-    if (e.target.closest('#introGo')) {
-      p.story.intro = 99;
-      intro.classList.add('hidden');
-      app.save();
-      boot();
-      openTakibi(); // 最初の3語をおもいだす
-    }
+    if (e.target.closest('#introGo')) confirmName();
+  };
+  intro.onkeydown = (e) => {
+    if (e.key === 'Enter' && e.target.closest('#nameInput')) { e.preventDefault(); confirmName(); }
   };
 }
 
@@ -330,17 +355,17 @@ function enemyEmoji(k) {
 const JOURNEY = [
   null, // ch は1始まり。index0 は未使用
   {
-    move: { icon: '🥾', place: '街道をゆく', hp: 'のこり', drift: [
-      '街道は、どこまでもまっすぐだ。',
-      '風が、知らない土地のにおいを運んでくる。',
-      'ノノ「足、だいじょうぶ? あたしはもう限界に近い」',
-      '王都は、まだ地平線の向こう。',
+    move: { icon: '🥾', place: 'ナギ村の夜回り', hp: 'のこり', drift: [
+      'カンテラの灯がひとつ点くたび、灰の獣が一匹、退いていく。',
+      '柵の外で、灰色の靄がうごめいている。',
+      'ユイ「{name}。灯、まだもつ? 無理すんなよ」',
+      '灯せる者は谷でも数えるほど。その灯が、夜の長さを変える。',
     ] },
-    errand: { icon: '📦', place: 'お使い: 荷を届ける', hp: 'あと', drift: [
-      'マーサに頼まれた荷を、こぼさないように運ぶ。',
-      '下町の路地は、迷路みたいに入りくんでいる。',
-      'ノノ「これ届けたら、あったかい飯だってさ」',
-      '迷うたら、灯りのある方へ。じいちゃんの口ぐせだ。',
+    errand: { icon: '📦', place: 'お使い: 灯火を届ける', hp: 'あと', drift: [
+      '村役に頼まれた灯火の壺を、こぼさないように運ぶ。',
+      '名を忘れた村人が、戸口でぼんやり立ち尽くしている。',
+      'ユイ「これ届けたら、ひと息つけるってさ」',
+      '灰に近い家ほど、ことばが薄い。あいつが通った道筋だ。',
     ] },
   },
 ];
@@ -357,7 +382,7 @@ let journey = { k: -1, hits: 0, shown: 0 };
 function showDrift(txt) {
   const el = $('#driftLine');
   if (!el || !txt) return;
-  el.textContent = txt;
+  el.textContent = tok(txt);
   el.classList.remove('show');
   void el.offsetWidth;
   el.classList.add('show');
@@ -632,7 +657,7 @@ function renderStorySheet() {
     const evDone = clearedEvents(p);
     body.innerHTML = `<h3>📜 物語</h3>
       <p class="story-done">${esc(SCENARIO.title)}</p>
-      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
       ${evNow ? `<button class="buy-row ev-row" data-ev-start="${evNow.id}"><div><b>⚡ イベント『${esc(evNow.title)}』</b><small>詠唱で物語の山場を切りぬけろ</small></div><span>▶</span></button>` : ''}
       ${evDone.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDone.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
       <p class="story-hint">${esc(hint)}</p>
@@ -657,26 +682,18 @@ function renderStorySheet() {
   renderScene(scene, false);
 }
 
-// シーン挿絵(assets/img/ に存在するものだけ表示される)
+// シーン挿絵(節目5枚。assets/img/scene_<id>.webp。存在するものだけ表示される)。
+// 確定採用カット(docs/drafts/ch1_illust_assets/): c01_010=seed11 / c01_040=seed61 /
+// c01_060=seed23 / c01_140=seed23 / c01_180=seed47(一人称POV・幼少期・前近代中世風)。
 const SCENE_ART = {
-  c01_010: 'scene_rooftop', c01_020: 'scene_festival', c01_040: 'scene_firstspell',
-  c01_050: 'scene_lookback', c01_070: 'scene_camp', c01_090: 'scene_roadmorning',
-  c01_100: 'scene_capital', c01_110: 'scene_market', c01_120: 'scene_alley',
-  c01_140: 'scene_silentroad', c01_160: 'scene_inn', c01_170: 'scene_attic',
-  c01_180: 'scene_oathroof', c02_000: 'scene_chapter',
+  c01_010: 'scene_c01_010', c01_040: 'scene_c01_040', c01_060: 'scene_c01_060',
+  c01_140: 'scene_c01_140', c01_180: 'scene_c01_180',
 };
 
 // 立ち絵: 会話行「名前「…」」の話者に小さな顔アイコンを添える(por_<key>_<表情>)。
-// 表情はセリフ末の気分から推測し、その話者に存在する差分だけ使う(無ければ normal)。
-const PORTRAITS = {
-  'レン': { key: 'ren', moods: { smile: 1, sad: 1, fight: 1 } },
-  'ノノ': { key: 'nono', moods: { smile: 1, sad: 1, surprised: 1, worry: 1, determined: 1 } },
-  'マーサ': { key: 'martha', moods: { smile: 1 } },
-  '老詠唱士': { key: 'sage', moods: {} },
-  'セシリア': { key: 'cecilia', moods: { smug: 1 } },
-  'ガイ': { key: 'gai', moods: {} },
-  'バルド': { key: 'bald', moods: {} },
-};
+// 新canon(アキ/ユイ等)の立ち絵アセットは未生成のため、当面は空=会話も地の文と同じ素の行で描画する
+// (主人公は極力映さない方針とも整合。立ち絵が用意できた章で {名前: {key, moods}} を足す)。
+const PORTRAITS = {};
 
 // セリフ本文から気分を推測(話者が持つ差分のみ採用。優先順で最初に一致したもの)
 function moodOf(text, moods) {
@@ -692,11 +709,12 @@ function moodOf(text, moods) {
 }
 
 function sceneLine(l) {
-  const m = l.match(/^([^「()]{1,6})「(.*)/);
+  const t = tok(l); // {name} トークンを主人公名へ置換してから話者判定・描画する
+  const m = t.match(/^([^「()]{1,6})「(.*)/);
   const who = m && PORTRAITS[m[1]];
-  if (!who) return `<p class="scene-line">${esc(l)}</p>`;
+  if (!who) return `<p class="scene-line">${esc(t)}</p>`;
   const face = `por_${who.key}_${moodOf(m[2], who.moods)}`;
-  return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.src='assets/img/por_${who.key}_normal.webp'"><span>${esc(l)}</span></p>`;
+  return `<p class="scene-line dlg"><img class="dlg-face" src="assets/img/${face}.webp" alt="" onerror="this.src='assets/img/por_${who.key}_normal.webp'"><span>${esc(t)}</span></p>`;
 }
 
 // 例文の和訳(jx)のうち、見出し語(j)に当たる箇所を <mark> で強調する。
@@ -726,15 +744,15 @@ function renderScene(scene, reread) {
   body.innerHTML = `
     <h3>📜 ${esc(scene.title)}</h3>
     ${SCENE_ART[scene.id] ? `<img class="ev-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
-    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ノノのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
     <div class="scene">${scene.lines.map(sceneLine).join('')}</div>
     ${scene.choice && !reread ? `
       <div class="choices">
-        <p class="choice-prompt">${esc(scene.choice.prompt)}</p>
-        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-choice="${i}">${esc(o.text)}</button>`).join('')}
+        ${scene.choice.prompt ? `<p class="choice-prompt">${esc(tok(scene.choice.prompt))}</p>` : ''}
+        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-choice="${i}">${esc(tok(o.text))}</button>`).join('')}
       </div>` : `
       <button class="primary-btn" data-act="story-next" ${!reread && !canAfford ? 'disabled' : ''}>
-        ${reread ? 'とじる' : cost > 0 ? (canAfford ? `つづける(💰${fmtBig(cost)})` : `💰${fmtBig(cost)} 必要 — 魔物を倒そう`) : 'つづける'}
+        ${reread ? 'とじる' : cost > 0 ? (canAfford ? `${esc(tok(scene.action || 'つづける'))}(💰${fmtBig(cost)})` : `💰${fmtBig(cost)} 必要 — 魔物を倒そう`) : (scene.action ? esc(tok(scene.action)) : '▶ つづける')}
       </button>`}
     ${!reread && evDoneS.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDoneS.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
   `;
@@ -1003,6 +1021,12 @@ function renderSettingsSheet() {
   const body = $('#sheetBody');
   body.innerHTML = `
     <h3>⚙ 設定</h3>
+    <h4>主人公の名前</h4>
+    <div class="name-row">
+      <input id="nameSetInput" class="name-input" type="text" maxlength="12" value="${esc(app.profile.playerName || DEFAULT_PLAYER_NAME)}" placeholder="${esc(DEFAULT_PLAYER_NAME)}" autocomplete="off">
+      <button class="chip" data-act="rename">名前を変える</button>
+    </div>
+    <p class="story-hint">物語・台詞・カンテラの声など全テキストに反映される。空なら「${esc(DEFAULT_PLAYER_NAME)}」。</p>
     <h4>呪文のレベル</h4>
     <div class="chips">${[1, 2, 3, 4, 5].map((l) => `<button class="chip ${s.levels.includes(l) ? 'on' : ''}" data-lv="${l}">${LEVEL_NAMES[l]}</button>`).join('')}</div>
     <h4>分野</h4>
@@ -1021,6 +1045,11 @@ function renderSettingsSheet() {
       <button class="chip" data-act="import">読み込む</button>
       <button class="chip danger" data-act="reset">すべて忘れる</button>
     </div>
+    <h4>フィードバック(気になった所のメモ)</h4>
+    <div class="chips">
+      <button class="chip" data-act="fbexport">📋 フィードバックを書き出す(${(app.profile.feedback || []).length}件)</button>
+    </div>
+    <p class="story-hint">プレイ中は右下の ✎ ボタンからその場でメモできる。ここでJSONとして書き出して共有。</p>
     <h4>開発者モード(進行倍率と時間送り)</h4>
     <div class="chips">
       ${[1, 10, 100].map((m) => `<button class="chip ${(app.profile.dev?.mult || 1) === m ? 'on' : ''}" data-dev="${m}">×${m}</button>`).join('')}
@@ -1066,6 +1095,16 @@ function renderSettingsSheet() {
     }
     const act = ev.target.closest('[data-act]');
     if (!act) return;
+    if (act.dataset.act === 'rename') {
+      const v = ($('#nameSetInput')?.value || '').trim();
+      app.profile.playerName = v || DEFAULT_PLAYER_NAME;
+      app.profile.named = true;
+      app.save();
+      ticker(`主人公の名前を「${app.profile.playerName}」にした。`, 'gold');
+      reopen();
+      return;
+    }
+    if (act.dataset.act === 'fbexport') { exportFeedbackJSON(); return; }
     if (act.dataset.act === 'storymode') {
       const pr = app.profile;
       pr.dev = { ...pr.dev, story: !pr.dev?.story };
@@ -1101,6 +1140,111 @@ function renderSettingsSheet() {
     }
   };
   $('#rateSlider').oninput = (ev) => { s.rate = Number(ev.target.value); lazySave(); };
+}
+
+// ---------- ゲーム内フィードバック・メモ(プレイ中に「ここ違うな」を即メモ→JSON書き出し) ----------
+// 読みものHTMLの「指摘をコピー」のゲーム版。profile.feedback に {t,where,tags,comment} で貯め、
+// JSONでまとめて書き出す(貼り戻し方式)。サーバ不要・採否/反映は常に人間。
+const FB_TAGS = ['違和感・矛盾', 'バグ', 'テンポ/間', '文章表現', 'UI/操作', '学習接続', '演出/音', 'バランス', 'その他'];
+let fbDraft = { tags: [], comment: '', where: '' };
+
+// いまプレイヤーがどこにいるかを自動採取(メモに添える文脈)
+function feedbackContext() {
+  const p = app.profile;
+  if (!$('#intro').classList.contains('hidden')) return 'イントロ(導入・命名)';
+  if (evRun) return `イベント:${evRun.ev.id}「${evRun.ev.title}」(${evRun.progress().done}/${evRun.progress().total})`;
+  if (!$('#takibi').classList.contains('hidden')) return '修行(焚き火/SRS)';
+  if (sheetKind) {
+    if (sheetKind === 'story') {
+      const sc = p.scenario.scene;
+      const cur = sc ? sceneById(sc) : nextScene();
+      return `物語シート${cur ? `:${cur.id}「${cur.title}」` : ''}`;
+    }
+    const names = { weapons: '武器屋', base: '拠点', spellbook: '呪文書', settings: '設定' };
+    return `シート:${names[sheetKind] || sheetKind}`;
+  }
+  return `本編・討伐${p.battle.kills}体・${$('#placeLbl')?.textContent || ''}`.trim();
+}
+
+function openFeedback() {
+  fbDraft = { tags: [], comment: '', where: feedbackContext() };
+  $('#fbScrim').classList.remove('hidden');
+  $('#fbOv').classList.remove('hidden');
+  renderedAt.sheet = performance.now();
+  renderFeedback();
+}
+
+function closeFeedback() {
+  $('#fbScrim').classList.add('hidden');
+  $('#fbOv').classList.add('hidden');
+}
+
+function renderFeedback() {
+  const p = app.profile;
+  const notes = p.feedback || [];
+  const body = $('#fbBody');
+  body.innerHTML = `
+    <h3>✎ 気になった所をメモ</h3>
+    <p class="fb-where">📍 ${esc(fbDraft.where)}</p>
+    <div class="chips fb-tags">${FB_TAGS.map((t) => `<button class="chip ${fbDraft.tags.includes(t) ? 'on' : ''}" data-fbtag="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+    <textarea id="fbComment" class="fb-comment" rows="3" placeholder="何が違うと感じた? (例: ここのテンポが間延び / この台詞が不自然 / ボタンが押しにくい)">${esc(fbDraft.comment)}</textarea>
+    <button class="primary-btn" data-act="fb-add">このメモを残す</button>
+    <div class="fb-list-head"><h4>たまったメモ ${notes.length}件</h4>${notes.length ? `<button class="chip" data-act="fb-copy">📋 JSONをコピー</button><button class="chip danger" data-act="fb-clear">全消去</button>` : ''}</div>
+    <div class="fb-list">${notes.slice().reverse().map((n, ri) => {
+      const i = notes.length - 1 - ri;
+      return `<div class="fb-item"><div class="fb-item-top"><span class="fb-item-where">${esc(n.where || '')}</span><button class="mini-act danger" data-fbdel="${i}">×</button></div>
+        ${n.tags?.length ? `<div class="fb-item-tags">${n.tags.map((t) => `<span class="fb-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+        ${n.comment ? `<p class="fb-item-comment">${esc(n.comment)}</p>` : ''}
+        <small class="fb-item-time">${hhmm(n.t)}</small></div>`;
+    }).join('')}</div>
+    <p class="story-hint">メモは記録に保存され、設定の「フィードバックを書き出す」からもJSONで取り出せる。採否・反映は人間が行う。</p>
+  `;
+  const ta = $('#fbComment');
+  if (ta) ta.oninput = () => { fbDraft.comment = ta.value; };
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    const tg = e.target.closest('[data-fbtag]');
+    if (tg) {
+      const t = tg.dataset.fbtag;
+      fbDraft.tags = fbDraft.tags.includes(t) ? fbDraft.tags.filter((x) => x !== t) : [...fbDraft.tags, t];
+      renderFeedback(); renderedAt.sheet = performance.now();
+      return;
+    }
+    const a = e.target.closest('[data-act]');
+    if (a?.dataset.act === 'fb-add') {
+      if (!fbDraft.tags.length && !fbDraft.comment.trim()) { ticker('タグか一言、どちらか入れてね。'); return; }
+      p.feedback = p.feedback || [];
+      p.feedback.push({ t: Date.now(), where: fbDraft.where, tags: [...fbDraft.tags], comment: fbDraft.comment.trim() });
+      app.save();
+      sfx('flip');
+      fbDraft = { tags: [], comment: '', where: feedbackContext() };
+      renderFeedback(); renderedAt.sheet = performance.now();
+      ticker('✎ メモを残した。', 'gold');
+      return;
+    }
+    if (a?.dataset.act === 'fb-copy') { exportFeedbackJSON(); return; }
+    if (a?.dataset.act === 'fb-clear') {
+      if (confirm('たまったメモを全部消す?')) { p.feedback = []; app.save(); renderFeedback(); renderedAt.sheet = performance.now(); }
+      return;
+    }
+    const del = e.target.closest('[data-fbdel]');
+    if (del) {
+      const i = Number(del.dataset.fbdel);
+      p.feedback.splice(i, 1); app.save(); renderFeedback(); renderedAt.sheet = performance.now();
+    }
+  };
+}
+
+function exportFeedbackJSON() {
+  const p = app.profile;
+  const payload = {
+    game: 'ともしび', target: 'game-feedback', chapter: p.scenario?.chapter || 1,
+    playerName: p.playerName, swVersion: 'v18', exportedAt: new Date().toISOString(),
+    notes: (p.feedback || []).map((n) => ({ where: n.where, tags: n.tags, comment: n.comment, at: new Date(n.t).toISOString() })),
+  };
+  const data = JSON.stringify(payload, null, 2);
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(data).then(() => ticker(`📋 フィードバック${payload.notes.length}件をコピーした。貼り戻してください。`, 'gold')).catch(() => prompt('コピーしてください', data));
+  else prompt('コピーしてください', data);
 }
 
 // ---------- イベント(物語×穴埋め詠唱。タイマーなし・誤答ペナルティなし) ----------
@@ -1163,13 +1307,13 @@ function renderEventStep() {
     const blankLine = `<p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>`;
     const inner = useCloze ? `
         <small class="ev-tag warm">${s.recall ? '思い出せ——さっきの言葉だ' : 'あたらしい言葉を、この一文に'}</small>
-        <p class="ev-jp dim">${esc(s.jp)}</p>
+        <p class="ev-jp dim">${esc(tok(s.jp))}</p>
         <p class="ev-cloze">${clozeText(cur)}</p>
         <p class="ev-cloze-ja">${highlightJa(cur.j, cur.jx || cur.j, cur.p)}</p>
         ${s.entries.length > 1 ? blankLine : ''}
       ` : `
         ${s.review ? '<small class="ev-tag">反芻——おぼえた言葉で</small>' : s.recall ? '<small class="ev-tag warm">思い出せ——さっきの言葉だ</small>' : ''}
-        <p class="ev-jp">${esc(s.jp)}</p>
+        <p class="ev-jp">${esc(tok(s.jp))}</p>
         ${blankLine}
       `;
     body.innerHTML = `${head}

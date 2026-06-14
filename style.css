@@ -509,3 +509,40 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
   .spark, .coin, .dmg-pop, .cutin, .pillar { display: none; }
   .enemy { animation: none; }
 }
+
+/* ── 命名フォーム(導入/設定) ───────────────────────────── */
+.name-form { display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 1; margin-top: 6px; width: min(86vw, 320px); }
+.name-label { font-size: 14px; color: var(--dim); }
+.name-input { width: 100%; box-sizing: border-box; font-size: 16px; text-align: center; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--panel2); color: var(--text); }
+.name-input:focus { outline: none; border-color: var(--fire1); }
+.name-hint { font-size: 12px; color: var(--dim); margin: 0; text-align: center; }
+.name-row { display: flex; gap: 8px; align-items: center; }
+.name-row .name-input { flex: 1; text-align: left; font-size: 15px; padding: 9px 12px; }
+.name-row .chip { white-space: nowrap; }
+
+/* ── ゲーム内フィードバック(✎メモ) ───────────────────────── */
+/* ✎は物語シート(z40)の上に浮かせ、プレイ中いつでも(読み物中でも)メモできる。
+   焚き火/イベント(z45・詠唱集中)とイントロ(z50)では隠す。*/
+.fb-btn { position: fixed; right: 12px; bottom: calc(70px + var(--safe-bottom)); z-index: 42;
+  width: 44px; height: 44px; border-radius: 50%; font-size: 20px; line-height: 1;
+  background: var(--panel); border: 1px solid var(--panel2); color: var(--fire2);
+  box-shadow: 0 2px 10px rgba(0,0,0,.4); opacity: .85; }
+.fb-btn:active { opacity: 1; border-color: var(--fire1); }
+body.in-takibi .fb-btn { display: none; }
+#fbScrim { z-index: 46; }
+#fbOv.fb-ov { z-index: 47; }
+.fb-where { font-size: 12px; color: var(--fire2); background: rgba(255,138,42,.08); border-radius: 8px; padding: 6px 10px; margin: 0 0 10px; }
+.fb-tags { margin-bottom: 10px; }
+.fb-comment { width: 100%; box-sizing: border-box; font-size: 14px; padding: 10px 12px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--panel2); color: var(--text); resize: vertical; margin-bottom: 10px; }
+.fb-comment:focus { outline: none; border-color: var(--fire1); }
+.fb-list-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.fb-list-head h4 { margin: 0; }
+.fb-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.fb-item { background: var(--panel); border: 1px solid var(--panel2); border-radius: 10px; padding: 8px 10px; }
+.fb-item-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.fb-item-where { font-size: 11px; color: var(--fire2); }
+.fb-item-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.fb-tag { font-size: 11px; background: rgba(255,138,42,.12); color: var(--fire2); border-radius: 99px; padding: 2px 8px; }
+.fb-item-comment { font-size: 13px; margin: 4px 0 2px; line-height: 1.5; }
+.fb-item-time { color: var(--dim); font-size: 10px; }

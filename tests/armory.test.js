@@ -9,7 +9,7 @@ import {
   dropRoll, pushBox, openDrop, enhance, enhanceCost, salvage, weaponDef,
 } from '../js/armory.js';
 import { JOBS, currentJob, jobMod, jobUnlocked } from '../js/jobs.js';
-import { letterAvailable, readLetter, consumeLetterBuff, nonoJoined } from '../js/party.js';
+import { letterAvailable, readLetter, consumeLetterBuff, yuiJoined } from '../js/party.js';
 
 function makeApp() {
   const p = defaultProfile();
@@ -145,12 +145,12 @@ test('ジョブ: 初期は剣士・解禁条件・jobModフォールバック', 
   assert.ok(jobUnlocked(p, hunter, 90));
 });
 
-test('ノノの文通: 加入後は日に1通・バフは一度きり消費', () => {
+test('ユイの文通: 加入後は日に1通・バフは一度きり消費', () => {
   const p = defaultProfile();
-  assert.ok(!nonoJoined(p));
+  assert.ok(!yuiJoined(p));
   assert.ok(!letterAvailable(p), '未加入で手紙が来た');
   p.battle.kills = 20;
-  assert.ok(nonoJoined(p));
+  assert.ok(yuiJoined(p));
   assert.ok(letterAvailable(p));
   const text = readLetter(p);
   assert.ok(typeof text === 'string' && text.length > 5, 'さしいれの本文が空');

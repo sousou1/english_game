@@ -1,4 +1,4 @@
-const KEY = 'kotodama_reforge_v1'; // キーは据え置き(v1からの移行のため)。中身は v:2
+const KEY = 'kotodama_reforge_v1'; // localStorage キーは据え置き(中身のスキーマは v で管理)
 
 export const ALL_FIELDS = ['daily', 'school', 'business', 'travel', 'nature', 'feelings', 'food', 'society'];
 
@@ -9,9 +9,30 @@ export const FIELD_NAMES = {
 
 export const LEVEL_NAMES = ['', '入門', '基礎', '標準', '応用', '上級'];
 
+export const DEFAULT_PLAYER_NAME = 'アキ'; // 主人公の既定名(新canon)。空入力ならこれにフォールバック。
+
+// ── スキーマ版管理 ───────────────────────────────────────────────
+// SCHEMA_VERSION: 現行スキーマの版。defaultProfile().v と一致させる。
+// RESET_BELOW   : これ未満の旧セーブは「一度だけ」破棄する(=今回が最後の全消し)。
+//   理由: 第1章canonをレン/ノノ(旧)→アキ/ユイ(新)へ全面刷新し、シーンID進行・playerName 等に
+//        破壊的変更が入ったため。旧 v5 以前のセーブは新canonと噛み合わず、移行しても意味を成さない。
+//   以後(v6→)は MIGRATORS による前方マイグレーションで学習データ(cards/steps/mana/灯火/streak 等)を保持する。
+//   ※ defaultProfile に項目を足すだけの変更は MIGRATORS 不要(backfill が既定値で補完する)。
+//     値の変換が要る破壊的変更のときだけ、下の MIGRATORS に n→n+1 の変換を追記する。
+export const SCHEMA_VERSION = 6;
+export const RESET_BELOW = 6;
+
+// per-version マイグレータ: キー n の関数は「版 n のプロフィールを n+1 相当へ加算的に変換」する。
+// 例(将来 v7 を作るとき):
+//   6: (p) => { p.newField = deriveFrom(p); },   // p.v は migrate() 側で +1 される
+export const MIGRATORS = {
+};
+
 export function defaultProfile() {
   return {
-    v: 5,
+    v: SCHEMA_VERSION,
+    playerName: DEFAULT_PLAYER_NAME, // 主人公名(プレイヤー命名・既定アキ)。物語テキストの {name} に反映。
+    named: false,                    // 命名UIを一度でも通過したか(初回命名導線の制御)
     settings: {
       levels: [1, 2],
       fields: [...ALL_FIELDS],
@@ -46,22 +67,52 @@ export function defaultProfile() {
     story: { seen: {}, intro: 0 },
     streak: { count: 0, best: 0, lastDay: null },
     stats: { recalls: 0, correct: 0, byDay: {} },
+    feedback: [],   // ゲーム内フィードバック・メモ: {t, where, tags[], comment}
     settledAt: Date.now(),
     created: Date.now(),
   };
 }
 
+// 旧プロフィール p を SCHEMA_VERSION 相当まで前方マイグレートする(破壊的変換のみ)。
+// 既知 migrator が無い版差は「版番号だけ進める」(フィールドの追加は後段の backfill が補完)。
+export function migrate(p, migrators = MIGRATORS, target = SCHEMA_VERSION) {
+  let guard = 0;
+  while ((p.v || 0) < target && guard++ < 999) {
+    const m = migrators[p.v];
+    if (m) m(p);
+    p.v = (p.v || 0) + 1;
+  }
+  p.v = target;
+  return p;
+}
+
+// 現行 defaultProfile に存在して p に無いトップレベル項目を既定値で補完する(未知フィールドの既定補完)。
+// settings はネストするので個別にマージ。学習データ等の既存値は一切上書きしない。
+export function backfill(p) {
+  const d = defaultProfile();
+  p.settings = { ...d.settings, ...(p.settings || {}) };
+  for (const k of Object.keys(d)) if (!(k in p)) p[k] = d[k];
+  // playerName が空文字・非文字列なら既定へ(壊れたデータのフォールバック)
+  if (typeof p.playerName !== 'string' || !p.playerName.trim()) p.playerName = DEFAULT_PLAYER_NAME;
+  return p;
+}
+
+// パース済みオブジェクト(or null)を受け取り、有効なプロフィールを返す純関数(テスト可能)。
+//   - null/壊れデータ      -> 新規
+//   - v < RESET_BELOW      -> 新規(今回限りの全消し)
+//   - それ以外             -> 前方マイグレート + 既定補完
+export function migrateOrReset(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return defaultProfile();
+  if ((raw.v || 0) < RESET_BELOW) return defaultProfile();
+  migrate(raw);
+  return backfill(raw);
+}
+
 export function loadProfile() {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return defaultProfile();
-    const p = JSON.parse(raw);
-    // 開発中につきセーブ互換なし: バージョン不一致は新規データ
-    if (p.v !== 5) return defaultProfile();
-    const d = defaultProfile();
-    p.settings = { ...d.settings, ...(p.settings || {}) };
-    for (const k of Object.keys(d)) if (!(k in p)) p[k] = d[k];
-    return p;
+    const stored = localStorage.getItem(KEY);
+    if (!stored) return defaultProfile();
+    return migrateOrReset(JSON.parse(stored));
   } catch (e) {
     console.warn('profile load failed', e);
     return defaultProfile();
