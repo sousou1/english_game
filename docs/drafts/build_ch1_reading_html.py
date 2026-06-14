@@ -192,7 +192,7 @@ n_scenes = len(scenes)
 
 doc = f"""<!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>{esc(chapter_title)}</title>
 <style>
 :root{{--bg:#14110f;--panel:#1d1916;--ink:#ece5db;--dim:#9a8f81;--accent:#e0a85a;--voice:#7fb6c4;--line:#2a241f;}}
@@ -267,6 +267,8 @@ details.notes summary:before{{content:"▸ 演出ノート ";color:var(--accent)
 .note{{font-family:sans-serif;font-size:.76rem;line-height:1.7;color:#b8ac9c;padding:6px 14px;border-top:1px solid var(--line);}}
 .note .nlabel{{color:var(--accent);font-weight:600;margin-right:8px;}}
 code{{font-family:ui-monospace,monospace;font-size:.85em;background:#241d17;color:#d7b486;padding:0 4px;border-radius:3px;}}
+/* iOS Safari は font-size<16px の入力欄に触れると自動ズーム→表示ズレ。全テキスト入力を16pxに固定して抑止 */
+textarea{{font-size:16px !important;}}
 body:not(.shownotes) details.notes,body:not(.shownotes) .illust-slot{{display:none;}}
 /* JS有効時のみVN式に1シーンずつ隠す。JS無効(iOSクイックルック等)では全文がそのまま読める */
 body.js [data-grp]:not(.shown){{display:none;}}
@@ -310,8 +312,7 @@ function advance(next, isLast, btn){{
   if(isLast){{ document.getElementById('endcard').classList.add('shown'); return; }}
   show(next);
   if(next>cur) cur = next;
-  const sec = document.querySelector('[data-grp="'+next+'"]');
-  if(sec) sec.scrollIntoView({{behavior:'smooth', block:'start'}});
+  // 自動スクロールはしない(押した位置からそのまま下に読み足せる/iOSでのズレ回避)
 }}
 reveal(0); // 名前モーダルは廃止: 読み込み直後から最初のシーンを表示
 document.querySelectorAll('.act').forEach(function(b){{
