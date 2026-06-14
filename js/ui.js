@@ -1362,7 +1362,7 @@ function exportFeedbackJSON() {
   const p = app.profile;
   const payload = {
     game: 'ともしび', target: 'game-feedback', chapter: p.scenario?.chapter || 1,
-    playerName: p.playerName, swVersion: 'v20', exportedAt: new Date().toISOString(),
+    playerName: p.playerName, swVersion: 'v21', exportedAt: new Date().toISOString(),
     notes: (p.feedback || []).map((n) => ({ where: n.where, tags: n.tags, comment: n.comment, at: new Date(n.t).toISOString() })),
   };
   const data = JSON.stringify(payload, null, 2);

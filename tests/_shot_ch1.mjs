@@ -41,9 +41,10 @@ async function newPage(profile) {
   return page;
 }
 
-function storyProfile(name) {
+function storyProfile(name, { firstLight = 1 } = {}) {
   const p = defaultProfile();
   p.story.intro = 99;
+  p.story.firstLight = firstLight; // 既定=初灯済(ロックなし)。A は 0 にして初灯チュートリアルを通す
   p.named = true;
   p.playerName = name;
   p.facilities.fire = 1;
@@ -82,7 +83,7 @@ async function driveTutorial(page) {
 
 // ---- (A) 全画面リーダーで第1章を通しプレイ: 25シーン・挿絵5枚・主人公名置換 ----
 {
-  const page = await newPage(storyProfile(NAME));
+  const page = await newPage(storyProfile(NAME, { firstLight: 0 })); // 初灯前=ロック&チュートリアルを通す
   await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 });
   const illustOk = {}; let nameShown = false, tokenLeak = false, akiLeak = false, reached180 = false, tutorialDone = false;
 
