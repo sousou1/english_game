@@ -89,10 +89,11 @@ export function initUI(appRef) {
     </div>
     <div id="stage" class="stage">
       <div class="stage-top"><span id="placeLbl"></span><span id="bossTimerWrap" class="hidden">⏳<b id="bossTimer"></b></span></div>
+      <button id="eventBadge" class="event-badge hidden" title="イベント発生中——ふれて山場へ">⚡<small>イベント</small></button>
       <div id="enemyWrap" class="enemy-wrap">
         <div id="enemy" class="enemy">🐀</div>
       </div>
-      <div class="ehp-wrap"><div class="ehp"><div id="ehpFill" class="ehp-fill"></div></div><span id="ehpPct">100%</span></div>
+      <div class="ehp-wrap"><span class="ehp-lbl" id="ehpLbl">敵</span><div class="ehp"><div id="ehpFill" class="ehp-fill"></div></div><span id="ehpPct">100%</span></div>
       <div id="bossPanel" class="boss-panel hidden">
         <span class="php-label">❤</span><div class="php"><div id="phpFill" class="php-fill"></div></div><span id="phpNum"></span>
         <button id="retreatBtn" class="mini-act">🏳 退く</button>
@@ -101,7 +102,6 @@ export function initUI(appRef) {
       <div id="ticker" class="ticker" ></div>
       <div id="driftLine" class="drift-line"></div>
     </div>
-    <button id="eventBanner" class="event-banner hidden"></button>
     <div id="band" class="band">
       <span id="combo" class="combo"></span>
       <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
@@ -144,7 +144,7 @@ export function initUI(appRef) {
     else if (b.dataset.sheet === 'story') openStory();
     else openSheet(b.dataset.sheet);
   };
-  $('#eventBanner').onclick = () => { const ev = eventAvailable(app.profile); if (ev) openEvent(ev); };
+  $('#eventBadge').onclick = () => { const ev = eventAvailable(app.profile); if (ev) openEvent(ev); };
   $('#sheetScrim').onclick = closeSheet;
   $('#sheet').onclick = (e) => { if (e.target.closest('.grabber')) closeSheet(); };
   $('#poolGrid').onclick = (e) => {
@@ -205,8 +205,8 @@ function startIntro() {
   const render = () => {
     const k = p.story.intro;
     intro.innerHTML = `
-      <img class="intro-bg" src="assets/img/scene_c01_180.webp" onerror="this.src='assets/img/title_art.webp';this.onerror=null" style="opacity:${Math.max(0.12, 0.5 - k * 0.05)}">
-      <div class="mist" style="opacity:${Math.max(0.15, 1 - k * 0.11)}"></div>
+      <img class="intro-bg" src="assets/img/scene_c01_180.webp" onerror="this.src='assets/img/title_art.webp';this.onerror=null" style="opacity:${Math.min(0.95, 0.38 + k * 0.1).toFixed(2)};filter:brightness(${(0.55 + k * 0.09).toFixed(2)})">
+      <div class="mist" style="opacity:${Math.max(0.05, 0.95 - k * 0.16).toFixed(2)}"></div>
       ${k === 0 ? `<p class="intro-line">${esc(SCENARIO.introLines[0])}</p>` : ''}
       ${k >= 3 && k < 6 ? `<p class="intro-line dim">${esc(SCENARIO.introLines[1])}</p>` : ''}
       ${k >= 6 ? `<div class="ember"></div><p class="intro-line">${esc(SCENARIO.introLines[2])}</p>
@@ -317,7 +317,7 @@ function renderStat() {
   const lv = levelOf(p.exp);
   battle.app.battleLevel = lv.level;
   pool.app.battleLevel = lv.level;
-  $('#stLv').textContent = `${currentJob(p).icon}Lv${lv.level}`;
+  $('#stLv').textContent = `🏮Lv${lv.level}`; // 灯火モチーフ(主人公=人型ピクトを映さない)。型のic(人型)は型選択画面側でのみ使う
   const maxHp = hpMax(lv.level);
   const curHp = p.boss.engaged ? Math.max(0, p.boss.hp) : maxHp;
   $('#stHp').textContent = `❤${curHp}/${maxHp}`;
@@ -449,7 +449,10 @@ function renderStage() {
 
 function renderBand() {
   const now = Date.now();
-  $('#combo').textContent = pool.combo >= 2 ? `🔥×${pool.comboMult().toFixed(2)}` : '';
+  const cb = $('#combo');
+  // コンボ中は🔥倍率、待機中は「連灯」ラベル(このメーターが何かを一目で)
+  if (pool.combo >= 2) { cb.textContent = `🔥×${pool.comboMult().toFixed(2)}`; cb.classList.remove('idle'); }
+  else { cb.textContent = '連灯'; cb.classList.add('idle'); }
   const g = $('#gaugeFill');
   if (pool.rushActive(now)) {
     $('#gaugeNum').textContent = `×${pool.rushMult().toFixed(2)}`;
@@ -769,12 +772,14 @@ function openStoryReader(id) {
   const frontier = sc.scene === id && !sc.read[id];
   storyView = { id, shown: frontier ? 1 : (sceneById(id)?.lines.length || 1), footAt: 0 };
   $('#storyOv').classList.remove('hidden');
+  document.body.classList.add('in-story');
   renderStory();
 }
 
 function closeStory() {
   storyView = null;
   $('#storyOv').classList.add('hidden');
+  document.body.classList.remove('in-story');
   pool.refill();
   renderAll();
 }
@@ -811,24 +816,34 @@ function renderStory() {
     }
   }
 
+  const art = SCENE_ART[scene.id];
   const body = $('#storyBody');
+  body.classList.toggle('story-has-art', !!art); // 挿絵シーンは全画面背景に敷き、本文/選択を下部グラデへ
   body.innerHTML = `
+    ${art ? `<img class="story-art" src="assets/img/${art}.webp" onerror="this.remove()"><div class="story-scrim"></div>` : ''}
     <div class="story-bar">
       <button class="story-back ${canBack ? '' : 'off'}" data-sact="back" ${canBack ? '' : 'disabled'}>◀ 戻る</button>
       <span class="story-title">${esc(scene.title)}</span>
       ${p.story.firstLight ? '<button class="story-close" data-sact="close">✕</button>' : '<span class="story-lock" title="灯をともすまで進もう">🔒</span>'}
     </div>
-    ${SCENE_ART[scene.id] ? `<img class="story-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
     ${letter ? '<button class="buy-row" data-sact="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
-    <div class="story-text">${lines.slice(0, shown).map(sceneLine).join('')}</div>
-    <div class="story-foot">
-      ${revealing ? '<p class="story-tap-hint">画面をタップで次へ ▾</p>' : foot}
+    <div class="story-scroll">
+      <div class="story-text">${lines.slice(0, shown).map(sceneLine).join('')}</div>
+      <div class="story-foot">
+        ${revealing ? '<p class="story-tap-hint">画面をタップで次へ ▾</p>' : foot}
+      </div>
     </div>
   `;
   if (done && (foot.includes('data-sact="next"') || foot.includes('data-sact="choice"'))) storyView.footAt = performance.now();
   // 公開直後の自動スクロール下げ(最新行を見せる)
-  const tx = body.querySelector('.story-text');
+  const tx = body.querySelector('.story-scroll');
   if (tx) tx.scrollTop = tx.scrollHeight;
+  // ロック解除(初灯)直後の初回だけ、✎の在りかをワンタイムで光らせる(複数UI一斉解放の中で新規を示す)
+  if (p.story.firstLight && p.story.seen && !p.story.seen.fbSpot) {
+    p.story.seen.fbSpot = 1; lazySave();
+    const fb = $('#fbBtn');
+    if (fb) { fb.classList.add('spot'); setTimeout(() => $('#fbBtn')?.classList.remove('spot'), 3600); }
+  }
 
   body.onclick = (e) => {
     const btn = e.target.closest('[data-sact]');
@@ -1103,10 +1118,16 @@ function renderSpellbookSheet() {
     <p class="story-hint">あたらしい言葉は、物語のイベントで手に入る。</p>
     <div class="spell-list">
     ${items.slice(0, 60).map((it) => {
+      // 習熟度は全行同じ語(見習い・修行どき…)の反復でなく、★段階+色のドットで表す(ノイズ減)。
+      // 復習どきだけ小さな🔥で示す。詳細語はタップ展開のdetailに置く。
       const color = it.kind === 'step' ? '#9a8fa8' : RARITY[it.tier].color;
-      const status = it.kind === 'step' ? 'おぼえかけ' : `${TIER_NAMES[it.tier]}${it.R < 0.9 ? '・修行どき' : ''}`;
+      const stars = it.kind === 'step' ? '' : '★'.repeat(Math.min(5, it.tier + 1));
+      const due = it.kind === 'card' && it.R < 0.9;
+      const status = it.kind === 'step'
+        ? `<i class="sp-tag" style="color:${color}" title="おぼえかけ">芽</i>`
+        : `<i class="sp-stars" style="color:${color}" title="${esc(TIER_NAMES[it.tier])}">${stars}</i>${due ? '<i class="sp-due" title="修行どき">🔥</i>' : ''}`;
       return `<div class="spell-row" data-w="${esc(it.w)}">
-        <span style="color:${color}">◆</span><b>${esc(it.w)}</b><small>${esc(it.e.j)}</small><i>${status}</i>
+        <span style="color:${color}">◆</span><b>${esc(it.w)}</b><small>${esc(it.e.j)}</small>${status}
       </div>${open === it.w ? spellDetail(it) : ''}`;
     }).join('')}
     ${items.length > 60 ? `<p class="story-hint">ほか${items.length - 60}語</p>` : ''}
@@ -1147,41 +1168,54 @@ function renderSettingsSheet() {
     <p class="story-hint">物語・台詞・カンテラの声など全テキストに反映される。空なら「${esc(DEFAULT_PLAYER_NAME)}」。</p>
     <h4>呪文のレベル</h4>
     <div class="chips">${[1, 2, 3, 4, 5].map((l) => `<button class="chip ${s.levels.includes(l) ? 'on' : ''}" data-lv="${l}">${LEVEL_NAMES[l]}</button>`).join('')}</div>
-    <h4>分野</h4>
-    <div class="chips">${ALL_FIELDS.map((f) => `<button class="chip ${s.fields.includes(f) ? 'on' : ''}" data-fd="${f}">${FIELD_NAMES[f]}</button>`).join('')}</div>
-    <h4>1日に編める呪文(無制限でも、忘却曲線が翌日からの復習で支えます)</h4>
-    <div class="chips">${[10, 20, 50, 999].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n >= 999 ? '∞ 無制限' : n + '語'}</button>`).join('')}</div>
-    <h4>音</h4>
-    <div class="chips">
-      <button class="chip ${s.listen ? 'on' : ''}" data-tg="listen">聴き取り${ttsAvailable() ? '' : '(非対応)'}</button>
-      <button class="chip ${s.autoSpeak ? 'on' : ''}" data-tg="autoSpeak">自動読み上げ</button>
-    </div>
-    <label class="slider-row">速さ <input type="range" id="rateSlider" min="0.6" max="1.2" step="0.05" value="${s.rate}"></label>
+
+    <details class="settings-acc">
+      <summary>分野・編む量・音の詳細</summary>
+      <h4>分野</h4>
+      <div class="chips">${ALL_FIELDS.map((f) => `<button class="chip ${s.fields.includes(f) ? 'on' : ''}" data-fd="${f}">${FIELD_NAMES[f]}</button>`).join('')}</div>
+      <h4>1日に編める呪文(無制限でも、忘却曲線が翌日からの復習で支えます)</h4>
+      <div class="chips">${[10, 20, 50, 999].map((n) => `<button class="chip ${s.newPerDay === n ? 'on' : ''}" data-np="${n}">${n >= 999 ? '∞ 無制限' : n + '語'}</button>`).join('')}</div>
+      <h4>音</h4>
+      <div class="chips">
+        <button class="chip ${s.listen ? 'on' : ''}" data-tg="listen">聴き取り${ttsAvailable() ? '' : '(非対応)'}</button>
+        <button class="chip ${s.autoSpeak ? 'on' : ''}" data-tg="autoSpeak">自動読み上げ</button>
+      </div>
+      <label class="slider-row">速さ <input type="range" id="rateSlider" min="0.6" max="1.2" step="0.05" value="${s.rate}"></label>
+    </details>
+
     <h4>記録</h4>
     <div class="chips">
       <button class="chip" data-act="export">書き出す</button>
       <button class="chip" data-act="import">読み込む</button>
-      <button class="chip danger" data-act="reset">すべて忘れる</button>
     </div>
     <h4>フィードバック(気になった所のメモ)</h4>
     <div class="chips">
       <button class="chip" data-act="fbexport">📋 フィードバックを書き出す(${(app.profile.feedback || []).length}件)</button>
     </div>
-    <p class="story-hint">プレイ中は右下の ✎ ボタンからその場でメモできる。ここでJSONとして書き出して共有。</p>
-    <h4>開発者モード(進行倍率と時間送り)</h4>
-    <div class="chips">
-      ${[1, 10, 100].map((m) => `<button class="chip ${(app.profile.dev?.mult || 1) === m ? 'on' : ''}" data-dev="${m}">×${m}</button>`).join('')}
-      <button class="chip" data-skip="3600000">+1時間</button>
-      <button class="chip" data-skip="86400000">+1日</button>
-      <button class="chip" data-skip="604800000">+1週間</button>
+    <p class="story-hint">プレイ中は右上の ✎ ボタンからその場でメモできる。ここでJSONとして書き出して共有。</p>
+
+    <details class="settings-acc">
+      <summary>開発者・デバッグ</summary>
+      <h4>開発者モード(進行倍率と時間送り)</h4>
+      <div class="chips">
+        ${[1, 10, 100].map((m) => `<button class="chip ${(app.profile.dev?.mult || 1) === m ? 'on' : ''}" data-dev="${m}">×${m}</button>`).join('')}
+        <button class="chip" data-skip="3600000">+1時間</button>
+        <button class="chip" data-skip="86400000">+1日</button>
+        <button class="chip" data-skip="604800000">+1週間</button>
+      </div>
+      <h4>ストーリー試遊(デバッグ)</h4>
+      <div class="chips">
+        <button class="chip ${app.profile.dev?.story ? 'on' : ''}" data-act="storymode">📖 ストーリー解放${app.profile.dev?.story ? '(ON)' : ''}</button>
+        <button class="chip" data-act="storynext">▶ 次の物語へ</button>
+      </div>
+      <p class="story-hint">解放ON: シーンの解禁ゲート(討伐数・定着語)と読む費用を無視して読み進められる。イベントもgate解放で順に開く。</p>
+      <p class="story-hint">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ 討伐 ${app.profile.battle.kills}体</p>
+    </details>
+
+    <div class="danger-zone">
+      <button class="chip danger" data-act="reset">すべて忘れる(全消去)</button>
+      <small>記録をすべて消し、導入(命名)からやり直す。取り消せない。</small>
     </div>
-    <h4>ストーリー試遊(デバッグ)</h4>
-    <div class="chips">
-      <button class="chip ${app.profile.dev?.story ? 'on' : ''}" data-act="storymode">📖 ストーリー解放${app.profile.dev?.story ? '(ON)' : ''}</button>
-      <button class="chip" data-act="storynext">▶ 次の物語へ</button>
-    </div>
-    <p class="story-hint">解放ON: シーンの解禁ゲート(討伐数・定着語)と読む費用を無視して読み進められる。イベントもgate解放で順に開く。</p>
-    <p class="story-hint">たね火 ${app.profile.streak.count}日 ・ 確かな想起 ${app.profile.surely} ・ 討伐 ${app.profile.battle.kills}体</p>
   `;
   body.onclick = (ev) => {
     if (!fresh('sheet')) return;
@@ -1362,7 +1396,7 @@ function exportFeedbackJSON() {
   const p = app.profile;
   const payload = {
     game: 'ともしび', target: 'game-feedback', chapter: p.scenario?.chapter || 1,
-    playerName: p.playerName, swVersion: 'v22', exportedAt: new Date().toISOString(),
+    playerName: p.playerName, swVersion: 'v23', exportedAt: new Date().toISOString(),
     notes: (p.feedback || []).map((n) => ({ where: n.where, tags: n.tags, comment: n.comment, at: new Date(n.t).toISOString() })),
   };
   const data = JSON.stringify(payload, null, 2);
@@ -1372,17 +1406,20 @@ function exportFeedbackJSON() {
 
 // ---------- イベント(物語×穴埋め詠唱。タイマーなし・誤答ペナルティなし) ----------
 let evRun = null;
+let evLinePage = 0; // 開幕/掛け合いのlinesを2〜3行ずつに分割するためのページ位置
 
 function renderEventBanner() {
-  const b = $('#eventBanner');
+  // イベント告知は主操作レーン(お題↔詠唱プール)に割り込ませず、敵カード隅のバッジへ寄せる。
+  // 物語メニューにも⚡バッジが立つ(renderMenuBadges)。ここはタップで直接イベントへ入れる近道。
+  const b = $('#eventBadge');
   const ev = eventAvailable(app.profile);
   if (!ev) { b.classList.add('hidden'); return; }
   b.classList.remove('hidden');
-  b.innerHTML = `<span class="evb-spark">⚡</span><span class="evb-txt"><b>イベント『${esc(ev.title)}』</b><small>物語の山場——詠唱で切りぬけ、新しい言葉を手に入れろ</small></span><span class="evb-go">▶</span>`;
 }
 
 function openEvent(ev, replay = false) {
   evRun = new EventRun(app, ev, { replay });
+  evLinePage = 0;
   $('#eventOv').classList.remove('hidden');
   document.body.classList.add('in-takibi');
   if (sheetKind) closeSheet();
@@ -1408,19 +1445,29 @@ function renderEventStep() {
   if (!s) { closeEvent(); return; }
 
   if (s.t === 'lines') {
-    body.innerHTML = `${head}
-      ${s.art && ev.art ? `<img class="ev-art" src="assets/img/${ev.art}.webp" onerror="this.remove()">` : ''}
-      <div class="ev-lines">${s.lines.map(sceneLine).join('')}</div>
-      <button class="primary-btn" data-act="next">▶ つづける</button>`;
+    // 開幕/掛け合いは1カード2〜3行に分割(canon本文は変えず、見せる粒度だけ刻む)
+    const CH = 3;
+    const pages = Math.max(1, Math.ceil(s.lines.length / CH));
+    if (evLinePage >= pages) evLinePage = 0;
+    const from = evLinePage * CH;
+    const slice = s.lines.slice(from, from + CH);
+    const lastPage = evLinePage >= pages - 1;
+    body.innerHTML = `${head}<div class="ev-mid">
+      ${evLinePage === 0 && s.art && ev.art ? `<img class="ev-art" src="assets/img/${ev.art}.webp" onerror="this.remove()">` : ''}
+      <div class="ev-lines">${slice.map(sceneLine).join('')}</div>
+      ${pages > 1 ? `<div class="ev-dots">${Array.from({ length: pages }, (_, i) => `<i class="${i === evLinePage ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+      <button class="primary-btn" data-act="${lastPage ? 'next' : 'page'}">▶ つづける</button>
+    </div>`;
   } else if (s.t === 'teach') {
-    body.innerHTML = `${head}
+    body.innerHTML = `${head}<div class="ev-mid">
       <div class="ev-card">
         <small>あたらしい言葉が、ほどけて見えた</small>
         <b class="ev-word">${esc(s.entry.w)}</b>
         <span class="ev-mean">${esc(s.entry.j)} <small>${esc(POS_JA[s.entry.p] || '')}</small></span>
         ${s.entry.ex ? `<p class="ev-ex">${esc(s.entry.ex)}<br><small>${esc(s.entry.jx || '')}</small></p>` : ''}
       </div>
-      <button class="primary-btn" data-act="next">この言葉で、唱える</button>`;
+      <button class="primary-btn" data-act="next">この言葉で、唱える</button>
+    </div>`;
     if (app.profile.settings.autoSpeak) speak(s.entry.w, app.profile.settings.rate);
   } else if (s.t === 'cast') {
     // 新語を覚えるcast(反芻以外)は「英文穴埋め+和訳の該当語強調」で出す。
@@ -1439,12 +1486,13 @@ function renderEventStep() {
         <p class="ev-jp">${esc(tok(s.jp))}</p>
         ${blankLine}
       `;
-    body.innerHTML = `${head}
+    body.innerHTML = `${head}<div class="ev-mid">
       <div class="ev-cast">${inner}</div>
       <div class="ev-choices">${(() => {
         const used = new Set(s.entries.slice(0, s.ptr).map((e) => e.w));
         return s.choices.map((c) => `<button class="ev-choice${used.has(c.w) ? ' used' : ''}" ${used.has(c.w) ? 'disabled' : ''} data-cast="${esc(c.w)}">${esc(c.w)}</button>`).join('');
-      })()}</div>`;
+      })()}</div>
+    </div>`;
   } else if (s.t === 'clear') {
     const r = evRun.finish();
     let drops = '';
@@ -1455,7 +1503,7 @@ function renderEventStep() {
       sfx('kyuin');
       if (navigator.vibrate) navigator.vibrate([30, 40, 80]);
     }
-    body.innerHTML = `${head}
+    body.innerHTML = `${head}<div class="ev-mid">
       <div class="ev-card clear">
         <b>イベントクリア!</b>
         ${r.already ? '<p class="ev-reward dim">(再演——報酬はない。でも言葉は心に残る)</p>' : `
@@ -1465,7 +1513,8 @@ function renderEventStep() {
           <div class="ev-words">${r.words.map((w) => `<span>${esc(w.w)}<small>${esc(w.j)}</small></span>`).join('')}</div>` : ''}
         `}
       </div>
-      <button class="primary-btn" data-act="close">目を上げる</button>`;
+      <button class="primary-btn" data-act="close">目を上げる</button>
+    </div>`;
     renderMenuBadges();
   }
   renderedAt.event = performance.now();
@@ -1476,7 +1525,8 @@ function renderEventStep() {
     if (a) {
       if (a.dataset.act === 'quit') { ticker('イベントはいつでも金の帯からやり直せる。'); closeEvent(); return; }
       if (a.dataset.act === 'close') { closeEvent(); return; }
-      if (a.dataset.act === 'next') { evRun.next(); renderEventStep(); return; }
+      if (a.dataset.act === 'page') { evLinePage++; renderEventStep(); return; }
+      if (a.dataset.act === 'next') { evLinePage = 0; evRun.next(); renderEventStep(); return; }
     }
     const c = e.target.closest('[data-cast]');
     if (c) {
@@ -1501,6 +1551,7 @@ function openFirstLightTutorial() {
   initAudio(); // ユーザー操作内で音を解放(以後の自動読み上げが不意に鳴らない)
   storyView = null;
   $('#storyOv').classList.add('hidden');
+  document.body.classList.remove('in-story');
   takibiState = { tutorial: true, queue: [...ws.introQueue()], card: null };
   $('#takibi').classList.remove('hidden');
   document.body.classList.add('in-takibi');
@@ -1529,11 +1580,11 @@ function renderTutorialHowto() {
 function renderFirstLightDone() {
   const p = app.profile;
   renderedAt.takibi = performance.now();
-  $('#takibiBody').innerHTML = `<div class="takibi-head">🔥</div>
-    <div class="icard tut">
+  // 達成の余韻を先に(大きな火・短い詩文)。機能説明は本文へ戻ってからの一度きりのヒントに回す。
+  $('#takibiBody').innerHTML = `<div class="takibi-head big">🔥</div>
+    <div class="icard tut firstlight-done">
       <div class="icard-tag pinto">灯った!</div>
-      <p class="tut-line">思い出したことばが、ちいさな火になった。これが——灯火(ともしび)。</p>
-      <p class="tut-line dim">これから、覚えたことばで詠唱できる。さあ、物語の続きへ。</p>
+      <p class="tut-line center">思い出したことばが、ちいさな火になった。<br>これが——灯火(ともしび)。</p>
       <button class="primary-btn" data-act="tut-done">物語へ進む</button>
     </div>`;
   $('#takibiBody').onclick = (e) => {
@@ -1549,6 +1600,8 @@ function renderFirstLightDone() {
     pool.refill();
     renderAll();
     openStoryReader('c01_050');
+    // 機能説明は余韻のあとに(完了画面でなく、戻ってからの一度きりのヒント)
+    ticker('これから、覚えたことばで詠唱できる。', 'gold');
   };
 }
 
@@ -1628,10 +1681,13 @@ function renderTakibi() {
     inner = `
       <div class="icard-tag">新しい呪文</div>
       <div class="icard-word">${esc(r.entry.w)} <button class="mini-act" data-act="spk">🔊</button></div>
+      ${takibiState.tutorial ? '<div class="icard-sub spk-hint">🔊 タップで発音が聞ける</div>' : ''}
       <div class="icard-ja">${esc(r.entry.j)} <span class="pos">${POS_JA[r.entry.p] || ''}</span></div>
       ${r.entry.ex ? `<div class="icard-ex">${esc(r.entry.ex)}<br><small>${esc(r.entry.jx)}</small></div>` : ''}
       <button class="primary-btn" data-act="got">おぼえた</button>`;
   } else if (mode === 'recall') {
+    // チュートリアル中は「選択肢をひらく」のワンクッションを省き、最初から選択肢を提示(1タップ減)
+    if (takibiState.tutorial && !r.q) ws.openChoices();
     const f = r.form;
     let prompt;
     if (f === 'listen') prompt = `<button class="replay" data-act="spk">🔊</button>`;

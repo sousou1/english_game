@@ -102,6 +102,17 @@ button:active { transform: scale(.96); }
   100% { transform: translateY(0) scale(1); }
 }
 .ehp-wrap { width: 100%; display: flex; align-items: center; gap: 8px; }
+.ehp-lbl { font-size: 11px; color: var(--dim); flex: none; min-width: 22px; }
+/* イベント告知バッジ(敵カード隅。主操作レーンに割り込ませない) */
+.event-badge {
+  position: absolute; top: 6px; right: 54px; z-index: 6;
+  display: flex; align-items: center; gap: 4px; padding: 5px 9px;
+  border-radius: 99px; font-size: 13px; font-weight: 800; color: var(--fire2);
+  background: linear-gradient(110deg, rgba(255, 170, 40, .28), rgba(255, 90, 40, .2));
+  border: 1.5px solid var(--fire2); box-shadow: 0 0 14px rgba(255, 180, 60, .4);
+  animation: evpulse 1.8s ease-in-out infinite;
+}
+.event-badge small { font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .ehp { flex: 1; height: 12px; background: rgba(0, 0, 0, .45); border-radius: 99px; overflow: hidden; border: 1px solid var(--panel2); }
 .ehp-fill { height: 100%; background: linear-gradient(90deg, #c0455a, #e889a0); border-radius: 99px; transition: width .25s; }
 .ehp-fill.low { background: linear-gradient(90deg, var(--fire1), var(--fire2)); box-shadow: 0 0 12px rgba(255, 209, 102, .7); }
@@ -142,6 +153,7 @@ button:active { transform: scale(.96); }
   display: flex; align-items: center; gap: 8px; padding: 0 2px;
 }
 .combo { min-width: 74px; font-size: 17px; font-weight: 800; font-style: italic; color: var(--fire2); }
+.combo.idle { font-size: 12px; font-style: normal; font-weight: 600; color: var(--dim); letter-spacing: .08em; }
 .gauge { flex: 1; height: 14px; background: var(--panel); border-radius: 99px; overflow: hidden; border: 1px solid var(--panel2); }
 .gauge-fill { height: 100%; background: linear-gradient(90deg, var(--fire1), var(--fire2)); border-radius: 99px; transition: width .2s; }
 .gauge-num { font-size: 12px; color: var(--dim); min-width: 56px; text-align: right; font-variant-numeric: tabular-nums; }
@@ -269,6 +281,9 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .spell-row b { min-width: 86px; }
 .spell-row small { color: var(--fire2); flex: 1; }
 .spell-row i { color: var(--dim); font-size: 11px; font-style: normal; }
+.sp-stars { letter-spacing: .04em; font-size: 12px; }
+.sp-due { margin-left: 4px; font-size: 11px; }
+.sp-tag { font-size: 11px; }
 .spell-detail { background: var(--panel); border-radius: 10px; padding: 11px; margin: 4px 0 8px; font-size: 13.5px; display: flex; flex-direction: column; gap: 7px; }
 .spell-ex { line-height: 1.6; }
 .spell-ex small { color: var(--dim); }
@@ -287,6 +302,18 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .chip.danger { color: var(--bad); }
 .slider-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--dim); margin-top: 10px; }
 .slider-row input { flex: 1; accent-color: var(--fire1); }
+/* 設定の「詳細」アコーディオン(ノースクロールに寄せる) */
+.settings-acc { margin: 12px 0 4px; border: 1px solid var(--panel2); border-radius: 12px; padding: 0 12px; background: rgba(0,0,0,.12); }
+.settings-acc > summary { cursor: pointer; list-style: none; padding: 11px 4px; font-size: 13px; color: var(--dim); font-weight: 600; }
+.settings-acc > summary::-webkit-details-marker { display: none; }
+.settings-acc > summary::before { content: '▸ '; color: var(--fire2); }
+.settings-acc[open] > summary::before { content: '▾ '; }
+.settings-acc[open] { padding-bottom: 10px; }
+/* 破壊的操作(すべて忘れる)は最下部に視覚的に隔離 */
+.danger-zone { margin-top: 26px; padding-top: 16px; border-top: 1px dashed rgba(232,137,160,.4);
+  display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.danger-zone .chip.danger { border-color: var(--bad); }
+.danger-zone small { color: var(--dim); font-size: 11px; text-align: center; }
 
 /* ---------- 焚き火(修行=SRS隔離空間) ---------- */
 .takibi {
@@ -303,6 +330,10 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .event-ov { background: linear-gradient(rgba(10, 8, 16, .9), rgba(10, 8, 16, .96)), #0a0810; }
 #takibiBody { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; text-align: center; }
 .takibi-head { font-size: 44px; text-align: center; animation: breathe 2.2s infinite; }
+.takibi-head.big { font-size: 76px; filter: drop-shadow(0 0 26px rgba(255,138,42,.7)); animation: breathe 1.8s infinite; }
+.spk-hint { color: var(--fire2); font-size: 12px; }
+.firstlight-done { align-items: center; }
+.tut-line.center { text-align: center; line-height: 1.9; }
 .takibi-line { color: var(--text); font-size: 15px; line-height: 1.8; margin: 0; }
 .takibi-line.dim { color: var(--dim); font-size: 13px; }
 .takibi-rest { font-size: 11px; color: var(--dim); }
@@ -438,6 +469,11 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .evb-go { font-size: 18px; color: var(--fire2); }
 
 .event-ov #eventBody { display: flex; flex-direction: column; gap: 14px; padding: 18px 16px; max-width: 480px; margin: 0 auto; height: 100%; overflow-y: auto; }
+/* カードは縦中央寄せ(下に死に領域を作らない)。ヘッダは上端のまま、本文/選択を中央へ。 */
+.ev-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: safe center; gap: 14px; }
+.ev-dots { display: flex; gap: 6px; justify-content: center; }
+.ev-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--panel2); display: inline-block; }
+.ev-dots i.on { background: var(--fire2); }
 .ev-head { display: flex; align-items: center; gap: 10px; color: var(--fire2); font-weight: 800; }
 .ev-head .ev-prog { flex: 1; text-align: right; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
 .ev-art { width: 100%; max-height: 38vh; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--panel2); }
@@ -486,7 +522,7 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 }
 @keyframes enemyIdle { from { background-position-x: 0; } to { background-position-x: -512px; } }
 
-.intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.intro-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: opacity .7s ease, filter .7s ease; }
 
 /* 戦利品の光柱(ドロップ演出) */
 .pillar {
@@ -517,7 +553,7 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .name-input:focus { outline: none; border-color: var(--fire1); }
 .name-hint { font-size: 12px; color: var(--dim); margin: 0; text-align: center; }
 .name-row { display: flex; gap: 8px; align-items: center; }
-.name-row .name-input { flex: 1; text-align: left; font-size: 15px; padding: 9px 12px; }
+.name-row .name-input { flex: 1; text-align: left; font-size: 16px; padding: 9px 12px; } /* >=16px: iOSフォーカス時の自動ズーム防止 */
 .name-row .chip { white-space: nowrap; }
 
 /* ── ゲーム内フィードバック(✎メモ) ───────────────────────── */
@@ -525,32 +561,53 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
    焚き火/イベント(z45・詠唱集中)とイントロ(z50)では隠す。*/
 /* ✎は最前面に置き、導入(z50)や物語/焚き火/イベントの上からでもメモできる。
    ただしメモパネル展開中と、下シート(ボタンと重なる)では隠す。*/
-.fb-btn { position: fixed; right: 12px; bottom: calc(70px + var(--safe-bottom)); z-index: 60;
-  width: 44px; height: 44px; border-radius: 50%; font-size: 20px; line-height: 1;
+/* ✎は右上へ。下端の主操作(詠唱プールのタイル/物語の「つづける」ボタン)と決して重ならない位置。
+   ステータス帯(高44)のすぐ下・ステージ右上の余白に小さく浮かべる。*/
+.fb-btn { position: fixed; right: 10px; top: calc(var(--safe-top) + 50px); z-index: 60;
+  width: 38px; height: 38px; border-radius: 50%; font-size: 17px; line-height: 1;
   background: var(--panel); border: 1px solid var(--panel2); color: var(--fire2);
-  box-shadow: 0 2px 10px rgba(0,0,0,.4); opacity: .85; }
+  box-shadow: 0 2px 10px rgba(0,0,0,.4); opacity: .8; }
 .fb-btn:active { opacity: 1; border-color: var(--fire1); }
+/* ロック解除直後の初回だけ、✎の在りかをそっと示すワンタイムの灯(スポットライト) */
+.fb-btn.spot { animation: fbSpot 1.1s ease-out 3; opacity: 1; }
+@keyframes fbSpot {
+  0%, 100% { box-shadow: 0 2px 10px rgba(0,0,0,.4); border-color: var(--panel2); }
+  50% { box-shadow: 0 0 0 5px rgba(255,209,102,.28), 0 0 18px rgba(255,180,60,.7); border-color: var(--fire2); transform: scale(1.12); }
+}
 body.fb-open .fb-btn { display: none; }      /* メモパネル展開中は隠す */
 body.sheet-open .fb-btn { display: none; }   /* 下シート(設定/武器屋等)のボタンと重ならないよう隠す */
+/* 物語リーダー中は上部バー行(◀戻る/✕の並び)に寄せ、中央寄せした本文・ボタンと重ねない */
+body.in-story .fb-btn { top: calc(var(--safe-top) + 8px); right: 56px; width: 34px; height: 34px; font-size: 15px; }
 #fbScrim { z-index: 61; }
 #fbOv.fb-ov { z-index: 62; }
 
 /* ── 全画面 物語リーダー(VN式) ───────────────────────────── */
 .story-ov { position: fixed; inset: 0; z-index: 45; background: var(--bg);
   display: flex; flex-direction: column; }
-.story-ov-body { flex: 1; min-height: 0; display: flex; flex-direction: column;
+.story-ov-body { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative;
   padding: calc(8px + var(--safe-top)) 16px calc(12px + var(--safe-bottom)); }
-.story-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.story-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; position: relative; z-index: 2; }
 .story-bar .story-title { font-size: 15px; font-weight: 700; color: var(--fire2); text-align: center; flex: 1; }
 .story-back, .story-close { background: var(--panel); border: 1px solid var(--panel2); color: var(--text);
   border-radius: 9px; padding: 7px 11px; font-size: 13px; }
 .story-back.off { opacity: .3; }
 .story-close { color: var(--dim); }
-.story-art { width: 100%; max-height: 38vh; object-fit: contain; border-radius: 12px; margin: 2px 0 8px; }
-.story-text { flex: 1; min-height: 0; overflow-y: auto; font-size: 16px; line-height: 1.9; }
+/* 本文+フッタは縦中央寄せ(safe center=短ければ中央/長ければ上から流れてスクロール)。
+   下端に黒い死にゾーンを作らず、つづける/タップ導線を本文に近接させる。*/
+.story-scroll { flex: 1; min-height: 0; overflow-y: auto; position: relative; z-index: 1;
+  display: flex; flex-direction: column; justify-content: safe center; gap: 6px; }
+.story-text { font-size: 16px; line-height: 1.9; }
 .story-text .scene-line { margin: 0 0 4px; animation: lineIn .25s ease; }
 @keyframes lineIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-.story-foot { padding-top: 8px; text-align: center; }
+.story-foot { padding-top: 14px; text-align: center; }
+.story-ov-body .buy-row { position: relative; z-index: 1; }
+/* 挿絵シーン: 絵を全画面背景に敷き、本文/選択は下部グラデの上に重ねる(山場の没入) */
+.story-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; z-index: 0; }
+.story-scrim { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(11,10,16,.35) 0%, rgba(11,10,16,.08) 32%, rgba(11,10,16,.78) 76%, rgba(11,10,16,.97) 100%); }
+.story-has-art .story-scroll { justify-content: flex-end; }
+.story-has-art .story-text { background: rgba(11,10,16,.55); border-radius: 12px; padding: 10px 12px;
+  backdrop-filter: blur(1px); text-shadow: 0 1px 6px rgba(0,0,0,.9); }
 .story-tap-hint { text-align: center; color: var(--dim); font-size: 12px; margin: 4px 0; animation: breathe 2s infinite; }
 /* アクション/つづけるボタンは中央寄せ(画面いっぱいでなく芯のある幅で) */
 .story-foot > .primary-btn { display: inline-block; width: auto; min-width: 62%; max-width: 100%; margin: 0 auto; }
