@@ -235,7 +235,7 @@ function startIntro() {
     openTakibi(); // 最初の3語をおもいだす
   };
   intro.onpointerdown = (e) => {
-    if (e.target.closest('#nameInput') || e.target.closest('#introGo')) return; // 命名フォームは靄払いに使わない
+    if (e.target.closest('#nameInput') || e.target.closest('#introGo') || e.target.closest('#fbBtn')) return; // 命名フォーム・✎は靄払いに使わない
     if (p.story.intro < 6) {
       p.story.intro++;
       sfx('tick');
