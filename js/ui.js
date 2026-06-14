@@ -125,6 +125,7 @@ export function initUI(appRef) {
     <div id="sheet" class="sheet hidden"><div class="grabber"></div><div id="sheetBody" class="sheet-body"></div></div>
     <div id="takibi" class="takibi hidden"><div id="takibiBody"></div></div>
     <div id="eventOv" class="takibi event-ov hidden"><div id="eventBody"></div></div>
+    <div id="storyOv" class="story-ov hidden"><div id="storyBody" class="story-ov-body"></div></div>
     <div id="fx" class="fx"></div>
     <button id="fbBtn" class="fb-btn" title="気になった所をメモ(フィードバック)">✎</button>
     <div id="fbScrim" class="scrim hidden"></div>
@@ -140,6 +141,7 @@ export function initUI(appRef) {
     const b = e.target.closest('[data-sheet]');
     if (!b) return;
     if (b.dataset.sheet === 'takibi') openTakibi();
+    else if (b.dataset.sheet === 'story') openStory();
     else openSheet(b.dataset.sheet);
   };
   $('#eventBanner').onclick = () => { const ev = eventAvailable(app.profile); if (ev) openEvent(ev); };
@@ -192,7 +194,7 @@ function boot() {
   pool.refill();
   renderAll();
   const sc = p.scenario;
-  if (!sc.scene && !sc.read[SCENARIO.start]) { sc.scene = SCENARIO.start; openSheet('story'); }
+  if (!sc.scene && !sc.read[SCENARIO.start]) { sc.scene = SCENARIO.start; openStory(); }
 }
 
 // ---------- 導入 ----------
@@ -218,7 +220,10 @@ function startIntro() {
     `;
   };
   render();
+  let formShownAt = 0; // 命名フォームが出た時刻。連打で確定ボタンを誤爆しないためのガード
   const confirmName = () => {
+    // 連打で名前入力を飛ばさない: フォーム出現から少し経つまで確定を受け付けない
+    if (!formShownAt || performance.now() - formShownAt < 600) return;
     const inp = $('#nameInput');
     const v = (inp?.value || '').trim();
     p.playerName = v || DEFAULT_PLAYER_NAME;
@@ -236,7 +241,7 @@ function startIntro() {
       sfx('tick');
       spark(e.clientX, e.clientY);
       render();
-      if (p.story.intro >= 6) setTimeout(() => $('#nameInput')?.focus(), 50);
+      if (p.story.intro >= 6) { formShownAt = performance.now(); setTimeout(() => $('#nameInput')?.focus(), 50); }
     }
   };
   intro.onclick = (e) => {
@@ -643,43 +648,48 @@ function nextScene() {
   return SCENARIO.scenes.find((s) => !sc.read[s.id]) || null;
 }
 
+// 物語ハブ(シート): 読了/ゲート待ち/イベント/さしいれ/アルバム/再読の一覧。
+// 読める現在シーンがあるときは全画面リーダーへ委譲する。
 function renderStorySheet() {
   const p = app.profile;
   const sc = p.scenario;
   const scene = nextScene();
-  const body = $('#sheetBody');
-  if (!scene || (scene.gate && !canPassGate(scene.gate))) {
-    const hint = scene && scene.gate && scene.gate.settled
-      ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
-      : '続きはこれから書かれる——。';
-    const letter = letterAvailable(p);
-    const evNow = eventAvailable(p);
-    const evDone = clearedEvents(p);
-    body.innerHTML = `<h3>📜 物語</h3>
-      <p class="story-done">${esc(SCENARIO.title)}</p>
-      ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
-      ${evNow ? `<button class="buy-row ev-row" data-ev-start="${evNow.id}"><div><b>⚡ イベント『${esc(evNow.title)}』</b><small>詠唱で物語の山場を切りぬけろ</small></div><span>▶</span></button>` : ''}
-      ${evDone.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDone.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
-      <p class="story-hint">${esc(hint)}</p>
-      <div class="story-read">${SCENARIO.scenes.filter((s) => sc.read[s.id]).map((s) => `<button class="read-row" data-reread="${s.id}">${esc(s.title)}</button>`).join('')}</div>`;
-    body.onclick = (e) => {
-      if (!fresh('sheet')) return;
-      if (e.target.closest('[data-act="letter"]')) {
-        const txt = readLetter(p);
-        if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderStorySheet(); }
-        return;
-      }
-      const evs = e.target.closest('[data-ev-start]');
-      if (evs) { openEvent(eventById(evs.dataset.evStart)); return; }
-      const evr = e.target.closest('[data-ev-replay]');
-      if (evr) { openEvent(eventById(evr.dataset.evReplay), true); return; }
-      const r = e.target.closest('[data-reread]');
-      if (r) renderScene(sceneById(r.dataset.reread), true);
-    };
-    renderedAt.sheet = performance.now();
+  // 読める現在シーンがある(ゲートも通る)なら、シートでなく全画面リーダーで読む
+  if (scene && !(scene.gate && !canPassGate(scene.gate))) {
+    closeSheet();
+    openStoryReader(scene.id);
     return;
   }
-  renderScene(scene, false);
+  const body = $('#sheetBody');
+  const hint = scene && scene.gate && scene.gate.settled
+    ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
+    : '続きはこれから書かれる——。';
+  const letter = letterAvailable(p);
+  const evNow = eventAvailable(p);
+  const evDone = clearedEvents(p);
+  body.innerHTML = `<h3>📜 物語</h3>
+    <p class="story-done">${esc(SCENARIO.title)}</p>
+    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+    ${evNow ? `<button class="buy-row ev-row" data-ev-start="${evNow.id}"><div><b>⚡ イベント『${esc(evNow.title)}』</b><small>詠唱で物語の山場を切りぬけろ</small></div><span>▶</span></button>` : ''}
+    ${evDone.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDone.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
+    <p class="story-hint">${esc(hint)}</p>
+    ${SCENARIO.scenes.some((s) => sc.read[s.id]) ? '<h4>読みかえす</h4>' : ''}
+    <div class="story-read">${SCENARIO.scenes.filter((s) => sc.read[s.id]).map((s) => `<button class="read-row" data-reread="${s.id}">${esc(s.title)}</button>`).join('')}</div>`;
+  body.onclick = (e) => {
+    if (!fresh('sheet')) return;
+    if (e.target.closest('[data-act="letter"]')) {
+      const txt = readLetter(p);
+      if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderStorySheet(); }
+      return;
+    }
+    const evs = e.target.closest('[data-ev-start]');
+    if (evs) { openEvent(eventById(evs.dataset.evStart)); return; }
+    const evr = e.target.closest('[data-ev-replay]');
+    if (evr) { openEvent(eventById(evr.dataset.evReplay), true); return; }
+    const r = e.target.closest('[data-reread]');
+    if (r) { closeSheet(); openStoryReader(r.dataset.reread); }
+  };
+  renderedAt.sheet = performance.now();
 }
 
 // シーン挿絵(節目5枚。assets/img/scene_<id>.webp。存在するものだけ表示される)。
@@ -733,64 +743,170 @@ function highlightJa(j, jx, pos) {
   return esc(jx.slice(0, idx)) + `<mark>${esc(jx.slice(idx, idx + len))}</mark>` + esc(jx.slice(idx + len));
 }
 
-function renderScene(scene, reread) {
+// ---------- 全画面 物語リーダー(VN式: メイン画面を奪い、一文ずつ送る・戻れる) ----------
+// storyView = { id, shown, footAt }: 表示中シーン・公開済み行数・操作ボタン出現時刻(誤爆ガード)。
+let storyView = null;
+
+// id より前(SCENARIO.scenes 配列順)で、既読の最も近いシーンID(無ければ null)
+function prevReadScene(id) {
+  const idx = SCENARIO.scenes.findIndex((s) => s.id === id);
+  for (let i = idx - 1; i >= 0; i--) if (app.profile.scenario.read[SCENARIO.scenes[i].id]) return SCENARIO.scenes[i].id;
+  return null;
+}
+
+// 物語を開く窓口: 読める現在シーンがあれば全画面リーダー、無ければハブ(シート)。
+function openStory() {
   const p = app.profile;
   const sc = p.scenario;
-  const cost = reread || p.dev?.story ? 0 : (sc.read[scene.id] ? 0 : sceneCost(scene));
-  const body = $('#sheetBody');
-  const canAfford = p.gold >= cost;
-  const letter = !reread && letterAvailable(p);
-  const evDoneS = reread ? [] : clearedEvents(p);
-  body.innerHTML = `
-    <h3>📜 ${esc(scene.title)}</h3>
-    ${SCENE_ART[scene.id] ? `<img class="ev-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
-    ${letter ? '<button class="buy-row" data-act="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
-    <div class="scene">${scene.lines.map(sceneLine).join('')}</div>
-    ${scene.choice && !reread ? `
-      <div class="choices">
+  const cur = nextScene();
+  if (cur && (sc.scene === cur.id || canPassGate(cur.gate))) openStoryReader(cur.id);
+  else openSheet('story'); // 旅支度ゲート待ち/読了/イベント/さしいれ/アルバム
+}
+
+function openStoryReader(id) {
+  if (sheetKind) closeSheet();
+  const sc = app.profile.scenario;
+  // フロンティア(未読の現在シーン)は1文ずつ、既読シーンの読み返しは全文表示
+  const frontier = sc.scene === id && !sc.read[id];
+  storyView = { id, shown: frontier ? 1 : (sceneById(id)?.lines.length || 1), footAt: 0 };
+  $('#storyOv').classList.remove('hidden');
+  renderStory();
+}
+
+function closeStory() {
+  storyView = null;
+  $('#storyOv').classList.add('hidden');
+  pool.refill();
+  renderAll();
+}
+
+function renderStory() {
+  if (!storyView) return;
+  const p = app.profile;
+  const sc = p.scenario;
+  const scene = sceneById(storyView.id);
+  if (!scene) { closeStory(); return; }
+  const lines = scene.lines;
+  const frontier = sc.scene === scene.id && !sc.read[scene.id];
+  if (!frontier) storyView.shown = lines.length; // 既読は全文
+  const shown = Math.min(storyView.shown, lines.length);
+  const revealing = frontier && shown < lines.length;
+  const done = shown >= lines.length;
+  const canBack = (frontier && shown > 1) || prevReadScene(scene.id) != null;
+  const letter = letterAvailable(p);
+  const cost = (p.dev?.story || sc.read[scene.id]) ? 0 : sceneCost(scene);
+
+  // フッタ(全行公開後): フロンティア=選択/行動ボタン、既読=進む(読み返しナビ)
+  let foot = '';
+  if (done) {
+    if (frontier && scene.choice) {
+      foot = `<div class="choices">
         ${scene.choice.prompt ? `<p class="choice-prompt">${esc(tok(scene.choice.prompt))}</p>` : ''}
-        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-choice="${i}">${esc(tok(o.text))}</button>`).join('')}
-      </div>` : `
-      <button class="primary-btn" data-act="story-next" ${!reread && !canAfford ? 'disabled' : ''}>
-        ${reread ? 'とじる' : cost > 0 ? (canAfford ? `${esc(tok(scene.action || 'つづける'))}(💰${fmtBig(cost)})` : `💰${fmtBig(cost)} 必要 — 魔物を倒そう`) : (scene.action ? esc(tok(scene.action)) : '▶ つづける')}
-      </button>`}
-    ${!reread && evDoneS.length ? `<h4>アルバム(イベント再演)</h4><div class="ev-album">${evDoneS.map((e2) => `<button class="ev-thumb" data-ev-replay="${e2.id}"><img src="assets/img/${e2.art}.webp" onerror="this.style.display='none'"><span>${esc(e2.title)}</span></button>`).join('')}</div>` : ''}
+        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-sact="choice" data-i="${i}">${esc(tok(o.text))}</button>`).join('')}
+      </div>`;
+    } else if (frontier) {
+      const label = cost > 0 ? `${esc(tok(scene.action || 'つづける'))}(💰${fmtBig(cost)})` : (scene.action ? esc(tok(scene.action)) : '▶ つづける');
+      foot = `<button class="primary-btn" data-sact="next">${label}</button>`;
+    } else {
+      foot = `<button class="primary-btn ghost" data-sact="fwd">▶ 進む</button>`;
+    }
+  }
+
+  const body = $('#storyBody');
+  body.innerHTML = `
+    <div class="story-bar">
+      <button class="story-back ${canBack ? '' : 'off'}" data-sact="back" ${canBack ? '' : 'disabled'}>◀ 戻る</button>
+      <span class="story-title">${esc(scene.title)}</span>
+      <button class="story-close" data-sact="close">✕</button>
+    </div>
+    ${SCENE_ART[scene.id] ? `<img class="story-art" src="assets/img/${SCENE_ART[scene.id]}.webp" onerror="this.remove()">` : ''}
+    ${letter ? '<button class="buy-row" data-sact="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
+    <div class="story-text">${lines.slice(0, shown).map(sceneLine).join('')}</div>
+    <div class="story-foot">
+      ${revealing ? '<p class="story-tap-hint">画面をタップで次へ ▾</p>' : foot}
+    </div>
   `;
+  if (done && (foot.includes('data-sact="next"') || foot.includes('data-sact="choice"'))) storyView.footAt = performance.now();
+  // 公開直後の自動スクロール下げ(最新行を見せる)
+  const tx = body.querySelector('.story-text');
+  if (tx) tx.scrollTop = tx.scrollHeight;
+
   body.onclick = (e) => {
-    if (!fresh('sheet')) return;
-    if (e.target.closest('[data-act="letter"]')) {
-      const txt = readLetter(p);
-      if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderScene(scene, reread); }
+    const btn = e.target.closest('[data-sact]');
+    if (btn) {
+      const a = btn.dataset.sact;
+      if (a === 'close') { closeStory(); return; }
+      if (a === 'back') { storyBack(scene); return; }
+      if (a === 'letter') { const txt = readLetter(p); if (txt) { sfx('flip'); ticker(txt, 'gold'); app.save(); renderStory(); } return; }
+      if (a === 'fwd') { storyForward(scene); return; }
+      // commit系(choice/next)は出現直後の誤爆を防ぐ(連打で読み飛ばさない)
+      if (storyView.footAt && performance.now() - storyView.footAt < 350) return;
+      if (a === 'choice') { storyCommit(scene, Number(btn.dataset.i)); return; }
+      if (a === 'next') { storyCommit(scene, null); return; }
       return;
     }
-    const c = e.target.closest('[data-choice]');
-    if (c && scene.choice) {
-      const opt = scene.choice.options[Number(c.dataset.choice)];
-      applyFlag(opt.flag);
-      sc.read[scene.id] = 1;
-      sc.scene = (opt.next || scene.next) === 'end' ? null : (opt.next || scene.next);
-      app.save();
-      renderStorySheet();
-      return;
-    }
-    const evr2 = e.target.closest('[data-ev-replay]');
-    if (evr2) { openEvent(eventById(evr2.dataset.evReplay), true); return; }
-    const a = e.target.closest('[data-act="story-next"]');
-    if (a) {
-      if (reread) { renderStorySheet(); return; }
-      if (cost > 0) { p.gold -= cost; renderStat(); }
-      sc.read[scene.id] = 1;
-      sc.scene = scene.next === 'end' ? null : scene.next;
-      app.save();
-      renderStorySheet();
-    }
+    // ボタン以外のタップ=次の一文を公開(フロンティアで未公開がある時だけ)
+    if (revealing) { storyView.shown++; renderStory(); }
   };
-  renderedAt.sheet = performance.now();
+}
+
+// 戻る: フロンティアは一文ずつ巻き戻し、先頭まで来たら直前の既読シーンへ
+function storyBack(scene) {
+  const sc = app.profile.scenario;
+  const frontier = sc.scene === scene.id && !sc.read[scene.id];
+  if (frontier && storyView.shown > 1) { storyView.shown--; renderStory(); return; }
+  const prev = prevReadScene(scene.id);
+  if (prev) { storyView = { id: prev, shown: 0, footAt: 0 }; renderStory(); }
+}
+
+// 進む(読み返し中): 既定の合流先 scene.next へ。末尾ならフロンティア(続き)へ、無ければハブへ
+function storyForward(scene) {
+  const sc = app.profile.scenario;
+  const nextId = scene.next;
+  if (nextId === 'end' || !sceneById(nextId)) {
+    if (sc.scene) { storyView = { id: sc.scene, shown: 0, footAt: 0 }; renderStory(); }
+    else { closeStory(); openSheet('story'); }
+    return;
+  }
+  storyView = { id: nextId, shown: 0, footAt: 0 };
+  renderStory();
+}
+
+// フロンティアの確定: フラグ加算・既読化・解錠費・次シーンのゲート判定→前進 or ハブへ
+function storyCommit(scene, optIndex) {
+  const p = app.profile;
+  const sc = p.scenario;
+  const opt = scene.choice && optIndex != null ? scene.choice.options[optIndex] : null;
+  const cost = (p.dev?.story || sc.read[scene.id]) ? 0 : sceneCost(scene);
+  if (cost > 0 && p.gold < cost) { ticker(`💰${fmtBig(cost)} 必要 — 魔物を倒そう`); return; }
+  const nextId = (opt && opt.next) ? opt.next : scene.next;
+  const nextScn = nextId === 'end' ? null : sceneById(nextId);
+  // 次シーンのゲート未達 → 現在を確定だけしてハブ(旅支度ヒント)へ
+  if (nextScn && nextScn.gate && !canPassGate(nextScn.gate)) {
+    if (opt) applyFlag(opt.flag);
+    if (cost > 0) p.gold -= cost;
+    sc.read[scene.id] = 1;
+    sc.scene = nextId;
+    app.save();
+    closeStory();
+    openSheet('story');
+    return;
+  }
+  if (opt) applyFlag(opt.flag);
+  if (cost > 0) { p.gold -= cost; }
+  sc.read[scene.id] = 1;
+  sc.scene = nextId === 'end' ? null : nextId;
+  app.save();
+  if (nextId === 'end' || !nextScn) { closeStory(); openSheet('story'); return; } // 読了 → ハブ(さしいれ/アルバム)
+  sfx('flip');
+  storyView = { id: nextId, shown: 1, footAt: 0 };
+  renderStory();
 }
 
 // ---------- シート ----------
 function openSheet(kind) {
   sheetKind = kind;
+  document.body.classList.add('sheet-open'); // ✎を隠す(シートのボタンと重なってタップを奪わないように)
   $('#sheetScrim').classList.remove('hidden');
   $('#sheet').classList.remove('hidden');
   renderedAt.sheet = performance.now();
@@ -803,6 +919,7 @@ function openSheet(kind) {
 
 function closeSheet() {
   sheetKind = null;
+  document.body.classList.remove('sheet-open');
   $('#sheetScrim').classList.add('hidden');
   $('#sheet').classList.add('hidden');
   renderAll();
@@ -1120,9 +1237,8 @@ function renderSettingsSheet() {
       const nx = SCENARIO.scenes.find((sc) => !pr.scenario.read[sc.id]);
       app.save();
       if (!nx) { ticker('もう続きはない(最後まで読んだ)。'); reopen(); return; }
-      sheetKind = 'story';          // シートは開いたまま物語へ切り替え
-      renderScene(nx, false);
-      renderedAt.sheet = performance.now();
+      closeSheet();
+      openStoryReader(nx.id);       // 全画面リーダーで続きへ
       return;
     }
     if (act.dataset.act === 'export') {
@@ -1136,7 +1252,14 @@ function renderSettingsSheet() {
       try { const obj = JSON.parse(raw); if (!obj.cards) throw 0; saveProfile(obj); location.reload(); } catch { ticker('読み込めなかった。'); }
     }
     if (act.dataset.act === 'reset') {
-      if (confirm('本当にすべて忘れる?')) { saveProfile(defaultProfile()); location.reload(); }
+      if (confirm('本当にすべて忘れる?')) {
+        // 予約された保存をキャンセルし、メモリ上のプロフィールも新規に差し替える
+        // (リロード前に走る app.save()/lazySave が旧データを書き戻して初期化を打ち消すのを防ぐ)。
+        clearTimeout(saveTimer);
+        app.profile = defaultProfile(); // intro=0/named=false → リロード後は導入(命名)から
+        saveProfile(app.profile);
+        location.reload();
+      }
     }
   };
   $('#rateSlider').oninput = (ev) => { s.rate = Number(ev.target.value); lazySave(); };
@@ -1152,14 +1275,11 @@ let fbDraft = { tags: [], comment: '', where: '' };
 function feedbackContext() {
   const p = app.profile;
   if (!$('#intro').classList.contains('hidden')) return 'イントロ(導入・命名)';
+  if (storyView) { const s = sceneById(storyView.id); return `物語:${storyView.id}「${s?.title || ''}」(${storyView.shown}/${s?.lines.length || 0}行)`; }
   if (evRun) return `イベント:${evRun.ev.id}「${evRun.ev.title}」(${evRun.progress().done}/${evRun.progress().total})`;
   if (!$('#takibi').classList.contains('hidden')) return '修行(焚き火/SRS)';
   if (sheetKind) {
-    if (sheetKind === 'story') {
-      const sc = p.scenario.scene;
-      const cur = sc ? sceneById(sc) : nextScene();
-      return `物語シート${cur ? `:${cur.id}「${cur.title}」` : ''}`;
-    }
+    if (sheetKind === 'story') return '物語ハブ(読了/旅支度)';
     const names = { weapons: '武器屋', base: '拠点', spellbook: '呪文書', settings: '設定' };
     return `シート:${names[sheetKind] || sheetKind}`;
   }
@@ -1168,6 +1288,7 @@ function feedbackContext() {
 
 function openFeedback() {
   fbDraft = { tags: [], comment: '', where: feedbackContext() };
+  document.body.classList.add('fb-open');
   $('#fbScrim').classList.remove('hidden');
   $('#fbOv').classList.remove('hidden');
   renderedAt.sheet = performance.now();
@@ -1175,6 +1296,7 @@ function openFeedback() {
 }
 
 function closeFeedback() {
+  document.body.classList.remove('fb-open');
   $('#fbScrim').classList.add('hidden');
   $('#fbOv').classList.add('hidden');
 }
@@ -1239,7 +1361,7 @@ function exportFeedbackJSON() {
   const p = app.profile;
   const payload = {
     game: 'ともしび', target: 'game-feedback', chapter: p.scenario?.chapter || 1,
-    playerName: p.playerName, swVersion: 'v19', exportedAt: new Date().toISOString(),
+    playerName: p.playerName, swVersion: 'v20', exportedAt: new Date().toISOString(),
     notes: (p.feedback || []).map((n) => ({ where: n.where, tags: n.tags, comment: n.comment, at: new Date(n.t).toISOString() })),
   };
   const data = JSON.stringify(payload, null, 2);

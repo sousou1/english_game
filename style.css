@@ -523,14 +523,35 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 /* ── ゲーム内フィードバック(✎メモ) ───────────────────────── */
 /* ✎は物語シート(z40)の上に浮かせ、プレイ中いつでも(読み物中でも)メモできる。
    焚き火/イベント(z45・詠唱集中)とイントロ(z50)では隠す。*/
-.fb-btn { position: fixed; right: 12px; bottom: calc(70px + var(--safe-bottom)); z-index: 42;
+.fb-btn { position: fixed; right: 12px; bottom: calc(70px + var(--safe-bottom)); z-index: 49;
   width: 44px; height: 44px; border-radius: 50%; font-size: 20px; line-height: 1;
   background: var(--panel); border: 1px solid var(--panel2); color: var(--fire2);
   box-shadow: 0 2px 10px rgba(0,0,0,.4); opacity: .85; }
 .fb-btn:active { opacity: 1; border-color: var(--fire1); }
-body.in-takibi .fb-btn { display: none; }
+body.in-takibi .fb-btn { display: none; }   /* 焚き火/イベント(詠唱集中)では隠す */
+body.fb-open .fb-btn { display: none; }      /* メモパネル展開中は隠す */
+body.sheet-open .fb-btn { display: none; }   /* 下シート(設定/武器屋等)のボタンと重ならないよう隠す */
 #fbScrim { z-index: 46; }
 #fbOv.fb-ov { z-index: 47; }
+
+/* ── 全画面 物語リーダー(VN式) ───────────────────────────── */
+.story-ov { position: fixed; inset: 0; z-index: 45; background: var(--bg);
+  display: flex; flex-direction: column; }
+.story-ov-body { flex: 1; min-height: 0; display: flex; flex-direction: column;
+  padding: calc(8px + var(--safe-top)) 16px calc(12px + var(--safe-bottom)); }
+.story-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.story-bar .story-title { font-size: 15px; font-weight: 700; color: var(--fire2); text-align: center; flex: 1; }
+.story-back, .story-close { background: var(--panel); border: 1px solid var(--panel2); color: var(--text);
+  border-radius: 9px; padding: 7px 11px; font-size: 13px; }
+.story-back.off { opacity: .3; }
+.story-close { color: var(--dim); }
+.story-art { width: 100%; max-height: 38vh; object-fit: contain; border-radius: 12px; margin: 2px 0 8px; }
+.story-text { flex: 1; min-height: 0; overflow-y: auto; font-size: 16px; line-height: 1.9; }
+.story-text .scene-line { margin: 0 0 4px; animation: lineIn .25s ease; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.story-foot { padding-top: 8px; }
+.story-tap-hint { text-align: center; color: var(--dim); font-size: 12px; margin: 4px 0; animation: breathe 2s infinite; }
+.story-foot .primary-btn.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--panel2); }
 .fb-where { font-size: 12px; color: var(--fire2); background: rgba(255,138,42,.08); border-radius: 8px; padding: 6px 10px; margin: 0 0 10px; }
 .fb-tags { margin-bottom: 10px; }
 .fb-comment { width: 100%; box-sizing: border-box; font-size: 14px; padding: 10px 12px; border-radius: 12px;

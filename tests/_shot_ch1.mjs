@@ -1,4 +1,4 @@
-// 第1章(新canon)の実機検収: 確定稿どおりの通しプレイ・挿絵・主人公命名・フィードバックUIを撮影/検証する。
+// 第1章(新canon)の実機検収: 全画面VNリーダーで確定稿どおり通しプレイ・挿絵・命名・戻る・リセット→導入・FBを検証/撮影。
 //   node tests/_shot_ch1.mjs   (サンドボックス無効で実行のこと)
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -32,7 +32,8 @@ const log = (m) => console.log(m);
 
 async function newPage(profile) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
-  if (profile) await ctx.addInitScript(`localStorage.setItem('kotodama_reforge_v1', ${JSON.stringify(JSON.stringify(profile))})`);
+  // 種は「未設定のときだけ」入れる(リセット→リロードで書かれた新規プロフィールを上書きしないため)
+  if (profile) await ctx.addInitScript(`{ const K='kotodama_reforge_v1'; if(!localStorage.getItem(K)) localStorage.setItem(K, ${JSON.stringify(JSON.stringify(profile))}); }`);
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('404')) errors.push(`console: ${m.text()}`); });
@@ -40,7 +41,6 @@ async function newPage(profile) {
   return page;
 }
 
-// 物語シートを開いた状態のプロフィール: 命名済み・ゲート無視(dev.story)で頭から読める
 function storyProfile(name) {
   const p = defaultProfile();
   p.story.intro = 99;
@@ -56,106 +56,133 @@ const NAME = 'ナギサ';
 const ILLUST = ['c01_010', 'c01_040', 'c01_060', 'c01_140', 'c01_180'];
 let pass = true;
 
-// ---- (A) 第1章 通しプレイ: 25シーン・挿絵5枚・主人公名置換 ----
+// 現在シーンの全行を公開する(タップで一文ずつ→ヒントが消えるまで)
+async function revealAll(page) {
+  for (let i = 0; i < 15; i++) {
+    if (!(await page.$('#storyBody .story-tap-hint'))) break;
+    await page.click('#storyBody .story-text');
+    await page.waitForTimeout(110);
+  }
+}
+
+// ---- (A) 全画面リーダーで第1章を通しプレイ: 25シーン・挿絵5枚・主人公名置換 ----
 {
   const page = await newPage(storyProfile(NAME));
-  await page.waitForTimeout(500);
-  // 物語シートは起動時に自動で開く(未読の先頭シーン)。開いていなければメニューから開く。
-  if (!(await page.$('#sheetBody .scene'))) {
-    await page.click('[data-sheet="story"]');
-    await page.waitForTimeout(300);
-  }
+  await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 });
+  const illustOk = {}; let nameShown = false, tokenLeak = false, akiLeak = false, reached180 = false;
 
-  const seenIds = [];
-  const illustOk = {};
-  let nameShown = false, tokenLeak = false, akiLeak = false;
-
-  for (let step = 0; step < 60; step++) {
-    await page.waitForTimeout(330); // 描画後300msの誤タップ防止ガードを必ず超える
-    const h3 = await page.$eval('#sheetBody h3', (e) => e.textContent).catch(() => '');
-    const bodyTxt = await page.$eval('#sheetBody .scene', (e) => e.textContent).catch(() => '');
-    // どのシーンか(art の src から id を拾う)
-    const artSrc = await page.$eval('#sheetBody .ev-art', (e) => e.getAttribute('src')).catch(() => null);
+  for (let step = 0; step < 80; step++) {
+    if (await page.$('#storyOv.hidden')) { log('A) リーダー終了(ハブへ=読了/旅支度)'); break; }
+    await revealAll(page);
+    const artSrc = await page.$eval('#storyBody .story-art', (e) => e.getAttribute('src')).catch(() => null);
     const m = artSrc && artSrc.match(/scene_(c01_\d+)\.webp/);
     if (m) {
-      // 画像のロード完了を待ってから naturalWidth を読む(描画直後は 0 のことがある)
-      await page.waitForFunction(() => { const i = document.querySelector('#sheetBody .ev-art'); return i && i.complete && i.naturalWidth > 0; }, { timeout: 2000 }).catch(() => {});
-      const artW = await page.$eval('#sheetBody .ev-art', (e) => e.naturalWidth).catch(() => 0);
-      illustOk[m[1]] = artW > 0;
+      await page.waitForFunction(() => { const i = document.querySelector('#storyBody .story-art'); return i && i.complete && i.naturalWidth > 0; }, { timeout: 2000 }).catch(() => {});
+      illustOk[m[1]] = await page.$eval('#storyBody .story-art', (e) => e.naturalWidth).catch(() => 0) > 0;
+      if (ILLUST.includes(m[1])) await page.screenshot({ path: `/tmp/ch1_${m[1]}.png` });
+      if (m[1] === 'c01_180') reached180 = true;
     }
+    const txt = await page.$eval('#storyBody .story-text', (e) => e.textContent).catch(() => '');
+    if (txt.includes(NAME)) nameShown = true;
+    if (txt.includes('{name}')) tokenLeak = true;
+    if (/おれはアキ|アキ「/.test(txt)) akiLeak = true;
 
-    if (bodyTxt.includes(NAME)) nameShown = true;
-    if (bodyTxt.includes('{name}')) tokenLeak = true;
-    if (/おれはアキ|アキ「/.test(bodyTxt)) akiLeak = true; // 命名したのに既定名が出ていないか
-
-    // 撮影(節目)
-    if (m && ILLUST.includes(m[1])) await page.screenshot({ path: `/tmp/ch1_${m[1]}.png` });
-
-    // 進める: 温度3択は先頭、それ以外は story-next
-    const choice = await page.$('#sheetBody [data-choice="0"]');
-    const next = await page.$('#sheetBody [data-act="story-next"]');
-    if (choice) { await choice.click(); }
-    else if (next) {
-      const label = await next.evaluate((e) => e.textContent.trim());
-      if (step === 0) log(`A) c01_002 ボタン文言: "${label}"`); // アクション点ラベル確認
-      await next.click();
-    } else { break; }
-    await page.waitForTimeout(150);
-
-    // ゲート止まり(章ゲート)に当たったら終了
-    const done = await page.$eval('#sheetBody', (e) => /続きの旅支度|続きはこれから/.test(e.textContent)).catch(() => false);
-    if (done) { log('A) 章ゲート/読了に到達'); break; }
+    await page.waitForTimeout(400); // commitボタン出現直後の誤爆ガード(350ms)を超える
+    const choice = await page.$('#storyBody [data-sact="choice"]');
+    const next = await page.$('#storyBody [data-sact="next"]');
+    if (step === 0 && next) log(`A) c01_002 行動ボタン: "${(await next.evaluate((e) => e.textContent.trim()))}"`);
+    if (choice) await choice.click();
+    else if (next) await next.click();
+    else break;
+    await page.waitForTimeout(200);
   }
-
-  log(`A) 主人公名「${NAME}」が本文に出た: ${nameShown}`);
-  log(`A) {name}トークン残留: ${tokenLeak}(false期待) / 既定名アキ漏れ: ${akiLeak}(false期待)`);
-  log(`A) 挿絵ロード: ${ILLUST.map((id) => `${id}=${illustOk[id] ? 'OK' : '✗'}`).join(' ')}`);
-  if (!nameShown || tokenLeak || akiLeak) pass = false;
-  for (const id of ILLUST) if (!illustOk[id]) { pass = false; }
+  log(`A) 主人公名「${NAME}」表示: ${nameShown} / {name}残留: ${tokenLeak}(false期待) / アキ漏れ: ${akiLeak}(false期待)`);
+  log(`A) 挿絵ロード: ${ILLUST.map((id) => `${id}=${illustOk[id] ? 'OK' : '✗'}`).join(' ')} / c01_180到達: ${reached180}`);
+  if (!nameShown || tokenLeak || akiLeak || !reached180) pass = false;
+  for (const id of ILLUST) if (!illustOk[id]) pass = false;
   await page.context().close();
 }
 
-// ---- (B) 導入(イントロ)+命名フロー: 靄を払い→名前入力→開始 ----
+// ---- (B) 導入+命名(連打で名前入力を飛ばさないガード込み) ----
 {
-  const p = defaultProfile(); // intro=0, named=false の新規
-  const page = await newPage(p);
+  const page = await newPage(defaultProfile());
   await page.waitForTimeout(400);
-  // 靄を6回払う
   for (let i = 0; i < 6; i++) { await page.mouse.click(195, 300); await page.waitForTimeout(120); }
   const hasInput = await page.$('#nameInput');
   log(`B) 命名フォーム表示: ${!!hasInput}`);
   if (hasInput) {
+    await page.waitForTimeout(700); // フォーム出現直後はガードで確定不可(連打スキップ防止)
     await page.fill('#nameInput', 'ホシ');
     await page.screenshot({ path: '/tmp/ch1_intro_naming.png' });
     await page.click('#introGo');
     await page.waitForTimeout(500);
-    const nm = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')).playerName);
-    const named = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')).named);
-    log(`B) 保存された playerName: ${nm} / named: ${named}`);
-    if (nm !== 'ホシ' || named !== true) pass = false;
+    const st = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')));
+    log(`B) playerName: ${st.playerName} / named: ${st.named} / intro: ${st.story.intro}`);
+    if (st.playerName !== 'ホシ' || st.named !== true) pass = false;
   } else pass = false;
   await page.context().close();
 }
 
-// ---- (C) ゲーム内フィードバック: ✎で開き、タグ+コメントを残し、JSON化される ----
+// ---- (C) ✎フィードバック(物語リーダーの上から押せる=読み物中でもメモ) ----
 {
   const page = await newPage(storyProfile(NAME));
-  await page.waitForTimeout(500);
-  // ✎は物語シートの上に浮く(読み物中でもメモできる)。そのまま押せる。
+  await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 });
   await page.click('#fbBtn');
-  await page.waitForTimeout(400); // 描画後300msの誤タップ防止ガードを超えてから操作
-  const ctxLine = await page.$eval('.fb-where', (e) => e.textContent).catch(() => '(なし)');
-  log(`C) フィードバック文脈: ${ctxLine}`);
+  await page.waitForTimeout(400);
+  log(`C) FB文脈: ${await page.$eval('.fb-where', (e) => e.textContent).catch(() => '(なし)')}`);
   await page.fill('#fbComment', 'ここの間が少し長く感じた(テスト)');
-  await page.click('[data-fbtag="テンポ/間"]'); // タグ切替で再描画→ガード再起動
+  await page.click('[data-fbtag="テンポ/間"]');
   await page.waitForTimeout(400);
   await page.click('[data-act="fb-add"]');
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(200);
   const count = await page.$$eval('.fb-item', (els) => els.length);
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')).feedback);
-  log(`C) メモ件数(UI): ${count} / 保存: ${JSON.stringify(saved)}`);
+  log(`C) メモ件数: ${count} / 保存tags: ${JSON.stringify(saved?.[0]?.tags)}`);
   await page.screenshot({ path: '/tmp/ch1_feedback.png' });
-  if (count !== 1 || !saved?.length || saved[0].tags[0] !== 'テンポ/間') pass = false;
+  if (count !== 1 || saved?.[0]?.tags?.[0] !== 'テンポ/間') pass = false;
+  await page.context().close();
+}
+
+// ---- (D) 戻る: フロンティアから直前の既読シーンへ戻れる ----
+{
+  const p = storyProfile(NAME);
+  p.scenario.read = { c01_002: 1, c01_004: 1, c01_006: 1, c01_010: 1 };
+  p.scenario.scene = 'c01_015';
+  const page = await newPage(p);
+  await page.waitForTimeout(400);
+  await page.click('[data-sheet="story"]'); // 読みかけ(sc.scene設定済)は自動オープンしないのでメニューから
+  await page.waitForSelector('#storyOv:not(.hidden)', { timeout: 4000 });
+  const before = await page.$eval('#storyBody .story-title', (e) => e.textContent);
+  await page.click('#storyBody [data-sact="back"]'); // shown=1のフロンティア→直前既読(c01_010)へ
+  await page.waitForTimeout(250);
+  const after = await page.$eval('#storyBody .story-title', (e) => e.textContent);
+  log(`D) 戻る: "${before}" → "${after}"`);
+  // 進むで戻れること(読み返し→続きへ)
+  await page.click('#storyBody [data-sact="fwd"]').catch(() => {});
+  await page.waitForTimeout(250);
+  const fwd = await page.$eval('#storyBody .story-title', (e) => e.textContent);
+  log(`D) 進む: "${after}" → "${fwd}"`);
+  if (before === after || after !== '屋根の上') pass = false;
+  await page.context().close();
+}
+
+// ---- (E) 「すべて忘れる」→ 最初(導入/命名)から ----
+// newPage は種を「未設定のときだけ」入れるので、reset が書く新規プロフィールはリロード後も生き、
+// 本当に導入から始まる(実リロードを伴うので page.on('dialog') で confirm を承認する)。
+{
+  const page = await newPage(storyProfile(NAME));
+  page.on('dialog', (d) => d.accept()); // confirm("本当にすべて忘れる?")
+  await page.waitForTimeout(400);
+  if (await page.$('#storyOv:not(.hidden)')) await page.click('#storyBody [data-sact="close"]').catch(() => {});
+  await page.waitForTimeout(200);
+  await page.click('[data-sheet="settings"]');
+  await page.waitForTimeout(450);
+  await page.click('[data-act="reset"]');
+  await page.waitForTimeout(1200); // saveProfile(defaultProfile()) → 実 location.reload()
+  const introVisible = await page.$('#intro:not(.hidden)') != null;
+  const prof = await page.evaluate(() => JSON.parse(localStorage.getItem('kotodama_reforge_v1')));
+  log(`E) リセット→リロード後: 導入表示=${introVisible} / intro=${prof.story.intro} / named=${prof.named}`);
+  if (!introVisible || prof.story.intro !== 0 || prof.named !== false) pass = false;
   await page.context().close();
 }
 
