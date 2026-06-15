@@ -13,14 +13,14 @@
       "label": "ナギ村・全景(夕)",
       "group": "舞台",
       "size": "1536x864",
-      "desc": "A medieval mountain-valley village of wooden cottages with thatched roofs nestled in a green river valley between forested mountains, narrow dirt lanes, small fields and stone walls, a few warm lamps beginning to glow in the late afternoon golden light. Pre-modern rustic style, peaceful homely frontier village."
+      "desc": "A Western-medieval European mountain-valley village of rustic cottages with stone bases and timber-framed (half-timber) plaster walls and steep wood-shingle roofs (a little thatch here and there), nestled in a green river valley between forested mountains, narrow dirt lanes, small fields and dry-stone walls, a few warm lamps beginning to glow in the late afternoon golden light. Peaceful homely frontier village. NOT a Japanese gassho-style thatched village."
     },
     {
       "id": "w_nagi_village_night",
       "label": "ナギ村・夜(灯火のあかり)",
       "group": "舞台",
       "size": "1536x864",
-      "desc": "The same mountain-valley village at night, the wooden cottages and a defensive wooden palisade lit only by warm amber flame-light and hanging lamps that push back the surrounding darkness, deep cool blue night beyond the glow, smoke rising from a chimney. The warmth of the flame is the only thing holding back the dark."
+      "desc": "The same Western-medieval European mountain-valley village at night (rustic half-timber cottages with stone bases and wood-shingle roofs), the cottages and a defensive wooden palisade lit only by warm amber flame-light and hanging lamps that push back the surrounding darkness, deep cool blue night beyond the glow, smoke rising from a chimney. The warmth of the flame is the only thing holding back the dark. NOT a Japanese gassho-style village."
     },
     {
       "id": "w_great_lamp_lit",
@@ -41,7 +41,7 @@
       "label": "村の路地・夜",
       "group": "舞台",
       "size": "1024x1536",
-      "desc": "A narrow rustic village alley between wooden cottages at night, uneven dirt ground, warm scattered lamplight from a single hanging lantern falling into deep shadow, a sense of something lurking in the darkness at the far end. Tense, quiet, nocturnal."
+      "desc": "A narrow rustic village alley between Western-medieval half-timber cottages (stone bases, timber-framed plaster walls, wood-shingle roofs) at night, uneven dirt ground, warm scattered lamplight from a single hanging lantern falling into deep shadow, a sense of something lurking in the darkness at the far end. Tense, quiet, nocturnal. NOT a Japanese village."
     },
     {
       "id": "w_road2_morning",
@@ -90,14 +90,14 @@
       "label": "翳りに呑まれ灰色になった土地",
       "group": "敵勢力/翳り",
       "size": "1536x864",
-      "desc": "A small rustic village that has been swallowed by the grey blight: every cottage, road and tree drained of color to dull ash-grey, no warm light anywhere, thick grey ash mist hanging in the dead silent air, abandoned and forgotten, a place where the lamps have gone out and people have forgotten their own words. Desolate, sorrowful, monochrome grey. NOT snow, NOT winter."
+      "desc": "A small Western-medieval European village (rustic half-timber cottages with stone bases and wood-shingle roofs) that has been swallowed by the grey blight: every cottage, road and tree drained of color to dull ash-grey, no warm light anywhere, thick grey ash mist hanging in the dead silent air, abandoned and forgotten, a place where the lamps have gone out and people have forgotten their own words. Desolate, sorrowful, monochrome grey. NOT a Japanese village, NOT snow, NOT winter."
     },
     {
       "id": "w_haito_ash_capital",
       "label": "灰都(トワが灯詞を集めた灰の都)",
       "group": "敵勢力/翳り",
-      "size": "1024x1536",
-      "desc": "A vast eerie capital city of grey stone where every lamp-word of the world has been hoarded: countless tiny cold faint lamplights gathered and stored in towering grey halls, the whole city drained to ash-grey and choked with hovering grey ash, no warmth, an oppressive lonely cathedral-like grandeur. The hoard that is dimming the world. Ashen grey, NOT snow."
+      "size": "1536x864",
+      "desc": "A vast eerie capital of grey stone spread out wide and low across a flat ashen plain, seen in a broad horizontal panorama: row upon row of low grey stone halls and storehouses sprawling toward the horizon where every lamp-word of the world has been hoarded, countless tiny cold faint lamplights stored within, the whole city drained to ash-grey and choked with hovering grey ash, no warmth, an oppressive lonely stillness. Keep the layout horizontal and flat, NOT a tall vertical tiered city, NOT stacked bridges or staircases. Ashen grey, NOT snow."
     },
     {
       "id": "w_ash_minions_mood",

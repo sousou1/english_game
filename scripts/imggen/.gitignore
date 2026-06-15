@@ -1,3 +1,5 @@
 .env
-__pycache__/
-*.pyc
+out/test/
+out/yui_rebuild/
+out/yui_regen/
+out/cast_restyle/

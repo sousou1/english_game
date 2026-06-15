@@ -4,9 +4,9 @@
   "pov_rule": "主人公アキはシーン挿絵では極力映さない(一人称POV)。pov=true のシーンは『手・前腕＋カンテラ』『後ろ頭・肩越し』『画面外』に留め、被写体はユイ・情景・敵にする。",
 
   "stages": {
-    "nagi_village": "A medieval mountain-valley village of wooden cottages with thatched roofs, pre-modern rustic style, warm flame light.",
+    "nagi_village": "A Western-medieval European mountain-valley village of rustic half-timber cottages (stone bases, timber-framed plaster walls, wood-shingle roofs, a little thatch), pre-modern rustic style, warm flame light. NOT a Japanese gassho-style village.",
     "great_lamp": "An old rustic stone-and-timber beacon tower (a great-lamp) with rough masonry and wooden scaffolding, a large warm flame burning at its top.",
-    "nagi_village_alley": "A narrow rustic village alley between wooden cottages at night, warm scattered lamplight and deep shadow.",
+    "nagi_village_alley": "A narrow rustic village alley between Western-medieval half-timber cottages (stone bases, wood-shingle roofs) at night, warm scattered lamplight and deep shadow. NOT a Japanese village.",
     "road2": "A pre-modern country road of packed dirt and stone winding over gentle grassy hills, rustic landscape.",
     "caravan": "A merchant caravan of wooden covered wagons with cloth tarps in a roadside hollow, rustic pre-modern traders, a warm campfire.",
     "trade_town": "A distant pre-modern stone-walled trading town with rustic stone buildings and city walls glowing with tiny warm lights on the horizon.",
@@ -17,42 +17,49 @@
     {
       "id": "c01_010", "chapter": 1, "size": "1536x864", "pov": true,
       "cap": "屋根の上: 主人公の後ろ頭・肩越しPOV＋振り返るユイ＋眼下の村祭り＋谷の素朴な灯台",
+      "en": "Evening on the village rooftops. Over-the-shoulder shot: in the lower foreground, only the back of the unseen protagonist's head and shoulder. A few steps away on a wood-shingle rooftop sits Yui, twisting back toward the viewer with a cheeky grin. Far below, the village square glows with a small festival of warm lamps, and the great stone-and-timber beacon-lamp tower rises in the valley beyond.",
       "stage": "nagi_village", "ref_chars": ["yui"], "focus": "yui",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_010_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
     },
     {
       "id": "c01_020", "chapter": 1, "size": "1536x864", "pov": false,
       "cap": "消える大灯: 素朴な灯台の火が落ちる＋灰の靄(人物なし)",
+      "en": "No people at all. The great stone-and-timber beacon-lamp tower at night, its large warm flame guttering and dying down to faint embers, while a creeping grey ash mist seeps up around its base and drifts across the scene, draining the color toward dull grey. Ominous and sorrowful, the light of the world going out.",
       "stage": "great_lamp", "stage_extra": ["ash_modifier"], "ref_chars": [], "focus": "scenery",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_020_{seed}_0.png", "cand": [7,11,23], "rec": null}
     },
     {
       "id": "c01_040", "chapter": 1, "size": "1024x1536", "pov": true,
       "cap": "最初の灯: 一人称POV(手＋カンテラ)＋放射状の光＋照らされ振り返るユイ",
+      "en": "First-person POV at night in the village street. The viewer's own hand and forearm hold up an old brass kantera lantern in the foreground, its newly lit flame casting radiant beams of warm light outward. The light catches Yui a few steps ahead as she turns back toward the viewer, eyes wide and grinning, lit warmly against the dark.",
       "stage": "nagi_village", "ref_chars": ["yui"], "focus": "yui",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_040_{seed}_0.png", "cand": [61,63,67,71], "rec": null}
     },
     {
       "id": "c01_060", "chapter": 1, "size": "1024x1536", "pov": false,
       "cap": "灰狼の影: 路地の奥の獣シルエット＋手前に立ちすくむ村人の背(主人公なし)",
+      "en": "A narrow night village alley. At the far dark end, the menacing silhouette of a large black wolf-beast (the hairou), faintly glowing, grey ash leaking from its maw. In the foreground, the back of a frozen, frightened villager rooted in place. The protagonist is not shown. Tense and ominous.",
       "stage": "nagi_village_alley", "ref_chars": ["hairou"], "focus": "hairou",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_060_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
     },
     {
       "id": "c01_140", "chapter": 1, "size": "1536x864", "pov": true,
       "cap": "ボス灰狼: POV(手前に腕＋カンテラ・顔は映さない)＋巨狼＋舞う灰の文字",
+      "en": "First-person POV boss confrontation in the night alley. The viewer's own forearm and an old brass kantera lantern fill the lower foreground (the viewer's face is never shown). Ahead crouches a huge menacing black wolf-beast leaking grey ash, and between them glowing letters and ashen words swirl in the air. High tension.",
       "stage": "nagi_village_alley", "stage_extra": ["ash_modifier"], "ref_chars": ["hairou"], "focus": "hairou",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_140_{seed}_0.png", "cand": [7,11,23,31], "rec": null}
     },
     {
       "id": "c01_150", "chapter": 1, "size": "1024x1536", "pov": false,
       "cap": "戻らない言葉: 星を見る老灯守＋遠くに小さな二人(ほろ苦)",
-      "stage": "nagi_village", "ref_chars": ["old_lampkeeper", "yui"], "focus": "old_lampkeeper",
+      "en": "A quiet bittersweet night in the Western-medieval village. The gentle old lamp-keeper sits alone on a low stone wall, gazing up at the vast star-filled sky, having lost his words, a small lamp resting beside him. Quiet empty lanes and cottages behind him. A small lone human figure under an immense sky, melancholy and tender. No other people.",
+      "stage": "nagi_village", "ref_chars": ["old_lampkeeper"], "focus": "old_lampkeeper",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_150_{seed}_0.png", "cand": [7,11,23], "rec": null}
     },
     {
       "id": "c01_180", "chapter": 1, "size": "1024x1536", "pov": true,
       "cap": "星空の街道: POV(肩越し)＋歩み去るユイの小さな後ろ姿＋満天の星",
+      "en": "Over-the-shoulder POV on a country road at deep night. In the foreground, the soft blurred shoulder and back of the unseen protagonist. Ahead, the small back figure of Yui walking away up the pale road, under an overwhelming sky full of stars and the faint band of the milky way. Lonely and beautiful.",
       "stage": "road2", "ref_chars": ["yui"], "focus": "yui",
       "existing_asset": {"dir": "docs/drafts/ch1_illust_assets", "pattern": "il_c01_180_{seed}_0.png", "cand": [41,43,47,53], "rec": null}
     },
@@ -60,31 +67,36 @@
     {
       "id": "c02_010", "chapter": 2, "size": "1536x864", "pov": false,
       "cap": "はじめての街道: 先を行くユイの後ろ姿・石垣の道・遠い谷の町・朝",
+      "en": "Morning on the open road. Yui walks ahead up a packed dirt-and-stone road lined with low dry-stone walls, winding over green grassy hills, seen from behind at a gentle distance. Far ahead in the valley, a distant town is faintly visible on the horizon. Soft pale morning light, the hopeful start of a journey.",
       "stage": "road2", "ref_chars": ["yui"], "focus": "yui",
       "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_010_{seed}_0.png", "cand": [7,11,23,31], "rec": 31}
     },
     {
       "id": "c02_040", "chapter": 2, "size": "1536x864", "pov": false,
       "cap": "隊商の焚き火: 厚い灰の靄を拳で散らす大柄なガク・幌の荷車・焚き火",
+      "en": "At the caravan camp at dusk. The large muscular boy Gaku throws a bare-fisted punch forward, the blow scattering a thick bank of grey ash mist apart into dispersing wisps. Behind him, covered wagons and a warm crackling campfire. Dynamic, heroic, full of energy.",
       "stage": "caravan", "stage_extra": ["ash_modifier"], "ref_chars": ["gaku"], "focus": "gaku",
       "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_040_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
     },
     {
       "id": "c02_090", "chapter": 2, "size": "1024x1536", "pov": false,
       "cap": "灰の手先ドゥド: 単体・くすんだ灯詞を灰に崩す不穏な登場",
+      "en": "An ominous entrance on a country road at dusk. The gaunt hooded ash-servant Doudo stands alone, his ashen grey hands crumbling dull, sickly glowing lamp-words into drifting grey ash that swirls around him. Unsettling and quietly threatening.",
       "stage": "road2", "stage_extra": ["ash_modifier"], "ref_chars": ["doudo"], "focus": "doudo",
       "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_090_{seed}_0.png", "cand": [41,43,47,53], "rec": 41}
     },
     {
       "id": "c02_100", "chapter": 2, "size": "1536x864", "pov": false,
       "cap": "灯詞バトル決着: 撃破されるドゥド単体・灰が暖色の燠火にほどけて静かに崩れる",
+      "en": "The end of the duel on the road. The ash-servant Doudo stands alone, defeated; the grey ash that made him is quietly unraveling and dissolving into gentle warm ember-light as he crumbles away. A quiet, melancholy resolution rather than a violent one.",
       "stage": "road2", "ref_chars": ["doudo"], "focus": "doudo",
       "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_100_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
     },
     {
       "id": "c02_130", "chapter": 2, "size": "1536x864", "pov": false,
       "cap": "次の灯へ: 笑顔で別れを告げるガク・先を行くユイの後ろ姿・遠景の交易街",
-      "stage": "trade_town", "ref_chars": ["gaku", "yui"], "focus": "gaku",
+      "en": "Toward the next light, at dusk. In the foreground the big cheerful Gaku grins broadly and raises a hand in a warm farewell toward the unseen viewer. The dirt road leads on down the hillside toward a walled trading town glowing with tiny warm lights on the horizon. A warm, hopeful parting. No other companions in frame.",
+      "stage": "trade_town", "ref_chars": ["gaku"], "focus": "gaku",
       "existing_asset": {"dir": "docs/drafts/ch2_illust_assets", "pattern": "il_c02_130_{seed}_0.png", "cand": [41,43,47,53], "rec": 43}
     }
   ]
