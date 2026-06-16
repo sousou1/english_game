@@ -2,3 +2,8 @@ node_modules/
 package-lock.json
 *.log
 .DS_Store
+
+# imggen 生成中間物
+scripts/imggen/__pycache__/
+scripts/imggen/out_temp/
+__pycache__/
