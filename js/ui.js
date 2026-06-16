@@ -663,7 +663,9 @@ function renderStorySheet() {
     return;
   }
   const body = $('#sheetBody');
-  const hint = scene && scene.gate && scene.gate.settled
+  const hint = scene && scene.gate && scene.gate.kills
+    ? `灰の手先を${scene.gate.kills}匹祓おう。お題に合うことばをタップ=詠唱攻撃。いま${app.profile.battle.kills}匹。`
+    : scene && scene.gate && scene.gate.settled
     ? `続きの旅支度: 言霊を${scene.gate.settled}体、青銅の絆(S≥3)に。いま${settledCount()}体——焚き火の修行で根づかせよう。`
     : '続きはこれから書かれる——。';
   const letter = letterAvailable(p);
@@ -698,6 +700,7 @@ function renderStorySheet() {
 // 確定採用カット(docs/drafts/ch1_illust_assets/): c01_010=seed11 / c01_040=seed61 /
 // c01_060=seed23 / c01_140=seed23 / c01_180=seed47(一人称POV・幼少期・前近代中世風)。
 const SCENE_ART = {
+  c01_004: 'scene_c01_004', // ユイ(幼馴染)・井戸端。未生成のうちは onerror で素のテキストへ自動フォールバック
   c01_010: 'scene_c01_010', c01_040: 'scene_c01_040', c01_060: 'scene_c01_060',
   c01_140: 'scene_c01_140', c01_180: 'scene_c01_180',
 };
@@ -820,7 +823,7 @@ function renderStory() {
   const body = $('#storyBody');
   body.classList.toggle('story-has-art', !!art); // 挿絵シーンは全画面背景に敷き、本文/選択を下部グラデへ
   body.innerHTML = `
-    ${art ? `<img class="story-art" src="assets/img/${art}.webp" onerror="this.remove()"><div class="story-scrim"></div>` : ''}
+    ${art ? `<img class="story-art" src="assets/img/${art}.webp" onerror="this.remove();this.closest('.story-ov-body')?.classList.remove('story-has-art')"><div class="story-scrim"></div>` : ''}
     <div class="story-bar">
       <button class="story-back ${canBack ? '' : 'off'}" data-sact="back" ${canBack ? '' : 'disabled'}>◀ 戻る</button>
       <span class="story-title">${esc(scene.title)}</span>
@@ -892,6 +895,16 @@ function storyCommit(scene, optIndex) {
   const sc = p.scenario;
   // 初灯チュートリアル: c01_040「最初の灯」の行動で、覚える/詠める/罰なしを体験(初灯まで物語は進めない)
   if (scene.id === 'c01_040' && !p.story.firstLight) { openFirstLightTutorial(); return; }
+  // 戦闘チュートリアル: c01_055「灰の手先」の行動で本編(戦闘)画面へ落とし、お題タップ=攻撃を案内。
+  // c01_060 は討伐2体ゲート——手先を倒して魔素を貯めると物語が進む(課金壁=costW も賄える)。
+  if (scene.id === 'c01_055' && !sc.read[scene.id]) {
+    sc.read[scene.id] = 1;
+    sc.scene = scene.next; // c01_060
+    app.save();
+    closeStory();          // → 本編=戦闘画面
+    showBattleTutorial();
+    return;
+  }
   const opt = scene.choice && optIndex != null ? scene.choice.options[optIndex] : null;
   const cost = (p.dev?.story || sc.read[scene.id]) ? 0 : sceneCost(scene);
   if (cost > 0 && p.gold < cost) { ticker(`💰${fmtBig(cost)} 必要 — 魔物を倒そう`); return; }
@@ -1473,7 +1486,9 @@ function renderEventStep() {
     // 新語を覚えるcast(反芻以外)は「英文穴埋め+和訳の該当語強調」で出す。
     // 反芻(review)は没入優先で従来の詠唱和文のまま。
     const cur = s.entries[s.ptr];
-    const useCloze = !s.review && cur && clozeable(cur);
+    // クローズ(英文穴埋め)は単語castのみ。複数語castは穴埋め行に統一し、空欄ごとに表示が切り替わる不整合を防ぐ
+    // (例: shine は例文が "shines" で \bshine\b 不一致→単独だと素表示に落ち、moon で英文化して「治る」ように見えるバグ)。
+    const useCloze = !s.review && s.entries.length === 1 && cur && clozeable(cur);
     const blankLine = `<p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>`;
     const inner = useCloze ? `
         <small class="ev-tag warm">${s.recall ? '思い出せ——さっきの言葉だ' : 'あたらしい言葉を、この一文に'}</small>
@@ -1544,6 +1559,13 @@ function renderEventStep() {
       }
     }
   };
+}
+
+// ---------- 戦闘チュートリアル(c01_055): 本編=戦闘画面で「お題タップ=攻撃」を一度きり案内 ----------
+function showBattleTutorial() {
+  ticker('お題に合うことばをタップ=詠唱攻撃。敵を倒すと魔素(💰)とEXP。手先を2匹祓おう。', 'gold');
+  const cb = $('#cueBar');
+  if (cb) { cb.classList.add('spot'); setTimeout(() => $('#cueBar')?.classList.remove('spot'), 4200); }
 }
 
 // ---------- 初灯チュートリアル(c01_040): 覚える→詠める→罰なし を一度だけ案内 ----------

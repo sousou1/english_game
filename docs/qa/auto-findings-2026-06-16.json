@@ -1,0 +1,82 @@
+{
+  "_doc": "ディレクター(So)ペルソナ・レビュー(persona=docs/playtest-persona-director.md)。playtest v23 フィードバック修正の『変更箇所』に限定。vision(スクショ)パスは tests/_qa_playtest.mjs で20枚撮影し実行済み(後日 browser deps 解消)。注記: headless chromium に絵文字フォントが無く、敵アイコン(🐀等の絵文字フォールバック)は豆腐□で写る=環境依存・実機では描画される(コードバグではない)。",
+  "generatedAt": "2026-06-16",
+  "swVersion": "v23",
+  "shots": "取得済み 20枚 /tmp/qa_shots/ (manifest.json)。JSエラーなし",
+  "scope": "今回変更: c01_004(ユイ紹介+挿絵prompt) / c01_055(戦闘チュートリアル新設) / c01_060(討伐2体ゲート) / イベントcast表示(useCloze) / .story-ov overflow",
+  "axisLegend": { "A": "没入", "B": "手触り(game-feel)", "C": "モバイルUX", "D": "テンポ/情報量", "E": "学習設計", "F": "物語(要人間確認)" },
+  "findings": [
+    {
+      "where": "c01_055 灰の手先(戦闘チュートリアル)",
+      "axis": "A",
+      "severity": "medium",
+      "symptom": "カンテラの声がUI操作(お題タップ/ゴールド)を説明していて、世界観の声がチュートリアル解説係になっていた",
+      "cause": "初灯チュートリアル(renderTutorialHowto)は操作説明をUIカードに分離しているのに、c01_055では声の台詞に混ぜていた=メタ/説明的(A没入・D説明過多)",
+      "fix": "声を世界観のまま(『意味を思い出してことばを呼ぶ。その灯が向こうにぶつかる』)に戻し、操作説明はティッカー＋お題スポットライト(UI層)に一本化",
+      "status": "fixed-2026-06-16"
+    },
+    {
+      "where": "c01_055 → 本編へ落下後のガイド",
+      "axis": "B",
+      "severity": "low",
+      "symptom": "戦闘という新メカニクスの導入が、消えるティッカー＋一回のスポットライト頼り。見逃すと『何をすれば』になりうる",
+      "cause": "初灯(常駐カード+ボタン)より誘導が弱い。ただし物語シートを開くと kills ゲートのヒント(『灰の手先を2匹祓おう…いまN匹』)が常駐で出るため緩和されている",
+      "fix": "現状はヒント常駐で実用上OK。さらに強めるなら初回killまでスポットライトをループ or 常駐コーチカード。要人間判断",
+      "status": "human-consider"
+    },
+    {
+      "where": "c01_004 いつか谷の外へ(冒頭2行)",
+      "axis": "D",
+      "severity": "low",
+      "symptom": "地の文で『幼馴染/世話係・先週12歳・来月13歳』を列挙=やや設定説明っぽい(info-dump気味)",
+      "cause": "ユーザー要望で井戸端に年齢・関係を明示。show-not-tell より tell 寄り",
+      "fix": "許容(要望どおり)。気になるなら年齢を後段のユイの軽口に逃がす案あり。要人間判断",
+      "status": "human-consider"
+    },
+    {
+      "where": "イベント cast 表示(ev_c01_lights 等の複数語ビート)",
+      "axis": "B",
+      "severity": "high",
+      "symptom": "最初の問題で英語が文章にならず、正解タップで急に英文化(『治る』)していた",
+      "cause": "useCloze を空欄ごと(cur)に再計算。shine の例文が『shines』で \\bshine\\b 不一致→1語目だけ素表示、moon でcloze化。差し替え直後の表示不整合(jank-catalog: 表示モードの跨ぎ)",
+      "fix": "useCloze を単語castのみに限定(s.entries.length===1)。複数語castは穴埋め行に統一し、castステップ内で表示モードが変わらないように",
+      "status": "fixed-2026-06-16"
+    },
+    {
+      "where": "イベント cast 表示・複数語ビートの学習面",
+      "axis": "E",
+      "severity": "low",
+      "symptom": "複数語castでは英語例文(cloze)を見せなくなった(JP詠唱文+タイル)",
+      "cause": "上記修正の副作用。ただし直前の teach カードで英単語+例文は提示済み。単語castは従来どおり英文cloze",
+      "fix": "学習上は許容(teachで例文既出・castは想起)。要観察",
+      "status": "human-consider"
+    },
+    {
+      "where": "c01_004 ユイ挿絵(scenes.json c01_004)",
+      "axis": "A",
+      "severity": "low",
+      "symptom": "プロンプトは一人称POV(主人公は肩越し・手のみ)・focus=yui で『主人公を極力映さない』に準拠。実画はまだ無い",
+      "cause": "Q2=プロンプトのみ先行。生成・採否は人間レビュー",
+      "fix": "生成後にPOV順守/構図/ユイのlock(深紅・低位置二房・カンテラ左腰)を人間確認",
+      "status": "human-visual"
+    },
+    {
+      "where": "c01_010 挿絵 スマホはみ出し / 物語リーダー全般",
+      "axis": "C",
+      "severity": "medium",
+      "symptom": "vision確認(06_story_c01_010): overflow:hidden で枠外への視覚的はみ出しは解消(画面外へ漏れていない)。ただし挿絵上端でユイ(深紅の髪)が見切れ気味=構図のフレーミング寄りの違和感が残る",
+      "cause": "報告の『はみ出し』はCSSクリップで解決。残るのは被写体の見切れ=挿絵側フレーミング(再生成)案件",
+      "fix": "CSSクリップ済み。見切れが気になる場合は c01_010 挿絵を上端に余白を持たせて再生成。要人間判断",
+      "status": "human-visual"
+    },
+    {
+      "where": "戦闘ドロップイン/メイン(14,15) 敵アイコン",
+      "axis": "C",
+      "severity": "info",
+      "symptom": "vision上、敵が豆腐□で表示",
+      "cause": "headless chromium に絵文字フォントが無く、スキン未設定の敵(ENEMIES の絵文字)がフォールバックで描画されないだけ。実機では絵文字が描画される=コードバグではない",
+      "fix": "対応不要。スクショ環境の限界として記録(vision では敵アートの是非は判定不可)",
+      "status": "env-limitation"
+    }
+  ]
+}

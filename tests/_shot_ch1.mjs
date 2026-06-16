@@ -2,9 +2,8 @@
 //   node tests/_shot_ch1.mjs   (サンドボックス無効で実行のこと)
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import path from 'node:path';
-import { chromium } from 'playwright-core';
+import { launchBrowser } from './_browser.mjs';
 import { defaultProfile } from '../js/storage.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -23,10 +22,7 @@ const server = http.createServer(async (req, res) => {
 await new Promise((r) => server.listen(8352, r));
 const BASE = 'http://localhost:8352/';
 
-const exe = `${homedir()}/.cache/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-linux64/chrome-headless-shell`;
-let browser;
-try { browser = await chromium.launch({ executablePath: exe }); }
-catch { browser = await chromium.launch(); }
+const browser = await launchBrowser({ onFail: () => server.close() });
 const errors = [];
 const log = (m) => console.log(m);
 

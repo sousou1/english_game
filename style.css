@@ -171,7 +171,12 @@ body.rush #screen { box-shadow: inset 0 0 60px rgba(255, 138, 42, .18); }
 body.reach-dark .stage { box-shadow: inset 0 0 80px rgba(0, 0, 0, .85); }
 
 /* ---------- D: お題 ---------- */
-.cue-bar { height: 64px; flex: 0 0 64px; display: flex; flex-direction: column; justify-content: center; }
+.cue-bar { height: 64px; flex: 0 0 64px; display: flex; flex-direction: column; justify-content: center; border-radius: 10px; }
+.cue-bar.spot { animation: cueSpot 1.1s ease-out 4; }
+@keyframes cueSpot {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 0 3px rgba(255,209,102,.30), 0 0 20px rgba(255,180,60,.7); }
+}
 .cue { text-align: center; }
 .cue small { display: block; font-size: 10px; color: var(--dim); letter-spacing: .12em; }
 .cue b { font-size: 25px; font-weight: 800; color: var(--fire2); }
@@ -583,9 +588,9 @@ body.in-story .fb-btn { top: calc(var(--safe-top) + 8px); right: 56px; width: 34
 
 /* ── 全画面 物語リーダー(VN式) ───────────────────────────── */
 .story-ov { position: fixed; inset: 0; z-index: 45; background: var(--bg);
-  display: flex; flex-direction: column; }
+  display: flex; flex-direction: column; overflow: hidden; }
 .story-ov-body { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative;
-  padding: calc(8px + var(--safe-top)) 16px calc(12px + var(--safe-bottom)); }
+  padding: calc(8px + var(--safe-top)) 16px calc(12px + var(--safe-bottom)); overflow: hidden; }
 .story-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; position: relative; z-index: 2; }
 .story-bar .story-title { font-size: 15px; font-weight: 700; color: var(--fire2); text-align: center; flex: 1; }
 .story-back, .story-close { background: var(--panel); border: 1px solid var(--panel2); color: var(--text);
