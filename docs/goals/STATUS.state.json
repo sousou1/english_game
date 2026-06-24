@@ -71,7 +71,7 @@
   },
   "friend": {
    "inCode": false,
-   "note": "隠しED未配線。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票・内容と解錠機構は次イテレーション。lonely↔friend の対句反転(L1語2つで別れを締め)"
+   "note": "隠しED未配線(SYSTEM依存ブロック中)。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票済。STORY側の完成設計は docs/drafts/cE_friend.md に用意済(2026-06-24)=供給語(L1 feelings 8語 lonely/friend ほか・既出衝突ゼロ)・シーン cE_friend_010-030・挿入位置 c09_118(route分岐手前で read-only bool flags._friendUnlocked を見るだけ・加算/負効果なし)・感動設計まで確定。SYSTEM が解錠API(end到達記録+S≥90カウント→flags._friendUnlocked 投影)を着地させ次第、branch1本+3シーン+ev_cE_friend を足すだけで inCode:true 化。lonely↔friend の対句反転(L1語2つで別れを締め)"
   }
  },
  "sashiire": 0

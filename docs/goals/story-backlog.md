@@ -17,7 +17,7 @@
 - ⚠ **ch7は route 確定章**(§5.3 分岐: hero/yui(≥6)/quiet)+ truth(ch5既出)。→ **B-1 ED分岐の受け皿(集計/分岐ロジック)を ch7 配線と同時 or 直前に実装**する必要が高まった。yui累計の到達性: ch1(+3)+ch2(+2)+ch3(+2)+ch4(+1)+ch5(+2)+ch6(+2)=最大12 → route=yui(≥6)は余裕で到達可能。
 
 ## B. 物語実装(章配線に付随する narrative コード)― todo
-- **B-1. ED分岐ロジック(4ED)**: 3ED(hero/yui/quiet)は ch9 終章で実装完了=`inCode:true`(js/ui.js resolveNext で branchOn:route 出し分け+branchOn:truth でカガリ生死差分)。**残=隠しED friend のみ**: 解錠条件『全ルートクリア後＋語り部級(S≥90)50語』が周回/完了の状態管理を要し STORY フラグでは表現不可 → bridge.md `## → System`(2026-06-24)に機構を起票済。SYSTEM が解錠API(end到達記録+S≥90カウント)を着地させたら、STORY が cE_friend_*(L1語 friend/lonely・対句反転)を1本配線し endings.friend.inCode:true 化する。
+- **B-1. ED分岐ロジック(4ED)**: 3ED(hero/yui/quiet)は ch9 終章で実装完了=`inCode:true`(js/ui.js resolveNext で branchOn:route 出し分け+branchOn:truth でカガリ生死差分)。**残=隠しED friend のみ**: 解錠条件『全ルートクリア後＋語り部級(S≥90)50語』が周回/完了の状態管理を要し STORY フラグでは表現不可 → bridge.md `## → System`(2026-06-24)に機構を起票済。**STORY側の完成設計は `docs/drafts/cE_friend.md` に用意済(2026-06-24)**=供給語(L1 feelings 8語=lonely/friend ほか・既出衝突ゼロ)/シーン cE_friend_010-030/挿入位置 c09_118(route分岐の手前で read-only bool `flags._friendUnlocked` を見るだけ)/感動設計まで確定。SYSTEM が解錠API(end到達記録+S≥90カウント→`flags._friendUnlocked` 投影)を着地させたら、STORY は branch1本+3シーン+ev_cE_friend を足し endings.friend.inCode:true 化するだけで完結。
 - **B-2. さしいれ(鐘配信)機能**: 各章 ch3/ch4 で「さしいれ」brief(ユイ/カガリの軽口を毎日接触で刷り込み=F4忘却の落差の土台)を設計メモに置いたが、**機能としては未実装**。日次配信UI＋反復刷り込みの仕組み。
 - ✅ **B-3. ch4 post-fix 確認レビュー(2026-06-24 完了)**: AI多ペルソナ2軸独立(ディレクター物語A-F軸+学習死守監査)を並列起動し **high0 を再確認**。再発論点(yui三重印字/F4二度置き/ch3逐語使い回し/「下から」連打)すべて非再発、英単語の本文直挿しゼロ、供給72語 cloze可・章跨ぎ衝突ゼロ、フラグ加算のみ。コード変更なし(98テスト+smoke green維持)。残MED=c04_040の制度情報密度(将来の磨き・出荷可)。STATUS ch4 ノートに記録済。
 - **B-4. 章扉の原文断片(修復率)表示の実装確認**: 各章末で「黄金到達語のみ英語・他は◆◆＋修復率」を段階開示する演出。現状 brief/設計のみで実装状況の確認が要る。
