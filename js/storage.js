@@ -48,6 +48,7 @@ export function defaultProfile() {
     totalLights: 0, // 累計(アンロック判定)
     surely: 0,      // 確かな想起数
     taps: {},       // w -> 詠唱プールで正しくタップした回数
+    mastery: { sub: {} }, // 単語マスター(昇華): sub[w]=昇華時刻。習熟回数ans=reps+min(taps,cap)で導出判定。追加項目なのでbackfillが既存セーブを補完(版上げ不要)。
     vref: 1,        // 直近タップ価値の移動平均(放置生産の参照値)
     battle: { kills: 0, dmg: 0 }, // 討伐数と現在の敵への累積ダメージ
     gold: 0,

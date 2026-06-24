@@ -61,6 +61,12 @@ button:active { transform: scale(.96); }
 #stGold { color: #ffe08a; }
 #stHp { color: var(--good); }
 #stHp.danger { color: var(--bad); animation: breathe 1s infinite; }
+/* B5: 経験値バー(現在レベル内の進捗を明示) */
+.exp-row { display: flex; align-items: center; gap: 7px; height: 15px; flex: 0 0 15px; margin-top: -3px; font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.exp-lbl { color: var(--fire2); font-weight: 700; font-size: 9px; letter-spacing: .06em; }
+.exp-track { flex: 1; height: 5px; background: var(--panel2); border-radius: 99px; overflow: hidden; }
+.exp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--fire1), var(--fire2)); border-radius: 99px; transition: width .35s ease-out; }
+.exp-num { min-width: 52px; text-align: right; }
 
 /* ---------- B: ステージ ---------- */
 .stage {
@@ -290,6 +296,22 @@ body.rush .tile { border-color: rgba(255, 209, 102, .55); }
 .sp-due { margin-left: 4px; font-size: 11px; }
 .sp-tag { font-size: 11px; }
 .spell-detail { background: var(--panel); border-radius: 10px; padding: 11px; margin: 4px 0 8px; font-size: 13.5px; display: flex; flex-direction: column; gap: 7px; }
+/* D1: 単語マスター(昇華) */
+.spell-subl-head { font-size: 12px; color: var(--fire2); margin: 2px 0 8px; }
+.spell-subl-head b { color: var(--fire1); }
+.spell-row.subl b { color: var(--fire2); }
+.sp-subl { color: var(--fire2) !important; margin-right: 3px; }
+.sp-can { color: var(--fire1) !important; margin-left: 4px; font-size: 11px; }
+.sp-mastery { display: flex; flex-direction: column; gap: 7px; border-top: 1px solid var(--panel2); padding-top: 8px; margin-top: 2px; }
+.sp-mastery.subl { color: var(--fire2); font-size: 12px; line-height: 1.5; }
+.sp-ans { display: flex; align-items: center; gap: 8px; }
+.sp-ans small { white-space: nowrap; color: var(--dim); }
+.sp-ans-track { flex: 1; height: 6px; background: var(--panel2); border-radius: 99px; overflow: hidden; }
+.sp-ans-fill { height: 100%; background: linear-gradient(90deg, var(--fire1), var(--fire2)); border-radius: 99px; transition: width .3s; }
+.sp-need { color: var(--dim); font-size: 11px; }
+.sp-confirm { display: flex; flex-direction: column; gap: 6px; }
+.sp-confirm-row { display: flex; gap: 10px; align-items: center; }
+.text-btn { color: var(--dim); font-size: 13px; text-decoration: underline; padding: 4px; }
 .spell-ex { line-height: 1.6; }
 .spell-ex small { color: var(--dim); }
 .cand {
@@ -605,6 +627,10 @@ body.in-story .fb-btn { top: calc(var(--safe-top) + 8px); right: 56px; width: 34
 .story-text .scene-line { margin: 0 0 4px; animation: lineIn .25s ease; }
 @keyframes lineIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .story-foot { padding-top: 14px; text-align: center; }
+/* B1: 解錠費が足りないときの無効表示+不足明示 */
+button:disabled { cursor: default; }
+.choice-btn:disabled, .choice-btn.off { opacity: .4; }
+.story-need { margin: 9px 0 0; font-size: 12px; color: var(--fire2); text-align: center; }
 .story-ov-body .buy-row { position: relative; z-index: 1; }
 /* 挿絵シーン: 絵を全画面背景に敷き、本文/選択は下部グラデの上に重ねる(山場の没入) */
 .story-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; z-index: 0; }
@@ -642,3 +668,37 @@ body.in-story .fb-btn { top: calc(var(--safe-top) + 8px); right: 56px; width: 34
 .fb-tag { font-size: 11px; background: rgba(255,138,42,.12); color: var(--fire2); border-radius: 99px; padding: 2px 8px; }
 .fb-item-comment { font-size: 13px; margin: 4px 0 2px; line-height: 1.5; }
 .fb-item-time { color: var(--dim); font-size: 10px; }
+
+/* ===== B4: 広い画面ではスマホと同じ縦長フレームに収める(中央寄せ+レターボックス)。
+   モバイル(<600px)は従来どおり全画面のまま=無回帰。広い画面だけに適用。 ===== */
+@media (min-width: 600px) {
+  :root { --app-w: 412px; --app-h: min(96dvh, calc(var(--app-w) * 2.16)); }
+  body { display: flex; align-items: center; justify-content: center; background: #050409; }
+  #app {
+    width: var(--app-w); height: var(--app-h); max-width: var(--app-w);
+    border-radius: 26px; overflow: hidden; background: var(--bg);
+    box-shadow: 0 14px 50px rgba(0, 0, 0, .65), 0 0 0 1px rgba(255, 255, 255, .06);
+  }
+  #screen { height: var(--app-h); }
+  /* 全画面オーバーレイ(修行/イベント/物語/導入/暗幕)をフレームに重ねる */
+  .scrim, .takibi, .story-ov, .intro {
+    left: 50%; right: auto; top: 50%; bottom: auto;
+    width: var(--app-w); height: var(--app-h);
+    transform: translate(-50%, -50%);
+    border-radius: 26px; overflow: hidden;
+  }
+  /* ボトムシート(各シート/✎フィードバック)はフレーム下端に */
+  .sheet {
+    left: 50%; right: auto; transform: translateX(-50%);
+    width: var(--app-w); max-width: var(--app-w);
+    bottom: calc((100dvh - var(--app-h)) / 2);
+    border-radius: 18px 18px 0 0;
+  }
+  /* ✎ボタンはフレーム右肩に追従 */
+  .fb-btn {
+    right: calc((100vw - var(--app-w)) / 2 + 10px);
+    top: calc((100dvh - var(--app-h)) / 2 + var(--safe-top) + 50px);
+  }
+  /* トースト(ティッカー)もフレーム幅に */
+  .ticker { left: 50%; right: auto; transform: translateX(-50%); width: var(--app-w); }
+}

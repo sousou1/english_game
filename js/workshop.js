@@ -6,6 +6,7 @@ import { settle, productionAt, storageCap, dormCap, FACILITIES, facilityPrice, t
 import { makeQuestion } from './quiz.js';
 import { todayKey, dayDiff, dayStat } from './storage.js';
 import { ttsAvailable } from './audio.js';
+import { isSublimated } from './mastery.js';
 
 const INTRO_WORDS = ['water', 'apple', 'sun']; // 敗北不能の最初の3語(L1最易)
 const WAKE_WINDOW_BASE = 12; // 1窓あたりの提示上限(寮で拡張。復習の山は分割して返す)
@@ -90,7 +91,8 @@ export class Workshop {
     }
     const drowsy = [];
     for (const [w, c] of Object.entries(p.cards)) {
-      if (this.app.index.byKey.has(w) && isDrowsy(c, now)) drowsy.push({ w, kind: 'card', R: retrievability(c, now) });
+      // 昇華語は修行(復習どき🔥)に出さない=卒業の見た目を壊さない。再復習はバトル詠唱の10%枠で。
+      if (this.app.index.byKey.has(w) && isDrowsy(c, now) && !isSublimated(p, w)) drowsy.push({ w, kind: 'card', R: retrievability(c, now) });
     }
     drowsy.sort((a, b) => a.R - b.R);
     q.sort((a, b) => a.due - b.due);

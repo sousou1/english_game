@@ -14,6 +14,7 @@ import { letterAvailable, readLetter, consumeLetterBuff, COMPANIONS } from './pa
 import { TIER_NAMES, FACILITIES, facilityPrice } from './economy.js';
 import { SHOP_REVEAL, fireMilestones, maybeEvent, line, lineVar } from './story.js';
 import { sfx, speak, initAudio, ttsAvailable, comboTone } from './audio.js';
+import { MASTERY, masteryAns, canSublimate, pendingS, sublimate, isSublimated, sublimatedCount, canUndo, unsublimate, nextSublMilestone } from './mastery.js';
 import { saveProfile, defaultProfile, todayKey, FIELD_NAMES, LEVEL_NAMES, ALL_FIELDS, dayStat, DEFAULT_PLAYER_NAME } from './storage.js';
 import { SCENARIO, sceneById } from './scenario.js';
 import { eventAvailable, clearedEvents, eventById, EventRun } from './events.js';
@@ -86,6 +87,11 @@ export function initUI(appRef) {
       <span id="stAtk">⚔0</span>
       <span id="stMana">✨0<small id="stRate"></small></span>
       <span id="stGold">💰0</span>
+    </div>
+    <div id="expRow" class="exp-row">
+      <span class="exp-lbl">EXP</span>
+      <div class="exp-track"><div id="expFill" class="exp-fill"></div></div>
+      <span id="expNum" class="exp-num">0 / 100</span>
     </div>
     <div id="stage" class="stage">
       <div class="stage-top"><span id="placeLbl"></span><span id="bossTimerWrap" class="hidden">⏳<b id="bossTimer"></b></span></div>
@@ -318,6 +324,10 @@ function renderStat() {
   battle.app.battleLevel = lv.level;
   pool.app.battleLevel = lv.level;
   $('#stLv').textContent = `🏮Lv${lv.level}`; // 灯火モチーフ(主人公=人型ピクトを映さない)。型のic(人型)は型選択画面側でのみ使う
+  // EXP の進捗を明示(現在レベル内の into / 次レベルまで next)
+  const expPct = lv.next > 0 ? Math.min(100, (lv.into / lv.next) * 100) : 100;
+  $('#expFill').style.width = `${expPct}%`;
+  $('#expNum').textContent = `${Math.floor(lv.into)} / ${lv.next}`;
   const maxHp = hpMax(lv.level);
   const curHp = p.boss.engaged ? Math.max(0, p.boss.hp) : maxHp;
   $('#stHp').textContent = `❤${curHp}/${maxHp}`;
@@ -624,8 +634,10 @@ function sceneCost(scene) {
 function applyFlag(flagStr) {
   if (!flagStr) return;
   const m = flagStr.match(/^(\w+)\+(\d+)$/);
+  const eq = flagStr.match(/^(\w+)=(\w+)$/); // 列挙フラグ(route=hero|yui|quiet 等・物語選択の確定)
   const sc = app.profile.scenario;
   if (m) sc.flags[m[1]] = (sc.flags[m[1]] || 0) + Number(m[2]);
+  else if (eq) sc.flags[eq[1]] = eq[2];
   else sc.flags[flagStr] = true;
 }
 
@@ -703,6 +715,9 @@ const SCENE_ART = {
   c01_004: 'scene_c01_004', // ユイ(幼馴染)・井戸端。未生成のうちは onerror で素のテキストへ自動フォールバック
   c01_010: 'scene_c01_010', c01_040: 'scene_c01_040', c01_060: 'scene_c01_060',
   c01_140: 'scene_c01_140', c01_180: 'scene_c01_180',
+  // 第2章(挿絵5枚・local生成→gpt-image-2差し替えは後段)
+  c02_010: 'scene_c02_010', c02_040: 'scene_c02_040', c02_090: 'scene_c02_090',
+  c02_100: 'scene_c02_100', c02_130: 'scene_c02_130',
 };
 
 // 立ち絵: 会話行「名前「…」」の話者に小さな顔アイコンを添える(por_<key>_<表情>)。
@@ -806,14 +821,28 @@ function renderStory() {
   // フッタ(全行公開後): フロンティア=選択/行動ボタン、既読=進む(読み返しナビ)
   let foot = '';
   if (done) {
+    // 解錠費(💰)が足りないときは確定ボタン/選択肢を無効化し、不足分を明示(押下無反応に見えるのを防ぐ)
+    const need = cost > 0 && p.gold < cost;
+    const needMsg = `<p class="story-need">あと 💰${fmtBig(cost - p.gold)}。魔物を倒すと 💰 が手に入る。</p>`;
     if (frontier && scene.choice) {
       foot = `<div class="choices">
         ${scene.choice.prompt ? `<p class="choice-prompt">${esc(tok(scene.choice.prompt))}</p>` : ''}
-        ${scene.choice.options.map((o, i) => `<button class="choice-btn" data-sact="choice" data-i="${i}">${esc(tok(o.text))}</button>`).join('')}
+        ${scene.choice.options.map((o, i) => {
+          // 条件付き選択肢(req: {flag: 最低値}・例 route=yui は yui≥6 で解錠)。未満でも見せるがグレー無効+一言(arc-plot §5.3)
+          const locked = !!o.req && Object.entries(o.req).some(([k, v]) => (sc.flags[k] || 0) < v);
+          const off = need || locked;
+          const label = locked ? `${tok(o.text)} ―― ${o.lockNote || 'まだ、その資格がない気がした'}` : tok(o.text);
+          return `<button class="choice-btn${off ? ' off' : ''}" data-sact="choice" data-i="${i}"${off ? ' disabled' : ''}>${esc(label)}</button>`;
+        }).join('')}
+        ${need ? needMsg : ''}
       </div>`;
     } else if (frontier) {
-      const label = cost > 0 ? `${esc(tok(scene.action || 'つづける'))}(💰${fmtBig(cost)})` : (scene.action ? esc(tok(scene.action)) : '▶ つづける');
-      foot = `<button class="primary-btn" data-sact="next">${label}</button>`;
+      if (need) {
+        foot = `<button class="primary-btn" data-sact="need" disabled>${esc(tok(scene.action || 'つづける'))} 💰${fmtBig(cost)}</button>${needMsg}`;
+      } else {
+        const label = cost > 0 ? `${esc(tok(scene.action || 'つづける'))}(💰${fmtBig(cost)})` : (scene.action ? esc(tok(scene.action)) : '▶ つづける');
+        foot = `<button class="primary-btn" data-sact="next">${label}</button>`;
+      }
     } else {
       foot = `<button class="primary-btn ghost" data-sact="fwd">▶ 進む</button>`;
     }
@@ -876,10 +905,21 @@ function storyBack(scene) {
   if (prev) { storyView = { id: prev, shown: 0, footAt: 0 }; renderStory(); }
 }
 
+// ED分岐(終章): scene.branchOn=フラグ名・scene.branch={値:行き先}。確定済フラグ(truth/route)で次シーンを出し分ける。
+// 該当値が無ければ scene.next にフォールバック(=静的到達性も保つ)。フラグは一切変更しない(読むだけ・負効果ゼロ)。
+function resolveNext(scene) {
+  if (scene.branchOn && scene.branch) {
+    const v = app.profile.scenario.flags[scene.branchOn];
+    const hit = scene.branch[v];
+    if (hit) return hit;
+  }
+  return scene.next;
+}
+
 // 進む(読み返し中): 既定の合流先 scene.next へ。末尾ならフロンティア(続き)へ、無ければハブへ
 function storyForward(scene) {
   const sc = app.profile.scenario;
-  const nextId = scene.next;
+  const nextId = resolveNext(scene);
   if (nextId === 'end' || !sceneById(nextId)) {
     if (sc.scene) { storyView = { id: sc.scene, shown: 0, footAt: 0 }; renderStory(); }
     else { closeStory(); openSheet('story'); }
@@ -908,7 +948,7 @@ function storyCommit(scene, optIndex) {
   const opt = scene.choice && optIndex != null ? scene.choice.options[optIndex] : null;
   const cost = (p.dev?.story || sc.read[scene.id]) ? 0 : sceneCost(scene);
   if (cost > 0 && p.gold < cost) { ticker(`💰${fmtBig(cost)} 必要 — 魔物を倒そう`); return; }
-  const nextId = (opt && opt.next) ? opt.next : scene.next;
+  const nextId = (opt && opt.next) ? opt.next : resolveNext(scene);
   const nextScn = nextId === 'end' ? null : sceneById(nextId);
   // 次シーンのゲート未達 → 現在を確定だけしてハブ(旅支度ヒント)へ
   if (nextScn && nextScn.gate && !canPassGate(nextScn.gate)) {
@@ -1126,22 +1166,28 @@ function renderSpellbookSheet() {
   }
   items.sort((a, b) => a.sort - b.sort);
   const open = body.dataset?.open || '';
+  const confirm = body.dataset?.confirm || '';
+  const subCount = sublimatedCount(p);
+  const nextMile = nextSublMilestone(subCount);
   body.innerHTML = `
     <h3>📖 呪文書 <small>${items.length}語</small></h3>
-    <p class="story-hint">あたらしい言葉は、物語のイベントで手に入る。</p>
+    <p class="spell-subl-head">✦ 昇華 <b>${subCount}</b>語${nextMile != null ? ` ・ 次の基礎能力アップまで あと <b>${nextMile - subCount}</b>` : ' ・ 最大段に到達'}</p>
+    <p class="story-hint">あたらしい言葉は、物語のイベントで手に入る。同じ語を30回＋しっかり定着で「昇華」できる。</p>
     <div class="spell-list">
     ${items.slice(0, 60).map((it) => {
       // 習熟度は全行同じ語(見習い・修行どき…)の反復でなく、★段階+色のドットで表す(ノイズ減)。
       // 復習どきだけ小さな🔥で示す。詳細語はタップ展開のdetailに置く。
       const color = it.kind === 'step' ? '#9a8fa8' : RARITY[it.tier].color;
       const stars = it.kind === 'step' ? '' : '★'.repeat(Math.min(5, it.tier + 1));
-      const due = it.kind === 'card' && it.R < 0.9;
+      const subbed = it.kind === 'card' && isSublimated(p, it.w);
+      const canSub = it.kind === 'card' && !subbed && canSublimate(p, it.w);
+      const due = it.kind === 'card' && it.R < 0.9 && !subbed;
       const status = it.kind === 'step'
         ? `<i class="sp-tag" style="color:${color}" title="おぼえかけ">芽</i>`
-        : `<i class="sp-stars" style="color:${color}" title="${esc(TIER_NAMES[it.tier])}">${stars}</i>${due ? '<i class="sp-due" title="修行どき">🔥</i>' : ''}`;
-      return `<div class="spell-row" data-w="${esc(it.w)}">
+        : `${subbed ? '<i class="sp-subl" title="昇華済(卒業)">✦</i>' : ''}<i class="sp-stars" style="color:${color}" title="${esc(TIER_NAMES[it.tier])}">${stars}</i>${due ? '<i class="sp-due" title="修行どき">🔥</i>' : ''}${canSub ? '<i class="sp-can" title="昇華できる">✦!</i>' : ''}`;
+      return `<div class="spell-row${subbed ? ' subl' : ''}" data-w="${esc(it.w)}">
         <span style="color:${color}">◆</span><b>${esc(it.w)}</b><small>${esc(it.e.j)}</small>${status}
-      </div>${open === it.w ? spellDetail(it) : ''}`;
+      </div>${open === it.w ? spellDetail(it, confirm) : ''}`;
     }).join('')}
     ${items.length > 60 ? `<p class="story-hint">ほか${items.length - 60}語</p>` : ''}
     </div>
@@ -1150,6 +1196,19 @@ function renderSpellbookSheet() {
     if (!fresh('sheet')) return;
     const sp = e.target.closest('[data-speak]');
     if (sp) { speak(sp.dataset.speak, p.settings.rate); return; }
+    const act = e.target.closest('[data-act]');
+    if (act) {
+      const a = act.dataset.act, w = act.dataset.w;
+      if (a === 'sublime') body.dataset.confirm = w;                 // 確認へ
+      else if (a === 'sublime-no') body.dataset.confirm = '';        // 取りやめ
+      else if (a === 'sublime-yes') {                                // 昇華確定
+        if (sublimate(p, w)) { sfx('kyuin'); ticker('✦ 昇華! その言葉を卒業し、基礎能力が上がった。', 'gold'); app.save(); renderStat(); }
+        body.dataset.confirm = '';
+      } else if (a === 'unsub') { if (unsublimate(p, w)) { sfx('flip'); app.save(); renderStat(); } } // クールダウン取消
+      renderSpellbookSheet();
+      renderedAt.sheet = performance.now();
+      return;
+    }
     const row = e.target.closest('.spell-row');
     if (row) {
       body.dataset.open = body.dataset.open === row.dataset.w ? '' : row.dataset.w;
@@ -1159,12 +1218,36 @@ function renderSpellbookSheet() {
   };
 }
 
-function spellDetail(it) {
+function spellDetail(it, confirm = '') {
   const e = it.e;
+  const p = app.profile;
+  const w = it.w;
+  let mastery = '';
+  if (it.kind === 'card') {
+    if (isSublimated(p, w)) {
+      mastery = `<div class="sp-mastery subl">✦ 昇華済 ― 卒業して基礎能力↑。通常ローテからは外れ、10%枠で時おり復習に出る。${canUndo(p, w) ? `<button class="text-btn" data-act="unsub" data-w="${esc(w)}">戻す(24h内)</button>` : ''}</div>`;
+    } else {
+      const ans = masteryAns(p, w);
+      const pct = Math.min(100, ans / MASTERY.ansThreshold * 100);
+      let btn = '';
+      if (confirm === w) {
+        btn = `<div class="sp-confirm"><small>昇華する?(卒業して基礎能力↑・取消は24h内)</small><div class="sp-confirm-row"><button class="primary-btn small" data-act="sublime-yes" data-w="${esc(w)}">する</button><button class="text-btn" data-act="sublime-no">やめる</button></div></div>`;
+      } else if (canSublimate(p, w)) {
+        btn = `<button class="primary-btn small" data-act="sublime" data-w="${esc(w)}">✦ 昇華する</button>`;
+      } else if (pendingS(p, w)) {
+        btn = `<button class="primary-btn small" disabled>✦ 昇華 🔒</button><small class="sp-need">あと少し馴染ませて(定着が銀になるまで)</small>`;
+      }
+      mastery = `<div class="sp-mastery">
+        <div class="sp-ans"><small>習熟 ${Math.min(ans, MASTERY.ansThreshold)}/${MASTERY.ansThreshold}</small><div class="sp-ans-track"><div class="sp-ans-fill" style="width:${pct}%"></div></div></div>
+        ${btn}
+      </div>`;
+    }
+  }
   return `<div class="spell-detail">
     <div>${esc(e.j)} <span class="pos">${POS_JA[e.p] || ''}</span> <button class="mini-act" data-speak="${esc(e.w)}">🔊</button></div>
     ${e.ex ? `<div class="spell-ex">${esc(e.ex)}<br><small>${esc(e.jx)}</small></div>` : ''}
-    ${it.c ? `<small>つよさ ${(it.R * 100).toFixed(0)}% ・ 唱えた回数 ${app.profile.taps[it.w] || 0}</small>` : ''}
+    ${it.c ? `<small>つよさ ${(it.R * 100).toFixed(0)}% ・ 唱えた回数 ${p.taps[w] || 0}</small>` : ''}
+    ${mastery}
   </div>`;
 }
 
@@ -1486,9 +1569,11 @@ function renderEventStep() {
     // 新語を覚えるcast(反芻以外)は「英文穴埋め+和訳の該当語強調」で出す。
     // 反芻(review)は没入優先で従来の詠唱和文のまま。
     const cur = s.entries[s.ptr];
-    // クローズ(英文穴埋め)は単語castのみ。複数語castは穴埋め行に統一し、空欄ごとに表示が切り替わる不整合を防ぐ
-    // (例: shine は例文が "shines" で \bshine\b 不一致→単独だと素表示に落ち、moon で英文化して「治る」ように見えるバグ)。
-    const useCloze = !s.review && s.entries.length === 1 && cur && clozeable(cur);
+    // 新語castは複数語でも“1語ずつ英文cloze”で出す(ユーザ方針: 複数語で一度に覚えるのをやめる)。
+    // いま埋める対象語 cur の英文clozeを出し、複数語は下に進捗(blankLine)を添える。
+    // 全イベント語を clozeable 化済(data/words.js 例文を原形に・tests/invariants で担保)なので、
+    // 語ごとに英文/和文が切り替わる旧バグ(shine="shines"不一致)は発生しない。
+    const useCloze = !s.review && cur && clozeable(cur);
     const blankLine = `<p class="ev-blank">${s.entries.map((e, i) => `「<b class="${i < s.ptr ? 'ok' : ''}">${i < s.ptr ? esc(e.w) : '___'}</b>」`).join(' ')}</p>`;
     const inner = useCloze ? `
         <small class="ev-tag warm">${s.recall ? '思い出せ——さっきの言葉だ' : 'あたらしい言葉を、この一文に'}</small>

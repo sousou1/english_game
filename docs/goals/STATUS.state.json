@@ -1,0 +1,78 @@
+{
+ "_doc": "完結ステータス台帳の非データ項目。scripts/status.mjs が読む。AI多ペルソナ・レビュー(high0)合格やgpt-image-2差し替え等、データから機械算出できない“ティック”をここで管理する。人間の創作レビューは撤廃(消費者として遊ぶ方針)＝reviewed は AI レビュー合否を指す。",
+ "chapters": {
+  "1": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "出荷済の確定稿(ch1.md)。挿絵5シーンはlocal生成、gpt-image-2差し替えは後段"
+  },
+  "2": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch2配線(16シーン/6イベント/48語/章末ゲートsettled40)。AI多ペルソナ独立レビュー2巡 high0 合格、vision QAは配線不具合ゼロ。挿絵5枚local(c02_010/040/090/100/130)、gpt-image-2差し替え+POVフレーミング精度は後段(docs/qa/auto-findings-ch2-2026-06-17.json)"
+  },
+  "3": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch3配線(18シーン/8イベント/64語/章末ゲートsettled90/新キャラ カガリ27兄貴分・ガク再会・ボス灰喰い虫の群れ)。AI多ペルソナ独立レビュー(round1で7high修正→round2残2high反映→配線前検証で {name}トークン破れ・街の鐘の打数矛盾 の2blockerを解消)high0、98テスト+smoke green。挿絵=brief5件(scripts/imggen/scenes.json c03_010/100/120/130/170)、local生成・SCENE_ART登録は後回し(画像生成deferred)"
+  },
+  "4": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch4配線(17シーン/9イベント/72語/章末ゲートsettled150/ボス書庫の番い人形/新キャラなし=カガリ・ガク・ユイ継続)。AI多ペルソナ独立レビューで8high修正(yui+1三重印字→c04_120一本化/F4布石の二度置き解消→c04_120一粒/クライマックスc04_130-140のch3逐語使い回しを“識の試問・二体の対”の角度で書き直し/受付役の制度レクチャー圧縮でテスト臭低減/「下から」隣接連打除去/ev_c04_research名トークン修正)+prose chatter混入をクリーンアップ、98テスト+smoke green。F-mystery=c04_110(声の正体/loneliness断片)・F4布石=c04_120(ユイの違和感)・章末喪失=c04_150(封じ直された一語)。挿絵=brief5件(scenes.json c04_010/080/100/140/160)未生成・SCENE_ART未登録(画像生成deferred)。※配線前レビュー1巡+全high修正で停止(post-fix確認レビューは未実施)"
+  },
+  "5": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch5配線(16シーン c05_002-150/9イベント/72語/章末ゲートsettled220/ボス灰の司祭=巨大な静寂/新キャラなし=ユイ・カガリ・ガク継続、カガリはc05_002で離脱し二人旅へ)。ホラー回・声を奪われた町。供給語=society L3-4+feelings L4(L2帯枯渇のためL3-4へ昇格・主題整合、SYSTEMへbridge起票)。truthフラグ初出=c05_110(都に報告/握り潰す・bool・invariants.test.jsのフラグ不変条件を意図的に更新しtruth bool許可)。yui+2=c05_060夜の会話。F-mystery=c05_040(翳り=トワ/loneliness断片に初めて触れる)・司祭=被害者の鏡像=c05_090・F4進行=c05_150(ユイが村の鐘の呼び名を言いかけ失語)。AI多ペルソナ§2レビュー2軸(ディレクター物語+学習死守監査)→学習不変条件は全PASS、ディレクター指摘のhigh『ボスoutroがtruth選択を未来形で煽る矛盾(選択はc05_110で既出)』を修正、medium(c05_100テーゼ三重反復削減/senate=上院の手がかり改善/司祭台詞重複解消→被害者伏線へ転用/c05_150末尾圧縮)反映。clozeable invariant対応でwords.jsの例文13語を原形入りに修正(accuse/emotion/care/admire/cherish/refugee/minority/advocate/abolish/grievance/reconcile/sanction/attachment)。98テスト+smoke green。挿絵=brief未整備(0・次イテレーションでscenes.jsonへc05_010/040/060/090/130/150標準整備予定・画像生成deferred)"
+  },
+  "6": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch6配線(16シーン c06_002-150/10イベント/80語/章末ゲートsettled290/ボス翳竜の幼体=ナラティブ/新キャラなし=ユイ・カガリ・ガク、カガリ/ガクはc06_120で再合流・四人共闘)。全ルート完全共通章=中盤の感情の底(故郷ナギ村が灰)。供給語=nature/food L2-3(arc-plot §4.2準拠・feelings枯渇のため感情は地の文が担う)。フラグ=gaku+1(c06_120共闘)/yui+2(c06_130弱音初出)。F4本格化=ユイ忘却が段階深化(c06_040菜の花の名→ev_memory{name}の名→c06_090言いかけ消失・自覚→c06_130告白→c06_150{name}の名が一瞬迷子)。モチーフ大灯=最後まで消えたまま(中盤の底・終章再点灯の伏線)。AI多ペルソナ§2レビュー2軸→学習不変条件全PASS(誤答無罰/フラグ加算のみ/忘却非機械/英語非混入/説教なし)、収束HIGH=近代科学語の没入破りに対応しmolecule/photosynthesis→organic/fossilへ差替(ecos beat再演出)、MED=再合流のご都合感→c06_110に合流予告線追加/弱音の唐突さ→c06_130に二人きりの静寂緩衝を挿入。98テスト+smoke green。draft=ch6.md。挿絵=brief未整備(0・次イテレーションでscenes.json標準整備予定・画像生成deferred)"
+  },
+  "7": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch7配線(20シーン c07_002-180/11イベント/88語/章末ゲートsettled360/ボス灯札長=ナラティブ思想戦/新キャラなし=四人継続)。王都・分岐前夜。供給語=business L2-4主軸+society残+school L4+travel(society枯渇のため・cast再文脈化)。フラグ=yui+1(c07_160)+route列挙(c07_170 hero|yui|quiet=正典分岐確定・arc-plot §5.3)。**per-option req機構を新規実装**(js/ui.js choice描画でreq:{flag:最低値}未満をグレー無効+lockNote表示/invariants.test.jsにroute=enum許可追加)=route=yuiはyui≥6で解錠・未満は「まだその手を取る資格がない気がした」。カンテラのお願い初出(c07_070唯一の依頼・以降は出自発見c07_100/弱さの告白c07_110へ前進)。カガリ翳り予兆=c07_150(ch8灯詞半失の布石)。AI多ペルソナ§2レビュー2軸→学習不変条件全PASS(英語非混入/フラグ加算+route列挙/誤答無罰/説教は灯札長の握り拳描写で示し地の文講釈1本削除)、収束HIGH2件を修正=①yui≥6ゲート未実装→per-option req実装、②カンテラのお願いが5回反復→唯一の依頼(c07_070)に集約し下流を前進化。MED=ボス地の文の説明線削除/portfolio誤訳(帳簿の束→財の一式)修正。98テスト+smoke green。draft=ch7.md。挿絵=brief未整備(0・画像生成deferred)"
+  },
+  "8": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "ch8配線(18シーン c08_002〜c08_170/11イベント ev_c08_depart〜gate/88語=全系統L4主軸+枯渇系統はL5/L3代替/章末ゲートsettled420/ボス=灰の門番(ナラティブ思想戦c08_120)/トワの正体・祖父因縁・lonelyの手触り開示=c08_070遺文/c08_080隠された因縁/c08_090さみしさの名/c08_100溜め込みの理(トワ=アキの鏡像示唆)/カガリ自己犠牲=灯詞半失c08_140崩落→c08_150庇う(生死は曖昧に保持=truth差分は終章/EDで解決)/gaku+1(c08_050)・yui+2(c08_090))。§2レビュー2軸(ディレクター物語+学習死守)とも high0。98テスト+smoke green。draft=ch8.md。挿絵=後回し(0)"
+  },
+  "9": {
+   "integrated": true,
+   "reviewed": true,
+   "artFinal": false,
+   "note": "終章ch9配線(共通13+ED群9=22シーン c09_002〜c09_120/cE_hero|yui|quiet_010-030/5イベント ev_c09_descent|core|towa|relay|vigil/40語=全系統L5・school L5(5語)はnature L5残3で補完/章末ゲートsettled450=CANON最終段)。ボス=トワ(集積核/呼ばれなかった孤独=lonelyの源/思想戦→剣でなく『名を返す』方向で解放c09_100)。最大の喪失=c09_060(ユイがアキの名を忘れる)→c09_070(地の文から軽口が一度だけ消える=説明せず文体で・全行平叙)。とどめ=c09_090(積んだ30日=最高Stability語=代価)。**ED分岐ロジック新規実装**=js/ui.js(STORY側)resolveNext(scene.branchOn/branchでフラグ読むだけ・加算/負効果なし)+tests/invariants.test.js sceneNexts に branch 辺を追加(凍結値不変)。c09_110=branchOn truth(カガリ生死: true→c09_115一命/未報告→c09_117生死曖昧)→c09_120=branchOn route(hero/yui/quiet)。yui ED=最強灯詞『おかえり』で締め(モチーフ回収)。§2自己レビュー(persona-director A〜F軸+学習死守)high0=英語非混入(cast.answers限定)・誤答無罰・フラグ非加算(route/truth既確定の読み出しのみ)・説教なし(描写で示す)。98テスト+smoke green。draft=ch9.md。挿絵=後回し(0)。"
+  }
+ },
+ "endings": {
+  "hero": {
+   "inCode": true,
+   "note": "cE_hero_010-030(王道めぐる灯)。route=hero で c09_120 から分岐。98テスト+smoke green"
+  },
+  "yui": {
+   "inCode": true,
+   "note": "cE_yui_010-030(おかえりの灯・最強灯詞=おかえり)。route=yui(yui≥6・ch7解錠)で分岐"
+  },
+  "quiet": {
+   "inCode": true,
+   "note": "cE_quiet_010-030(灰の底で・ほろ苦)。route=quiet で分岐"
+  },
+  "friend": {
+   "inCode": false,
+   "note": "隠しED未配線。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票・内容と解錠機構は次イテレーション。lonely↔friend の対句反転(L1語2つで別れを締め)"
+  }
+ },
+ "sashiire": 0
+}

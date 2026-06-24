@@ -6,6 +6,7 @@ import { isDrowsy } from './schedule.js';
 import { critChance } from './battle.js';
 import { armoryMult, equippedEffects } from './armory.js';
 import { jobMod } from './jobs.js';
+import { sublMult, sublimatedCount, isSublimated, pickReviewWord, MASTERY } from './mastery.js';
 
 export const CURVE = {
   tapBase: 1,
@@ -84,7 +85,9 @@ export class Pool {
 
   globalMult() {
     const p = this.app.profile;
-    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0) * armoryMult(p);
+    // 昇華係数 sublMult を新規乗算(昇華語もコレクション数 collMult には残す=学習語数は減らさない)。
+    // 放置:タップ比は両辺に乗るため不変。sublMult(0)=1 で無昇華時は現行と完全一致。
+    return collMult(this.learnedEntries().length) * Math.pow(2, p.facilities.ring || 0) * armoryMult(p) * sublMult(sublimatedCount(p));
   }
 
   wordValue(entry) {
@@ -113,7 +116,10 @@ export class Pool {
   // ---- プール ----
   refill() {
     const p = this.app.profile;
-    const all = this.learnedEntries();
+    const learned = this.learnedEntries();
+    // 出題は昇華語を除外(卒業)。非昇華が3未満なら全体で(練習対象を絶やさない)
+    let all = learned.filter((e) => !isSublimated(p, e.w));
+    if (all.length < 3) all = learned;
     if (all.length < 3) { this.tiles = []; this.cue = null; return; }
     const now = Date.now();
     const scored = all.map((e) => {
@@ -122,6 +128,12 @@ export class Pool {
       return { e, k: due + Math.random() };
     }).sort((a, b) => a.k - b.k);
     this.tiles = scored.slice(0, Math.min(CURVE.poolSize, all.length)).map((x) => x.e);
+    // 10%枠: 昇華語を1枚、lapses重みで復習に混ぜる(卒業しても忘れさせない)
+    if (this.tiles.length && Math.random() < MASTERY.reviewChance) {
+      const rw = pickReviewWord(p, p.cards);
+      const e = rw && this.app.index.byKey.get(rw);
+      if (e && !this.tiles.some((t) => t.w === rw)) this.tiles[Math.floor(Math.random() * this.tiles.length)] = e;
+    }
     this.pickCue();
   }
 
@@ -140,7 +152,8 @@ export class Pool {
   }
 
   swapTile(idx) {
-    const all = this.learnedEntries();
+    const p = this.app.profile;
+    const all = this.learnedEntries().filter((e) => !isSublimated(p, e.w));
     const used = new Set(this.tiles.map((e) => e.w));
     const cand = all.filter((e) => !used.has(e.w));
     if (cand.length) this.tiles[idx] = cand[Math.floor(Math.random() * cand.length)];

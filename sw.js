@@ -1,4 +1,4 @@
-const VERSION = 'v23';
+const VERSION = 'v26';
 const CACHE = `kotodama-${VERSION}`;
 const CORE = [
   './',

@@ -2,6 +2,13 @@
 
 v5-event-design.md の差分仕様。2026-06-13実装・検証済み。
 
+> **2026-06-19 B2 更新(表示のみ・データ形式は不変)**: ユーザ方針「複数単語で一度に覚えるのをやめる」。
+> 複数語castも**1語ずつ英文cloze**で表示するようにした(ui.js: useCloze から `entries.length===1` ガードを撤去)。
+> いま埋める対象語 `cur` の英文clozeを出し、複数語は下に進捗(`.ev-blank`)を添える。前提として**全イベント語を
+> clozeable 化**(例文に語の原形を含む・`data/words.js` の10語の例文を原形へ修正)し、`tests/invariants.test.js`
+> の「イベントの新語はすべて clozeable」で担保(=旧 shine="shines" 不一致の和文フォールバック切替バグを恒久封じ)。
+> teach/cast の**データ形式(複数語ビート)は不変**。反芻(review)ビートは従来どおり累積復習のまま。
+
 ## 変更点
 1. **複数語ビート**: teach:['open','door'] + cast:{jp, answers:['open','door']}。
    - 左の空欄から順に埋める(js/events.js answer() の ptr)。部分正解で空欄が埋まり、
