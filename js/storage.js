@@ -58,7 +58,7 @@ export function defaultProfile() {
       equip: 'starter', box: [], whet: 0, codex: ['w_oak:N'], pity: 0, capExt: 0,
     },
     job: 'swordsman',
-    party: { letterDay: '', letterBuff: false },
+    party: { letterDay: '', letterBuff: false, letterIdx: 0 },
     events: { cleared: {} }, // イベントモード: id -> クリア時刻
     dev: { mult: 1 }, // 開発者モード(×10/×100)
     boss: { engaged: false, bodyHp: null, scars: 0, hp: null, nextAtk: 0, dmgReduce: 0 },

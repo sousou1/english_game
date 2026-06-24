@@ -74,5 +74,6 @@
    "note": "隠しED未配線(SYSTEM依存ブロック中)。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票済。STORY側の完成設計は docs/drafts/cE_friend.md に用意済(2026-06-24)=供給語(L1 feelings 8語 lonely/friend ほか・既出衝突ゼロ)・シーン cE_friend_010-030・挿入位置 c09_118(route分岐手前で read-only bool flags._friendUnlocked を見るだけ・加算/負効果なし)・感動設計まで確定。SYSTEM が解錠API(end到達記録+S≥90カウント→flags._friendUnlocked 投影)を着地させ次第、branch1本+3シーン+ev_cE_friend を足すだけで inCode:true 化。lonely↔friend の対句反転(L1語2つで別れを締め)"
   }
  },
- "sashiire": 0
+ "sashiire": 24,
+ "sashiireNote": "B-2 完了(2026-06-25)。ユイのさしいれを7通→24通へ拡充し、旅の30日に沿う刷り込みの弧として順次配信化(js/party.js letters[24]+readLetter で letterIdx 順送り・24通読了後は無作為再送=毎日の接触は継続)。弧=前半(1-10)毎日の世話と軽口+好物bread/hope/灯心、中盤(11-16)『おかえり/ただいま』の無害反復+言葉が遠い予兆の初出、後半(17-24)灯心が最後の一個へ/名を呼べない一瞬=F4忘却の落差の土台、締め(24)『おかえり、って言いたいな』。効果はHP+15%の加算・無罰のみ(凍結機構不変)。本文に説教なし・テーマ非言語化。storage party.letterIdx 新設(既存セーブは ||0 で後方互換)。tests/armory.test.js に24通ユニーク順次配信のロックを追加(99テスト+smoke green)。隠しED friend(B-1)は依然SYSTEM解錠API待ち。"
 }

@@ -18,7 +18,7 @@
 
 ## B. 物語実装(章配線に付随する narrative コード)― todo
 - **B-1. ED分岐ロジック(4ED)**: 3ED(hero/yui/quiet)は ch9 終章で実装完了=`inCode:true`(js/ui.js resolveNext で branchOn:route 出し分け+branchOn:truth でカガリ生死差分)。**残=隠しED friend のみ**: 解錠条件『全ルートクリア後＋語り部級(S≥90)50語』が周回/完了の状態管理を要し STORY フラグでは表現不可 → bridge.md `## → System`(2026-06-24)に機構を起票済。**STORY側の完成設計は `docs/drafts/cE_friend.md` に用意済(2026-06-24)**=供給語(L1 feelings 8語=lonely/friend ほか・既出衝突ゼロ)/シーン cE_friend_010-030/挿入位置 c09_118(route分岐の手前で read-only bool `flags._friendUnlocked` を見るだけ)/感動設計まで確定。SYSTEM が解錠API(end到達記録+S≥90カウント→`flags._friendUnlocked` 投影)を着地させたら、STORY は branch1本+3シーン+ev_cE_friend を足し endings.friend.inCode:true 化するだけで完結。
-- **B-2. さしいれ(鐘配信)機能**: 各章 ch3/ch4 で「さしいれ」brief(ユイ/カガリの軽口を毎日接触で刷り込み=F4忘却の落差の土台)を設計メモに置いたが、**機能としては未実装**。日次配信UI＋反復刷り込みの仕組み。
+- ✅ **B-2. さしいれ(鐘配信)機能(2026-06-25 完了)**: ユイのさしいれを7通→**24通**へ拡充し、旅の30日に沿う**刷り込みの弧**として順次配信化(`js/party.js` letters[24] + `readLetter` の `letterIdx` 順送り・24通読了後は無作為再送で毎日の接触を継続)。弧=前半(世話と軽口+好物bread/hope/灯心)→中盤(『おかえり/ただいま』無害反復+言葉が遠い予兆の初出)→後半(灯心が最後の一個へ/名を呼べない一瞬=**F4忘却の落差の土台**)→締め『おかえり、って言いたいな』。効果はHP+15%の加算・無罰のみ(凍結機構不変)・本文に説教なし。`storage` に `party.letterIdx` 新設(既存セーブは `||0` で後方互換)。日次配信UI(💌ボタン/物語シート)は既存を流用。`tests/armory.test.js` に24通ユニーク順次配信のロック追加。`STATUS.state.json sashiire:24`(100%)・99テスト+smoke green。
 - ✅ **B-3. ch4 post-fix 確認レビュー(2026-06-24 完了)**: AI多ペルソナ2軸独立(ディレクター物語A-F軸+学習死守監査)を並列起動し **high0 を再確認**。再発論点(yui三重印字/F4二度置き/ch3逐語使い回し/「下から」連打)すべて非再発、英単語の本文直挿しゼロ、供給72語 cloze可・章跨ぎ衝突ゼロ、フラグ加算のみ。コード変更なし(98テスト+smoke green維持)。残MED=c04_040の制度情報密度(将来の磨き・出荷可)。STATUS ch4 ノートに記録済。
 - **B-4. 章扉の原文断片(修復率)表示の実装確認**: 各章末で「黄金到達語のみ英語・他は◆◆＋修復率」を段階開示する演出。現状 brief/設計のみで実装状況の確認が要る。
 

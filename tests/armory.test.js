@@ -158,3 +158,17 @@ test('ユイの文通: 加入後は日に1通・バフは一度きり消費', ()
   assert.equal(consumeLetterBuff(p), 0.15);
   assert.equal(consumeLetterBuff(p), 0, 'バフが2回消費できてしまう');
 });
+
+test('ユイのさしいれ: 24通が旅に沿って順番に届く(刷り込みの弧)', () => {
+  const p = defaultProfile();
+  p.battle.kills = 20;
+  const seen = [];
+  for (let i = 0; i < 24; i++) {
+    p.party.letterDay = '';      // 翌日扱いにして次の1通を解放
+    const text = readLetter(p);
+    assert.ok(typeof text === 'string' && text.length > 5, `${i}通目が空`);
+    assert.ok(!text.includes('{name}'), `${i}通目の{name}が未置換`);
+    seen.push(text);
+  }
+  assert.equal(new Set(seen).size, 24, '24通が順番にユニーク配信されない');
+});
