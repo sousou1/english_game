@@ -157,3 +157,18 @@ test('イベントの新語はすべて clozeable(例文に原形を含む)', ()
   const bad = [...words].filter((w) => { const e = idx.byKey.get(w); return !e || !clozeable(e); });
   assert.equal(bad.length, 0, `英文clozeにならない語(例文に原形が無い→和文フォールバックで切替バグ): ${bad.join(', ')}`);
 });
+
+// ── 章扉の原文断片(arc-plot §2.5・B-4): 原文に使う契約語はすべて words.js に実在する ──
+// 章扉8行(ch1-8)で英語に灯る headword。語彙DBから消えると◆◆のまま回収できなくなるためロックする。
+test('章扉の原文断片([[語]])はすべて words.js に実在する', () => {
+  const has = new Set(WORDS.map((w) => w.w));
+  // js/ui.js CHAPTER_DOORS の [[...]] 語と同期(DOM依存のため値を複製してロック)
+  const doorWords = [
+    'walk', 'road', 'far', 'family', 'friend', 'open', 'door',
+    'people', 'sell', 'buy', 'rule', 'read', 'book', 'answer',
+    'call', 'help', 'Lost', 'hope', 'sleep', 'Money', 'sign', 'trust',
+    'protect', 'brave',
+  ];
+  const missing = doorWords.filter((w) => !has.has(w.toLowerCase()));
+  assert.equal(missing.length, 0, `章扉原文に DB 不在の語: ${missing.join(', ')}`);
+});

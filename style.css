@@ -631,6 +631,15 @@ body.in-story .fb-btn { top: calc(var(--safe-top) + 8px); right: 56px; width: 34
 button:disabled { cursor: default; }
 .choice-btn:disabled, .choice-btn.off { opacity: .4; }
 .story-need { margin: 9px 0 0; font-size: 12px; color: var(--fire2); text-align: center; }
+/* 章扉の原文断片(arc-plot §2.5・段階開示): 読める語は灯り、未到達は◆◆ */
+.door-block { margin: 16px 0 4px; padding: 12px 14px; border-top: 1px solid var(--panel2); text-align: center; }
+.door-cap { margin: 0 0 8px; font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.door-orig { display: block; font-size: 15px; line-height: 1.8; font-style: italic; }
+.door-final .door-orig { margin: 0 0 4px; }
+.door-lit { color: var(--gold, #ffd166); font-style: normal; font-weight: 600; }
+.door-dim { color: var(--panel2); letter-spacing: .06em; }
+.door-rate { margin: 9px 0 0; font-size: 11px; color: var(--muted); }
+.door-rate small { margin-left: 5px; opacity: .8; }
 .story-ov-body .buy-row { position: relative; z-index: 1; }
 /* 挿絵シーン: 絵を全画面背景に敷き、本文/選択は下部グラデの上に重ねる(山場の没入) */
 .story-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; z-index: 0; }

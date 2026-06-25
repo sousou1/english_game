@@ -626,6 +626,52 @@ function settledCount() {
   return Object.values(app.profile.cards).filter((c) => c.reps > 0 && c.S >= 3).length;
 }
 
+// 章扉の原文断片(arc-plot §2.5)。世界の原文は WORD_TOTAL 語で綴られ、章扉ごとに1行だけ滲む。
+// [[語]] は契約語(headword)で、黄金(S≥30)に育てた語だけ英語で読め、未到達は ◆◆ のまま。
+// 終章EDで全行が読める=学習目標と物語目標の一致(段階開示の一括回収)。本文 lines には英語を入れない。
+const WORD_TOTAL = 782;
+const CHAPTER_DOORS = {
+  c01_180: 'We [[walk]] the [[road]], [[far]] from [[family]].',   // 故郷を離れる
+  c02_130: 'A [[friend]] will [[open]] the [[door]].',             // 灯札の街
+  c03_170: 'The [[people]] [[sell]] and [[buy]], by the [[rule]].', // 灯札法
+  c04_160: 'We [[read]] the [[book]] and [[answer]].',             // 禁書の灯
+  c05_150: 'The [[people]] can not [[call]]. We [[help]].',        // 声のない町
+  c06_150: '[[Lost]] and [[far]], we [[hope]] to [[sleep]].',      // 帰れない村
+  c07_180: '[[Money]], a [[sign]], and [[trust]].',                // 都の取引
+  c08_170: 'We [[protect]] the [[family]]. We are [[brave]].',     // 灰都へ
+};
+// 章扉の出現順(終章EDの一括回収で全行を並べる)
+const DOOR_ORDER = ['c01_180', 'c02_130', 'c03_170', 'c04_160', 'c05_150', 'c06_150', 'c07_180', 'c08_170'];
+// 終章EDの締めシーン(原文が全行読める=修復率の物語的回収)
+const ED_REVEAL = new Set(['cE_hero_030', 'cE_yui_030', 'cE_quiet_030', 'cE_friend_030']);
+
+// 契約語数(=その語に一度でも触れカードが生まれた数)。修復率=契約語数/782。
+function contractedCount() {
+  return Object.values(app.profile.cards).filter((c) => c.reps > 0).length;
+}
+// 原文1行を描画。reveal=true なら全語を英語で見せる(ED一括回収)。
+function doorLineHtml(tmpl, reveal) {
+  const cards = app.profile.cards;
+  const html = tmpl.replace(/\[\[([a-zA-Z]+)\]\]/g, (_, w) => {
+    const lit = reveal || (cards[w.toLowerCase()] && cards[w.toLowerCase()].S >= 30);
+    return lit ? `<span class="door-lit">${esc(w)}</span>` : '<span class="door-dim">◆◆</span>';
+  });
+  return `<span class="door-orig">${html}</span>`;
+}
+// 章扉/EDの原文断片ブロック(全行公開後にだけ差し込む)。対象外シーンは '' を返す。
+function chapterDoorHtml(sceneId) {
+  const restored = contractedCount();
+  const pct = (restored / WORD_TOTAL * 100).toFixed(1);
+  const meter = `<p class="door-rate">原文修復率 ${pct}%<small>(契約 ${restored} / ${WORD_TOTAL} 語)</small></p>`;
+  if (ED_REVEAL.has(sceneId)) {
+    const all = DOOR_ORDER.map((id) => doorLineHtml(CHAPTER_DOORS[id], true)).join('');
+    return `<div class="door-block door-final"><p class="door-cap">原文が、ぜんぶ読める。</p>${all}<p class="door-rate">原文、修復率100%。</p></div>`;
+  }
+  const tmpl = CHAPTER_DOORS[sceneId];
+  if (!tmpl) return '';
+  return `<div class="door-block"><p class="door-cap">原文の一行が、薄く滲む。</p>${doorLineHtml(tmpl, false)}${meter}</div>`;
+}
+
 function sceneCost(scene) {
   if (!scene.costW) return 0;
   return Math.round(scene.costW * enemyHp(app.profile.battle.kills));
@@ -861,6 +907,7 @@ function renderStory() {
     ${letter ? '<button class="buy-row" data-sact="letter"><div><b>💌 ユイのさしいれ</b><small>読むと今日はじめてのボス戦でHP+15%</small></div></button>' : ''}
     <div class="story-scroll">
       <div class="story-text">${lines.slice(0, shown).map(sceneLine).join('')}</div>
+      ${done ? chapterDoorHtml(scene.id) : ''}
       <div class="story-foot">
         ${revealing ? '<p class="story-tap-hint">画面をタップで次へ ▾</p>' : foot}
       </div>
