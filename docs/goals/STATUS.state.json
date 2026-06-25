@@ -1,5 +1,6 @@
 {
  "_doc": "完結ステータス台帳の非データ項目。scripts/status.mjs が読む。AI多ペルソナ・レビュー(high0)合格やgpt-image-2差し替え等、データから機械算出できない“ティック”をここで管理する。人間の創作レビューは撤廃(消費者として遊ぶ方針)＝reviewed は AI レビュー合否を指す。",
+ "_storyComplete": "STORY範囲は完結(2026-06-25確認)。9/9章配線・reviewed済、ED 4本(hero/yui/quiet/friend)全 inCode:true、さしいれ24通(B-2 done)。99テスト+smoke green。STORY側の残作業はゼロ。完結を阻む残タスクは全て SYSTEM/語彙範囲: (1) 隠しED friend の発火は SYSTEM が read-only bool flags._friendUnlocked を投影するまで到達不能(STORY側は静的フォールバックで既存3ED不変・配線完了済=bridge →System で起票継続中)。(2) 語彙DB拡張 782→5000語(残4218・vocab-growth-design.md=SYSTEM/語彙ループ範囲)。次回STORYループは bridge →Story に SYSTEM提案が積まれるまで新規配線なし=待機。",
  "chapters": {
   "1": {
    "integrated": true,
