@@ -71,7 +71,7 @@
   },
   "friend": {
    "inCode": false,
-   "note": "隠しED未配線(SYSTEM依存ブロック中)。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票済。STORY側の完成設計は docs/drafts/cE_friend.md に用意済(2026-06-24)=供給語(L1 feelings 8語 lonely/friend ほか・既出衝突ゼロ)・シーン cE_friend_010-030・挿入位置 c09_118(route分岐手前で read-only bool flags._friendUnlocked を見るだけ・加算/負効果なし)・感動設計まで確定。SYSTEM が解錠API(end到達記録+S≥90カウント→flags._friendUnlocked 投影)を着地させ次第、branch1本+3シーン+ev_cE_friend を足すだけで inCode:true 化。lonely↔friend の対句反転(L1語2つで別れを締め)"
+   "note": "隠しED未配線(SYSTEM依存ブロック中)。条件『全ルートクリア後+語り部級(S≥90)50語』が周回/完了トラッキング機構を要する(STORY範囲外の状態管理)。bridge.md →System に起票済(status:new=SYSTEMはまだ未着手・2026-06-25確認: js/ に _friendUnlocked 投影なし)。STORY側の完成設計は docs/drafts/cE_friend.md。挿入位置 c09_118(route分岐手前で read-only bool flags._friendUnlocked を見るだけ・加算/負効果なし)・感動設計まで確定。**2026-06-25 供給語事前検証で当初案を訂正**: 当初『L1 feelings 8語 lonely/friend ほか』は無効=全75イベントの cast.answers 600語と照合した結果 feelings系は枯渇、既出未供給は friend/funny の2語のみ(lonely/hope/trust/smile/happy/sad/love はすべて既出供給済=衝突)。→ cE_friend.md §2 を訂正し、feelings(2)+近縁 daily/nature/travel(6)で衝突ゼロの確定8語(全L1・全cloze✓: friend/funny/sun/breakfast/sleep/bedroom/visit/station)を確定。真名 lonely は recall(既習)としてcastに出し新規供給に数えない(対句反転の主題は維持: 既習lonelyに新語friendで返す)。SYSTEM が解錠API(end到達記録+S≥90カウント→flags._friendUnlocked 投影)を着地させ次第、branch1本+cE_friend_010-030+ev_cE_friend(訂正済8語)を足すだけで inCode:true 化。"
   }
  },
  "sashiire": 24,
