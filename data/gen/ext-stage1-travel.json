@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ(試走・型決め)。travel系統の新規実在語。既存84語と全DBに対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "travel",
+  "stage": 1,
+  "words": [
+    {"w": "journey", "p": "noun", "j": "旅", "l": 1, "ex": "Our journey to the city took two hours.", "jx": "町への旅は2時間かかりました。"},
+    {"w": "suitcase", "p": "noun", "j": "スーツケース", "l": 1, "ex": "She packed her suitcase the night before.", "jx": "彼女は前の晩にスーツケースに荷物を詰めました。"},
+    {"w": "backpack", "p": "noun", "j": "リュック", "l": 1, "ex": "He carried a heavy backpack on the trail.", "jx": "彼は山道で重いリュックを背負っていました。"},
+    {"w": "seat", "p": "noun", "j": "座席", "l": 1, "ex": "Please take your seat before we leave.", "jx": "出発する前に座席についてください。"},
+    {"w": "taxi", "p": "noun", "j": "タクシー", "l": 1, "ex": "We took a taxi to the station.", "jx": "私たちは駅までタクシーに乗りました。"},
+    {"w": "subway", "p": "noun", "j": "地下鉄", "l": 1, "ex": "The subway is faster than the bus.", "jx": "地下鉄はバスより速いです。"},
+    {"w": "highway", "p": "noun", "j": "幹線道路", "l": 1, "ex": "The highway runs along the coast.", "jx": "その幹線道路は海岸沿いに走っています。"},
+    {"w": "traffic", "p": "noun", "j": "交通", "l": 1, "ex": "There was heavy traffic this morning.", "jx": "今朝はひどい渋滞でした。"},
+    {"w": "harbor", "p": "noun", "j": "港", "l": 2, "ex": "Small boats rested in the quiet harbor.", "jx": "小さな船が静かな港に停まっていました。"},
+    {"w": "bridge", "p": "noun", "j": "橋", "l": 1, "ex": "We crossed the old stone bridge.", "jx": "私たちは古い石橋を渡りました。"},
+    {"w": "tunnel", "p": "noun", "j": "トンネル", "l": 2, "ex": "The train went through a long tunnel.", "jx": "電車は長いトンネルを通り抜けました。"},
+    {"w": "aisle", "p": "noun", "j": "通路", "l": 2, "ex": "I prefer an aisle seat on the plane.", "jx": "飛行機では通路側の席が好きです。"},
+    {"w": "delay", "p": "noun", "j": "遅れ", "l": 2, "ex": "The storm caused a long delay.", "jx": "嵐のせいで長い遅れが出ました。"},
+    {"w": "ferry", "p": "noun", "j": "フェリー", "l": 2, "ex": "We crossed the bay by ferry.", "jx": "私たちはフェリーで湾を渡りました。"},
+    {"w": "voyage", "p": "noun", "j": "航海", "l": 2, "ex": "The long voyage lasted many weeks.", "jx": "その長い航海は何週間も続きました。"},
+    {"w": "compass", "p": "noun", "j": "羅針盤", "l": 2, "ex": "He found his way with a small compass.", "jx": "彼は小さな羅針盤で道を見つけました。"},
+    {"w": "sidewalk", "p": "noun", "j": "歩道", "l": 2, "ex": "Children played on the sidewalk.", "jx": "子どもたちが歩道で遊んでいました。"},
+    {"w": "hostel", "p": "noun", "j": "宿", "l": 2, "ex": "We stayed at a cheap hostel near the port.", "jx": "私たちは港の近くの安宿に泊まりました。"},
+    {"w": "vacancy", "p": "noun", "j": "空室", "l": 2, "ex": "The inn had one vacancy left.", "jx": "その宿には空室がひとつ残っていました。"},
+    {"w": "checkout", "p": "noun", "j": "チェックアウト", "l": 2, "ex": "Checkout is at ten in the morning.", "jx": "チェックアウトは午前10時です。"},
+    {"w": "roadside", "p": "noun", "j": "道端", "l": 2, "ex": "They rested at a roadside stall.", "jx": "彼らは道端の屋台で休みました。"},
+    {"w": "crossroad", "p": "noun", "j": "交差点", "l": 2, "ex": "We stopped at the crossroad to read the sign.", "jx": "私たちは標識を読むため交差点で立ち止まりました。"},
+    {"w": "mileage", "p": "noun", "j": "走行距離", "l": 2, "ex": "The old cart had high mileage.", "jx": "その古い荷車は走行距離が長かった。"},
+    {"w": "detour sign", "p": "noun", "j": "迂回標識", "l": 2, "ex": "A detour sign pointed away from the bridge.", "jx": "迂回標識が橋から逸れる方を指していました。"}
+  ]
+}
