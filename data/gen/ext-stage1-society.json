@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。society系統の新規実在語24=L1-2(王都・市政・城・身分)。既存101語と全DBに対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "society",
+  "stage": 1,
+  "words": [
+    {"w": "capital", "p": "noun", "j": "首都", "l": 2, "ex": "The king lives in the capital.", "jx": "王は首都に住んでいる。"},
+    {"w": "crowd", "p": "noun", "j": "群衆", "l": 2, "ex": "A big crowd filled the street.", "jx": "大きな群衆が通りを埋めた。"},
+    {"w": "gate", "p": "noun", "j": "門", "l": 1, "ex": "The guard opened the gate.", "jx": "衛兵が門を開けた。"},
+    {"w": "guard", "p": "noun", "j": "衛兵", "l": 2, "ex": "A guard stands by the door.", "jx": "衛兵が扉のそばに立っている。"},
+    {"w": "street", "p": "noun", "j": "通り", "l": 1, "ex": "We walked down a busy street.", "jx": "私たちは賑やかな通りを歩いた。"},
+    {"w": "square", "p": "noun", "j": "広場", "l": 2, "ex": "People gathered in the town square.", "jx": "人々が町の広場に集まった。"},
+    {"w": "palace", "p": "noun", "j": "宮殿", "l": 2, "ex": "The queen lives in a grand palace.", "jx": "女王は壮麗な宮殿に住んでいる。"},
+    {"w": "throne", "p": "noun", "j": "王座", "l": 2, "ex": "The king sat on the throne.", "jx": "王は王座に座った。"},
+    {"w": "crown", "p": "noun", "j": "王冠", "l": 2, "ex": "The crown shone with gold.", "jx": "王冠は金色に輝いた。"},
+    {"w": "noble", "p": "noun", "j": "貴族", "l": 2, "ex": "A noble came to the court.", "jx": "ひとりの貴族が宮廷に来た。"},
+    {"w": "servant", "p": "noun", "j": "召使い", "l": 2, "ex": "The servant brought some tea.", "jx": "召使いがお茶を持ってきた。"},
+    {"w": "soldier", "p": "noun", "j": "兵士", "l": 2, "ex": "The soldier guarded the wall.", "jx": "兵士は壁を守った。"},
+    {"w": "flag", "p": "noun", "j": "旗", "l": 1, "ex": "A red flag waved in the wind.", "jx": "赤い旗が風になびいた。"},
+    {"w": "castle", "p": "noun", "j": "城", "l": 1, "ex": "The old castle stands on a hill.", "jx": "古い城が丘の上に建っている。"},
+    {"w": "wall", "p": "noun", "j": "壁", "l": 1, "ex": "A high wall surrounds the city.", "jx": "高い壁が街を囲んでいる。"},
+    {"w": "tower", "p": "noun", "j": "塔", "l": 2, "ex": "The tower rises above the town.", "jx": "塔が町の上にそびえている。"},
+    {"w": "kingdom", "p": "noun", "j": "王国", "l": 2, "ex": "Peace returned to the kingdom.", "jx": "平和が王国に戻った。"},
+    {"w": "council", "p": "noun", "j": "評議会", "l": 2, "ex": "The council met to make a law.", "jx": "評議会は法を作るために集まった。"},
+    {"w": "duty", "p": "noun", "j": "義務", "l": 2, "ex": "It is my duty to help others.", "jx": "他人を助けるのは私の義務だ。"},
+    {"w": "prison", "p": "noun", "j": "牢獄", "l": 2, "ex": "The thief was sent to prison.", "jx": "その盗人は牢獄に送られた。"},
+    {"w": "mayor", "p": "noun", "j": "市長", "l": 2, "ex": "The mayor spoke to the people.", "jx": "市長は人々に話した。"},
+    {"w": "royal", "p": "adj", "j": "王の", "l": 2, "ex": "We saw the royal family.", "jx": "私たちは王家の人々を見た。"},
+    {"w": "loyal", "p": "adj", "j": "忠実な", "l": 2, "ex": "A loyal friend never leaves you.", "jx": "忠実な友は決して離れない。"},
+    {"w": "rebel", "p": "noun", "j": "反逆者", "l": 2, "ex": "The rebel stood against the king.", "jx": "反逆者は王に立ち向かった。"}
+  ]
+}

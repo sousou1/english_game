@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。business系統の新規実在語24=L1-2(交易・帳簿・金銭)。既存101語と全DBに対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "business",
+  "stage": 1,
+  "words": [
+    {"w": "trade", "p": "noun", "j": "取引", "l": 2, "ex": "The two towns built a strong trade.", "jx": "二つの町は盛んな取引を築いた。"},
+    {"w": "coin", "p": "noun", "j": "硬貨", "l": 1, "ex": "She paid with a gold coin.", "jx": "彼女は金貨で払った。"},
+    {"w": "wage", "p": "noun", "j": "賃金", "l": 2, "ex": "The workers earn a fair wage.", "jx": "労働者たちは正当な賃金を得る。"},
+    {"w": "debt", "p": "noun", "j": "借金", "l": 2, "ex": "He worked hard to pay his debt.", "jx": "彼は借金を返すため懸命に働いた。"},
+    {"w": "customer", "p": "noun", "j": "客", "l": 2, "ex": "The shop welcomes every customer.", "jx": "その店はどの客も歓迎する。"},
+    {"w": "goods", "p": "noun", "j": "商品", "l": 2, "ex": "The cart was full of goods.", "jx": "荷車は商品でいっぱいだった。"},
+    {"w": "cargo", "p": "noun", "j": "積み荷", "l": 2, "ex": "The ship carried a heavy cargo.", "jx": "その船は重い積み荷を運んだ。"},
+    {"w": "merchant", "p": "noun", "j": "商人", "l": 2, "ex": "The merchant sold silk and spice.", "jx": "その商人は絹と香辛料を売った。"},
+    {"w": "account", "p": "noun", "j": "勘定", "l": 2, "ex": "She kept a careful account of sales.", "jx": "彼女は売上の勘定を丁寧につけた。"},
+    {"w": "bargain", "p": "noun", "j": "掘り出し物", "l": 2, "ex": "This old book was a real bargain.", "jx": "この古い本は本当にお買い得だった。"},
+    {"w": "wealth", "p": "noun", "j": "富", "l": 2, "ex": "The king shared his wealth with the poor.", "jx": "王は富を貧しい者と分けた。"},
+    {"w": "fee", "p": "noun", "j": "料金", "l": 2, "ex": "You must pay a small fee to enter.", "jx": "入るには少額の料金を払わねばならない。"},
+    {"w": "fund", "p": "noun", "j": "資金", "l": 2, "ex": "They raised a fund to fix the bridge.", "jx": "彼らは橋を直す資金を集めた。"},
+    {"w": "owner", "p": "noun", "j": "持ち主", "l": 2, "ex": "The owner locked the shop at night.", "jx": "持ち主は夜に店を閉めた。"},
+    {"w": "clerk", "p": "noun", "j": "店員", "l": 2, "ex": "The clerk counted the coins twice.", "jx": "店員は硬貨を二度数えた。"},
+    {"w": "cash", "p": "noun", "j": "現金", "l": 1, "ex": "He paid for the meal in cash.", "jx": "彼は食事を現金で払った。"},
+    {"w": "import", "p": "verb", "j": "輸入する", "l": 2, "ex": "The city had to import its salt.", "jx": "その街は塩を輸入しなければならなかった。"},
+    {"w": "export", "p": "verb", "j": "輸出する", "l": 2, "ex": "They export wine to far towns.", "jx": "彼らは遠い町へワインを輸出する。"},
+    {"w": "warehouse", "p": "noun", "j": "倉庫", "l": 2, "ex": "The grain is kept in a warehouse.", "jx": "穀物は倉庫に保管されている。"},
+    {"w": "ledger", "p": "noun", "j": "帳簿", "l": 2, "ex": "Every sale is written in the ledger.", "jx": "どの売買も帳簿に書き込まれる。"},
+    {"w": "stock", "p": "noun", "j": "在庫", "l": 2, "ex": "The shop ran out of stock.", "jx": "その店は在庫を切らした。"},
+    {"w": "loan", "p": "noun", "j": "貸付", "l": 2, "ex": "The bank gave him a small loan.", "jx": "銀行は彼に少額の貸付をした。"},
+    {"w": "refund", "p": "noun", "j": "払い戻し", "l": 2, "ex": "She asked for a refund on the shoes.", "jx": "彼女は靴の払い戻しを求めた。"},
+    {"w": "demand", "p": "noun", "j": "需要", "l": 2, "ex": "There is great demand for bread.", "jx": "パンには大きな需要がある。"}
+  ]
+}
