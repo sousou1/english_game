@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。nature系統の新規実在語24=L1-2(地形・水辺・天候・畑)。既存93語と全DBに対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "nature",
+  "stage": 1,
+  "words": [
+    {"w": "hill", "p": "noun", "j": "丘", "l": 1, "ex": "We walked up the green hill.", "jx": "私たちは緑の丘を登った。"},
+    {"w": "lake", "p": "noun", "j": "湖", "l": 1, "ex": "The lake was calm at dawn.", "jx": "湖は夜明けに穏やかだった。"},
+    {"w": "sea", "p": "noun", "j": "海", "l": 1, "ex": "The sea is blue and wide.", "jx": "海は青く広い。"},
+    {"w": "grass", "p": "noun", "j": "草", "l": 1, "ex": "The grass is wet with dew.", "jx": "草は露で濡れている。"},
+    {"w": "stone", "p": "noun", "j": "石", "l": 1, "ex": "He threw a small stone.", "jx": "彼は小さな石を投げた。"},
+    {"w": "sand", "p": "noun", "j": "砂", "l": 1, "ex": "The children played in the sand.", "jx": "子供たちは砂で遊んだ。"},
+    {"w": "ice", "p": "noun", "j": "氷", "l": 1, "ex": "The ice on the pond is thin.", "jx": "池の氷は薄い。"},
+    {"w": "field", "p": "noun", "j": "畑", "l": 1, "ex": "The farmer works in the field.", "jx": "農夫は畑で働く。"},
+    {"w": "pond", "p": "noun", "j": "池", "l": 2, "ex": "Frogs live in the pond.", "jx": "カエルは池に住む。"},
+    {"w": "valley", "p": "noun", "j": "谷", "l": 2, "ex": "A river runs through the valley.", "jx": "川が谷を流れている。"},
+    {"w": "stream", "p": "noun", "j": "小川", "l": 2, "ex": "We crossed a small stream.", "jx": "私たちは小さな小川を渡った。"},
+    {"w": "storm", "p": "noun", "j": "嵐", "l": 2, "ex": "A storm broke the old tree.", "jx": "嵐が古い木を折った。"},
+    {"w": "fog", "p": "noun", "j": "霧", "l": 2, "ex": "Thick fog covered the road.", "jx": "濃い霧が道を覆った。"},
+    {"w": "mud", "p": "noun", "j": "泥", "l": 2, "ex": "His boots were full of mud.", "jx": "彼の長靴は泥だらけだった。"},
+    {"w": "root", "p": "noun", "j": "根", "l": 2, "ex": "Each plant grows from a root.", "jx": "どの植物も根から育つ。"},
+    {"w": "bush", "p": "noun", "j": "茂み", "l": 2, "ex": "A bird hid in the bush.", "jx": "鳥が茂みに隠れた。"},
+    {"w": "cave", "p": "noun", "j": "洞窟", "l": 2, "ex": "Bats sleep in the dark cave.", "jx": "コウモリは暗い洞窟で眠る。"},
+    {"w": "coast", "p": "noun", "j": "海岸", "l": 2, "ex": "We drove along the coast.", "jx": "私たちは海岸沿いを走った。"},
+    {"w": "shore", "p": "noun", "j": "岸", "l": 2, "ex": "Waves reached the sandy shore.", "jx": "波が砂の岸に届いた。"},
+    {"w": "meadow", "p": "noun", "j": "草原", "l": 2, "ex": "Cows graze in the meadow.", "jx": "牛が草原で草を食む。"},
+    {"w": "dust", "p": "noun", "j": "ほこり", "l": 2, "ex": "Dust covered the old books.", "jx": "ほこりが古い本を覆った。"},
+    {"w": "ash", "p": "noun", "j": "灰", "l": 2, "ex": "Grey ash fell from the sky.", "jx": "灰色の灰が空から降った。"},
+    {"w": "crop", "p": "noun", "j": "作物", "l": 2, "ex": "The dry summer ruined the crop.", "jx": "乾いた夏が作物をだめにした。"},
+    {"w": "weed", "p": "noun", "j": "雑草", "l": 2, "ex": "She pulled a weed from the garden.", "jx": "彼女は庭から雑草を抜いた。"}
+  ]
+}

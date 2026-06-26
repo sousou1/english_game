@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。feelings系統の新規実在語24=L1-2(基礎の感情・表情・態度)。既存99語と全DBに対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "feelings",
+  "stage": 1,
+  "words": [
+    {"w": "glad", "p": "adj", "j": "嬉しい", "l": 1, "ex": "I am glad to see you again.", "jx": "また会えて嬉しいです。"},
+    {"w": "fear", "p": "noun", "j": "恐れ", "l": 1, "ex": "He felt fear in the dark.", "jx": "彼は暗闇で恐れを感じた。"},
+    {"w": "joy", "p": "noun", "j": "喜び", "l": 1, "ex": "The good news filled her with joy.", "jx": "その良い知らせは彼女を喜びで満たした。"},
+    {"w": "calm", "p": "adj", "j": "落ち着いた", "l": 1, "ex": "Stay calm and breathe slowly.", "jx": "落ち着いて、ゆっくり息をして。"},
+    {"w": "upset", "p": "adj", "j": "動揺した", "l": 2, "ex": "She was upset about the bad news.", "jx": "彼女はその悪い知らせに動揺した。"},
+    {"w": "bored", "p": "adj", "j": "退屈した", "l": 1, "ex": "The long movie made me bored.", "jx": "長い映画で私は退屈した。"},
+    {"w": "annoyed", "p": "adj", "j": "いらいらした", "l": 2, "ex": "He was annoyed by the loud noise.", "jx": "彼は大きな音にいらいらした。"},
+    {"w": "cheer", "p": "verb", "j": "元気づける", "l": 1, "ex": "We cheer for our team every game.", "jx": "私たちは毎試合チームを応援する。"},
+    {"w": "grin", "p": "verb", "j": "にやりと笑う", "l": 2, "ex": "He began to grin at the joke.", "jx": "彼はその冗談ににやりと笑い始めた。"},
+    {"w": "weep", "p": "verb", "j": "泣く", "l": 2, "ex": "She started to weep quietly.", "jx": "彼女は静かに泣き始めた。"},
+    {"w": "laugh", "p": "verb", "j": "笑う", "l": 1, "ex": "The children laugh at the clown.", "jx": "子供たちはピエロを見て笑う。"},
+    {"w": "frown", "p": "verb", "j": "顔をしかめる", "l": 2, "ex": "He began to frown in anger.", "jx": "彼は怒って顔をしかめ始めた。"},
+    {"w": "shout", "p": "verb", "j": "叫ぶ", "l": 1, "ex": "Do not shout in the library.", "jx": "図書館で叫んではいけない。"},
+    {"w": "whisper", "p": "verb", "j": "ささやく", "l": 2, "ex": "She likes to whisper a secret.", "jx": "彼女は秘密をささやくのが好きだ。"},
+    {"w": "praise", "p": "verb", "j": "ほめる", "l": 2, "ex": "Teachers praise hard work.", "jx": "先生は努力をほめる。"},
+    {"w": "doubt", "p": "noun", "j": "疑い", "l": 2, "ex": "I have no doubt about it.", "jx": "私はそれに疑いを持っていない。"},
+    {"w": "wish", "p": "verb", "j": "願う", "l": 1, "ex": "I wish you good luck.", "jx": "あなたの幸運を願います。"},
+    {"w": "fond", "p": "adj", "j": "好んで", "l": 2, "ex": "She is fond of cats.", "jx": "彼女は猫が好きだ。"},
+    {"w": "gentle", "p": "adj", "j": "優しい", "l": 2, "ex": "He spoke in a gentle voice.", "jx": "彼は優しい声で話した。"},
+    {"w": "warmth", "p": "noun", "j": "温かさ", "l": 2, "ex": "I felt the warmth of her smile.", "jx": "彼女の笑顔の温かさを感じた。"},
+    {"w": "delight", "p": "noun", "j": "喜び", "l": 2, "ex": "The gift gave him great delight.", "jx": "その贈り物は彼に大きな喜びを与えた。"},
+    {"w": "dislike", "p": "verb", "j": "嫌う", "l": 1, "ex": "I dislike cold weather.", "jx": "私は寒い天気が嫌いだ。"},
+    {"w": "amaze", "p": "verb", "j": "驚かせる", "l": 2, "ex": "Magic tricks always amaze children.", "jx": "手品はいつも子供を驚かせる。"},
+    {"w": "content", "p": "adj", "j": "満足した", "l": 2, "ex": "She felt content with her quiet life.", "jx": "彼女は自分の静かな暮らしに満足していた。"}
+  ]
+}
