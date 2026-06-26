@@ -33,6 +33,7 @@
 - **パイプライン(2026-06-26 整備)**: `scripts/build-words.mjs` = 既存DB + `data/gen/ext-*.json`(段階拡張バッチ)をマージ→`w`重複排除(既存優先)→スキーマ(w/p/j/l/f/ex/jx)・系統上限(625)検証→分布レポート→`data/words.js`再生成。`node scripts/build-words.mjs`(dry-run)/`--write`(反映)。
 - **サブのデータ層(2026-06-26 新設)**: `data/subquests.js`(`SUBQUESTS[]`)。★EVENTSと別ファイル/別名前空間=メインの `eventAvailable` に混ざらない(ランタイム未実装でも漏れない)。各サブは**章バインド3点**を必須: `chapter`/`unlockAfter`(その章のシーン読了で解禁)/`placementBefore`(次章開始前に消化する窓)。本文もその章に密接。不変条件は `tests/subquests.test.js`(8語/本・実在語・メイン供給と衝突ゼロ・サブ間一意・物語フラグ非干渉)。
 - **試走(型決め・完了)**: 段階1バッチ `data/gen/ext-stage1-travel.json`(travel新語24=L1-2・衝突ゼロ)→ DB 782→**806**。サブ1本 `sub_c02_brokenbridge`「落ちた橋の行商人」(ch2街道の逃避行に絡む・travel8語: bridge/tunnel/roadside/detour sign/crossroad/ferry/harbor/compass)。106テスト+smoke green。
+- **2026-06-26 第2イテレーション**: 段階1バッチ2本追加 `ext-stage1-food.json`(food新語24=市場/台所L1-2)・`ext-stage1-school.json`(school新語24=学び舎/文房具L1-2)→ DB 806→**854**(food127/school123・系統上限625内)。サブ2本: `sub_c03_marketstall`「門前の市の売り子」(ch3交易街の市に絡む・food8語: market/stall/plate/bowl/soup/salad/cheese/sauce)、`sub_c04_lendinghand`「学び舎の落とし物」(ch4灯詠み学院に絡む・school8語: pen/paper/ruler/eraser/page/sentence/uniform/bell)。各2-2-review-1-1-2-review構成・物語フラグ非干渉。106テスト+smoke green。
 - **配信ランタイムは SYSTEM 領域**(ユーザ指示=データだけ作る): bridge → System(2026-06-26 prio:high)に起票。serving/供給/80%除外/保存を SYSTEM が着地後、STORY が各章ぶん sub_* を量産。
 - **次の機械作業**: ①段階1の他系統バッチ(daily/food…のL1-2新語を ext-* で追加し →2,400へ前進)、②各章にひもづくサブを量産(章テーマに寄せた供給語で・8語/本)。供給語選定時は build-words の dry-run と subquests.test で衝突を都度確認。
 

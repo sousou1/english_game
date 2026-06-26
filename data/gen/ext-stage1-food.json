@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。food系統の新規実在語(L1-2中心)。市場・台所の基礎語。既存DB全体に対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "food",
+  "stage": 1,
+  "words": [
+    {"w": "soup", "p": "noun", "j": "スープ", "l": 1, "ex": "She made warm soup for dinner.", "jx": "彼女は夕食に温かいスープを作りました。"},
+    {"w": "salad", "p": "noun", "j": "サラダ", "l": 1, "ex": "I had a fresh salad for lunch.", "jx": "私は昼食に新鮮なサラダを食べました。"},
+    {"w": "cheese", "p": "noun", "j": "チーズ", "l": 1, "ex": "He put cheese on the bread.", "jx": "彼はパンにチーズをのせました。"},
+    {"w": "butter", "p": "noun", "j": "バター", "l": 1, "ex": "Spread some butter on the toast.", "jx": "トーストにバターを塗ってください。"},
+    {"w": "sugar", "p": "noun", "j": "砂糖", "l": 1, "ex": "Do you take sugar in your tea?", "jx": "紅茶に砂糖を入れますか。"},
+    {"w": "salt", "p": "noun", "j": "塩", "l": 1, "ex": "Add a little salt to the soup.", "jx": "スープに少し塩を加えてください。"},
+    {"w": "pepper", "p": "noun", "j": "こしょう", "l": 2, "ex": "She added pepper to the eggs.", "jx": "彼女は卵にこしょうをかけました。"},
+    {"w": "onion", "p": "noun", "j": "玉ねぎ", "l": 1, "ex": "Cut the onion into thin slices.", "jx": "玉ねぎを薄く切ってください。"},
+    {"w": "potato", "p": "noun", "j": "じゃがいも", "l": 1, "ex": "We boiled the potatoes for the stew.", "jx": "私たちはシチュー用にじゃがいもをゆでました。"},
+    {"w": "tomato", "p": "noun", "j": "トマト", "l": 1, "ex": "The tomato is red and ripe.", "jx": "そのトマトは赤く熟しています。"},
+    {"w": "carrot", "p": "noun", "j": "にんじん", "l": 1, "ex": "Rabbits like to eat carrots.", "jx": "うさぎはにんじんを食べるのが好きです。"},
+    {"w": "cabbage", "p": "noun", "j": "キャベツ", "l": 2, "ex": "She bought a large cabbage at the market.", "jx": "彼女は市場で大きなキャベツを買いました。"},
+    {"w": "noodle", "p": "noun", "j": "麺", "l": 2, "ex": "The hot noodles smelled wonderful.", "jx": "熱い麺はとてもいい匂いがしました。"},
+    {"w": "sauce", "p": "noun", "j": "ソース", "l": 2, "ex": "Pour the sauce over the meat.", "jx": "肉にソースをかけてください。"},
+    {"w": "plate", "p": "noun", "j": "皿", "l": 1, "ex": "He placed the fish on a white plate.", "jx": "彼は魚を白い皿に盛りました。"},
+    {"w": "bowl", "p": "noun", "j": "鉢", "l": 1, "ex": "She filled the bowl with rice.", "jx": "彼女は鉢にご飯をよそいました。"},
+    {"w": "fork", "p": "noun", "j": "フォーク", "l": 1, "ex": "Eat the salad with a fork.", "jx": "サラダはフォークで食べてください。"},
+    {"w": "spoon", "p": "noun", "j": "スプーン", "l": 1, "ex": "He stirred the soup with a spoon.", "jx": "彼はスプーンでスープをかき混ぜました。"},
+    {"w": "knife", "p": "noun", "j": "ナイフ", "l": 1, "ex": "Cut the bread with a sharp knife.", "jx": "よく切れるナイフでパンを切ってください。"},
+    {"w": "cup", "p": "noun", "j": "カップ", "l": 1, "ex": "She drank from a small cup.", "jx": "彼女は小さなカップから飲みました。"},
+    {"w": "bakery", "p": "noun", "j": "パン屋", "l": 2, "ex": "The bakery sells fresh bread every morning.", "jx": "そのパン屋は毎朝焼きたてのパンを売っています。"},
+    {"w": "market", "p": "noun", "j": "市場", "l": 1, "ex": "We bought vegetables at the market.", "jx": "私たちは市場で野菜を買いました。"},
+    {"w": "stall", "p": "noun", "j": "屋台", "l": 2, "ex": "A food stall stood at the corner.", "jx": "角に食べ物の屋台が出ていました。"},
+    {"w": "vendor", "p": "noun", "j": "売り子", "l": 2, "ex": "The vendor smiled and weighed the fruit.", "jx": "売り子は笑って果物の重さを量りました。"}
+  ]
+}

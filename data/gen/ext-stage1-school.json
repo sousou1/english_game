@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。school系統の新規実在語(L1-2中心)。学び舎・文房具の基礎語。既存DB全体に対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "school",
+  "stage": 1,
+  "words": [
+    {"w": "pen", "p": "noun", "j": "ペン", "l": 1, "ex": "She wrote her name with a black pen.", "jx": "彼女は黒いペンで名前を書きました。"},
+    {"w": "paper", "p": "noun", "j": "紙", "l": 1, "ex": "He drew a map on a sheet of paper.", "jx": "彼は一枚の紙に地図を描きました。"},
+    {"w": "ruler", "p": "noun", "j": "定規", "l": 1, "ex": "Draw a straight line with a ruler.", "jx": "定規でまっすぐな線を引いてください。"},
+    {"w": "eraser", "p": "noun", "j": "消しゴム", "l": 1, "ex": "Use an eraser to fix the mistake.", "jx": "間違いを直すのに消しゴムを使ってください。"},
+    {"w": "classroom", "p": "noun", "j": "教室", "l": 1, "ex": "The classroom was quiet before the lesson.", "jx": "授業の前、教室は静かでした。"},
+    {"w": "blackboard", "p": "noun", "j": "黒板", "l": 2, "ex": "The teacher wrote the date on the blackboard.", "jx": "先生は黒板に日付を書きました。"},
+    {"w": "chalk", "p": "noun", "j": "チョーク", "l": 2, "ex": "She picked up a piece of white chalk.", "jx": "彼女は白いチョークを一本手に取りました。"},
+    {"w": "schoolbag", "p": "noun", "j": "通学かばん", "l": 2, "ex": "He put his books in his schoolbag.", "jx": "彼は本を通学かばんに入れました。"},
+    {"w": "uniform", "p": "noun", "j": "制服", "l": 2, "ex": "Every student wore a blue uniform.", "jx": "どの生徒も青い制服を着ていました。"},
+    {"w": "bell", "p": "noun", "j": "鐘", "l": 1, "ex": "The bell rang to start the class.", "jx": "授業の始まりを告げる鐘が鳴りました。"},
+    {"w": "recess", "p": "noun", "j": "休み時間", "l": 2, "ex": "The children ran outside at recess.", "jx": "子どもたちは休み時間に外へ走り出ました。"},
+    {"w": "spell", "p": "verb", "j": "綴る", "l": 1, "ex": "Can you spell your last name?", "jx": "苗字を綴ってもらえますか。"},
+    {"w": "alphabet", "p": "noun", "j": "アルファベット", "l": 2, "ex": "The young child learned the whole alphabet.", "jx": "その幼い子はアルファベットをすべて覚えました。"},
+    {"w": "sentence", "p": "noun", "j": "文", "l": 2, "ex": "Write a short sentence about your day.", "jx": "あなたの一日について短い文を書いてください。"},
+    {"w": "page", "p": "noun", "j": "ページ", "l": 1, "ex": "Turn to the next page, please.", "jx": "次のページを開いてください。"},
+    {"w": "title", "p": "noun", "j": "題名", "l": 2, "ex": "The title of the book is on the cover.", "jx": "その本の題名は表紙にあります。"},
+    {"w": "pupil", "p": "noun", "j": "生徒", "l": 2, "ex": "Each pupil raised a hand to answer.", "jx": "それぞれの生徒が答えようと手を挙げました。"},
+    {"w": "principal", "p": "noun", "j": "校長", "l": 2, "ex": "The principal welcomed the new students.", "jx": "校長は新入生を歓迎しました。"},
+    {"w": "quiz", "p": "noun", "j": "小テスト", "l": 2, "ex": "We had a short quiz this morning.", "jx": "今朝、短い小テストがありました。"},
+    {"w": "semester", "p": "noun", "j": "学期", "l": 2, "ex": "The new semester begins in spring.", "jx": "新しい学期は春に始まります。"},
+    {"w": "term", "p": "noun", "j": "学期", "l": 2, "ex": "Exams come at the end of the term.", "jx": "試験は学期の終わりにあります。"},
+    {"w": "grade", "p": "noun", "j": "成績", "l": 2, "ex": "She got a good grade on the test.", "jx": "彼女はテストで良い成績を取りました。"},
+    {"w": "diary", "p": "noun", "j": "日記", "l": 2, "ex": "He writes in his diary every night.", "jx": "彼は毎晩日記を書いています。"},
+    {"w": "essay", "p": "noun", "j": "作文", "l": 2, "ex": "She wrote an essay about her hometown.", "jx": "彼女は故郷についての作文を書きました。"}
+  ]
+}
