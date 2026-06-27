@@ -1,0 +1,32 @@
+{
+  "_note": "段階1拡張バッチ。daily系統の新規実在語(暮らし・家事・住まいの道具)。L1-2中心。既存DB全体に対し重複ゼロ(scripts/build-words.mjs が機械検証)。8語/サブの倍数=24語。",
+  "level": 1,
+  "field": "daily",
+  "stage": 1,
+  "words": [
+    {"w": "soap", "p": "noun", "j": "石けん", "l": 1, "ex": "She washed her hands with soap.", "jx": "彼女は石けんで手を洗いました。"},
+    {"w": "mirror", "p": "noun", "j": "鏡", "l": 1, "ex": "He looked at himself in the mirror.", "jx": "彼は鏡で自分の姿を見ました。"},
+    {"w": "blanket", "p": "noun", "j": "毛布", "l": 1, "ex": "She pulled the blanket over her shoulders.", "jx": "彼女は毛布を肩まで引き上げました。"},
+    {"w": "sheet", "p": "noun", "j": "シーツ", "l": 1, "ex": "I changed the sheet on the bed.", "jx": "私はベッドのシーツを取り替えました。"},
+    {"w": "brush", "p": "noun", "j": "ブラシ", "l": 1, "ex": "He cleaned the floor with a brush.", "jx": "彼はブラシで床を掃除しました。"},
+    {"w": "comb", "p": "noun", "j": "くし", "l": 2, "ex": "She used a comb to fix her hair.", "jx": "彼女はくしで髪を整えました。"},
+    {"w": "mug", "p": "noun", "j": "マグカップ", "l": 1, "ex": "He drank tea from a warm mug.", "jx": "彼は温かいマグカップでお茶を飲みました。"},
+    {"w": "broom", "p": "noun", "j": "ほうき", "l": 2, "ex": "She swept the room with a broom.", "jx": "彼女はほうきで部屋を掃きました。"},
+    {"w": "faucet", "p": "noun", "j": "蛇口", "l": 2, "ex": "Please turn off the faucet.", "jx": "蛇口を閉めてください。"},
+    {"w": "sink", "p": "noun", "j": "流し台", "l": 1, "ex": "The dishes are in the sink.", "jx": "お皿は流し台にあります。"},
+    {"w": "stove", "p": "noun", "j": "こんろ", "l": 2, "ex": "She put the pot on the stove.", "jx": "彼女は鍋をこんろにかけました。"},
+    {"w": "closet", "p": "noun", "j": "押し入れ", "l": 2, "ex": "His coat is in the closet.", "jx": "彼のコートは押し入れの中です。"},
+    {"w": "hallway", "p": "noun", "j": "廊下", "l": 2, "ex": "The cat ran down the hallway.", "jx": "猫が廊下を駆けていきました。"},
+    {"w": "ceiling", "p": "noun", "j": "天井", "l": 2, "ex": "A lamp hangs from the ceiling.", "jx": "ランプが天井からつるされています。"},
+    {"w": "roof", "p": "noun", "j": "屋根", "l": 1, "ex": "Rain fell on the roof all night.", "jx": "一晩中、雨が屋根に降りました。"},
+    {"w": "stairs", "p": "noun", "j": "階段", "l": 1, "ex": "She went up the stairs slowly.", "jx": "彼女はゆっくりと階段を上りました。"},
+    {"w": "lamp", "p": "noun", "j": "ランプ", "l": 1, "ex": "He turned on the lamp to read.", "jx": "彼は本を読むためにランプをつけました。"},
+    {"w": "candle", "p": "noun", "j": "ろうそく", "l": 2, "ex": "She lit a candle in the dark.", "jx": "彼女は暗がりでろうそくをともしました。"},
+    {"w": "basket", "p": "noun", "j": "かご", "l": 1, "ex": "He filled the basket with apples.", "jx": "彼はかごにりんごをいっぱいにしました。"},
+    {"w": "bucket", "p": "noun", "j": "バケツ", "l": 2, "ex": "She carried water in a bucket.", "jx": "彼女はバケツで水を運びました。"},
+    {"w": "mop", "p": "noun", "j": "モップ", "l": 2, "ex": "He wiped the floor with a mop.", "jx": "彼はモップで床をふきました。"},
+    {"w": "sponge", "p": "noun", "j": "スポンジ", "l": 2, "ex": "She washed the cup with a sponge.", "jx": "彼女はスポンジでカップを洗いました。"},
+    {"w": "slipper", "p": "noun", "j": "スリッパ", "l": 2, "ex": "He put on a warm slipper.", "jx": "彼は暖かいスリッパを履きました。"},
+    {"w": "hanger", "p": "noun", "j": "ハンガー", "l": 2, "ex": "She hung the shirt on a hanger.", "jx": "彼女はシャツをハンガーにかけました。"}
+  ]
+}
